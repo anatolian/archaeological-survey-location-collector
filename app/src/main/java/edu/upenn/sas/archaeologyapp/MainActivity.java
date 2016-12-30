@@ -35,17 +35,30 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private void initialiseViews() {
 
         // Set the toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
-        // Configure the action button to handle clicks
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+        // Configure the new action button to handle clicks
+        findViewById(R.id.fab_new).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
-                // TODO: Begin data entry process here.
-                Snackbar.make(view, "Work in progress, check back later.", Snackbar.LENGTH_LONG)
+                // Open DataEntryActivity to create a new entry
+                MainActivity.super.startActivityUsingIntent(DataEntryActivity.class, false);
+
+            }
+
+        });
+
+        // Configure the settings action button to handle clicks
+        findViewById(R.id.fab_settings).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+                // TODO: Settings activity
+                Snackbar.make(view, "Work in progress, try again later.", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
             }
