@@ -3,4 +3,15 @@
     <string name="splash_activity_title_text">Penn Museum\nArchaeology</string>
     <string name="title_activity_main">Bucket List</string>
     <string name="title_activity_data_entry">New Item Form</string>
+    <string name="get_the_gps_location">Get the GPS location</string>
+    <string name="data_entry_show_map_button_description">Show GPS location on map</string>
+    <string name="latitude">Lat: %f</string>
+    <string name="longitude">Lng: %f</string>
+    <string name="location_permission_denied_prompt">This app needs GPS to get the location. Please allow access.</string>
+    <string name="location_not_found">Sorry, but we were unable to determing your location. Please try again.</string>
+    <string name="location_permission_granted_prompt">GPS permission granted. Please try fetching location again.</string>
+    <string name="gps_enable_alert_box">Your GPS seems to be disabled, do you want to enable it?</string>
+    <string name="enable_gps_alert_positive_button">Enable</string>
+    <string name="enable_gps_alert_negative_button">Cancel</string>
+    <string name="retrieving_location">Retrieving location...</string>
 </resources>

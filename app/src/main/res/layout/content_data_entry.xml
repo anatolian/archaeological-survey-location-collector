@@ -8,10 +8,60 @@
     tools:context="edu.upenn.sas.archaeologyapp.DataEntryActivity"
     tools:showIn="@layout/activity_data_entry">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <LinearLayout
         android:layout_margin="16dp"
-        android:text="@string/title_activity_data_entry" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:ellipsize="end"
+                android:layout_weight="1"
+                android:id="@+id/data_entry_lat_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:maxLines="1" />
+
+            <ImageButton
+                android:layout_weight="1"
+                android:id="@+id/data_entry_update_gps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_compass"
+                android:contentDescription="@string/get_the_gps_location"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:ellipsize="end"
+                android:layout_weight="1"
+                android:id="@+id/data_entry_lng_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:maxLines="1" />
+
+            <ImageButton
+                android:layout_weight="1"
+                android:id="@+id/data_entry_show_map"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_dialog_map"
+                android:contentDescription="@string/data_entry_show_map_button_description"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>
