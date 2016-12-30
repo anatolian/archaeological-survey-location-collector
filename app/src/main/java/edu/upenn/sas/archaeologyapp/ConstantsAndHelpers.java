@@ -12,4 +12,9 @@ public class ConstantsAndHelpers {
      */
     public static int SPLASH_TIME_OUT = 2000;
 
+    /**
+     * Time for which we wait for GPS listener to return a location
+     */
+    public static int GPS_TIME_OUT = 20000;
+
 }
