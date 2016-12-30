@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Bundle;
 
 /**
+ * The splash activity
  * Created by eanvith on 24/12/16.
  */
 
@@ -11,6 +12,7 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         // Make this a fullscreen activity
@@ -34,9 +36,11 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+
         /*  Disable on back pressed - this is the splash screen,
          *  the user will automatically be taken to the next screen.
          */
+
     }
 
 }
