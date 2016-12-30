@@ -24,9 +24,8 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void run() {
 
-                // TODO: Uncomment code below to start next activity here
                 // The activity to start once the splash activity is complete
-                // SplashActivity.super.startActivityUsingIntent(SplashActivity.class, true);
+                SplashActivity.super.startActivityUsingIntent(MainActivity.class);
 
             }
         }, ConstantsAndHelpers.SPLASH_TIME_OUT);
