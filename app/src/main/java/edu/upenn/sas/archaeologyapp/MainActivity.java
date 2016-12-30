@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         });
 
         // Store references to the list and list entry
-        listView = (ListView) findViewById(R.id.news_fragment_news_list_view);
+        listView = (ListView) findViewById(R.id.main_activity_list_view);
         listEntryAdapter = new BucketListEntryAdapter(this, R.layout.bucket_list_entry);
         listView.setAdapter(listEntryAdapter);
 
