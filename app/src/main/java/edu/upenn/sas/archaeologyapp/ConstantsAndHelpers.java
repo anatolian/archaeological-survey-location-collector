@@ -1,6 +1,7 @@
 package edu.upenn.sas.archaeologyapp;
 
 /**
+ * Class containing any constants and helpers required throughout the app
  * Created by eanvith on 24/12/16.
  */
 
