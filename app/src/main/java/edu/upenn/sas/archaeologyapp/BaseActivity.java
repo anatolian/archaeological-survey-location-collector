@@ -29,7 +29,7 @@ public class BaseActivity extends AppCompatActivity {
      */
     protected void startActivityUsingIntent(Class activityToOpen) {
 
-        startActivityUsingIntent(activityToOpen, false);
+        startActivityUsingIntent(activityToOpen, true);
 
     }
 
