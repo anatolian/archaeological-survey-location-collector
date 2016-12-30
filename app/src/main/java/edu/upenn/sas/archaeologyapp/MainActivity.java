@@ -15,8 +15,19 @@ import android.widget.ListView;
 
 public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
+    /**
+     * Reference to the list view
+     */
     ListView listView;
+
+    /**
+     * Reference to the list entry adapter
+     */
     BucketListEntryAdapter listEntryAdapter;
+
+    /**
+     * Reference to the swipe refresh layout
+     */
     SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -107,7 +118,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     /**
      * Function to populate the list with data available locally
      */
-    void populateDataFromLocalStore() {
+    private void populateDataFromLocalStore() {
 
         // TODO: Populate data from DB
 
