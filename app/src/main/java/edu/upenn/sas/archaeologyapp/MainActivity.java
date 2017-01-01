@@ -93,23 +93,6 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
         });
 
-        // Store references to the list and list entry
-        listView = (ListView) findViewById(R.id.main_activity_list_view);
-        listEntryAdapter = new BucketListEntryAdapter(this, R.layout.bucket_list_entry);
-        listView.setAdapter(listEntryAdapter);
-
-        // Configure the list items to handle clicks
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-
-                // TODO: Do we need to take the user to a new screen where he can see details about the clicked item?
-
-            }
-
-        });
-
         // Get a reference for the swipe layout and set the listener
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.main_activity_swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
