@@ -8,4 +8,8 @@
     <color name="splashTextBackground">#000000</color>
     <color name="splashTextColor">#FFFFFF</color>
 
+    <!-- DATA ENTRY ACTIVITY -->
+    <color name="dataEntryButtonBackgroundColor">#000000</color>
+    <color name="dataEntryButtonTextColor">#FFFFFF</color>
+
 </resources>

@@ -15,6 +15,7 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -29,6 +30,7 @@
                 android:maxLines="1" />
 
             <ImageButton
+                android:background="@color/dataEntryButtonBackgroundColor"
                 android:layout_weight="1"
                 android:id="@+id/data_entry_update_gps"
                 android:layout_width="0dp"
@@ -39,6 +41,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -53,12 +56,39 @@
                 android:maxLines="1" />
 
             <ImageButton
+                android:background="@color/dataEntryButtonBackgroundColor"
                 android:layout_weight="1"
                 android:id="@+id/data_entry_show_map"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@android:drawable/ic_dialog_map"
                 android:contentDescription="@string/data_entry_show_map_button_description"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_margin="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:background="@color/dataEntryButtonBackgroundColor"
+                android:textColor="@color/dataEntryButtonTextColor"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/gallery_button" />
+
+            <Button
+                android:background="@color/dataEntryButtonBackgroundColor"
+                android:textColor="@color/dataEntryButtonTextColor"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/camera_button" />
 
         </LinearLayout>
 
