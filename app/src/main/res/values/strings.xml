@@ -13,5 +13,7 @@
     <string name="gps_enable_alert_box">Your GPS seems to be disabled, do you want to enable it?</string>
     <string name="enable_gps_alert_positive_button">Enable</string>
     <string name="enable_gps_alert_negative_button">Cancel</string>
-    <string name="retrieving_location">Retrieving location...</string>
+    <string name="retrieving_location">Retrieving location…</string>
+    <string name="location_map_pin_label">Selected Location</string>
+    <string name="location_not_set">No GPS location set</string>
 </resources>

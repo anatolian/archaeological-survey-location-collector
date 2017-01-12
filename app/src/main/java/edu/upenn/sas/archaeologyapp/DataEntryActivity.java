@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
@@ -190,6 +191,31 @@ public class DataEntryActivity extends BaseActivity {
 
                         }
                     }, ConstantsAndHelpers.GPS_TIME_OUT);
+
+                }
+
+            }
+
+        });
+
+        // Configure click handler for show GPS location on map button
+        findViewById(R.id.data_entry_show_map).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+
+                // Check if a location is set
+                if (isLocationSet) {
+
+                    // Open maps with saved latitude and longitude
+                    String loc = "geo:0,0?q=" + latitude + "," + longitude + "(" + getString(R.string.location_map_pin_label) + ")" + "&z=16";
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(loc));
+                    startActivity(mapIntent);
+
+                } else {
+
+                    // No GPS location currently set, show user message
+                    Toast.makeText(DataEntryActivity.this, R.string.location_not_set, Toast.LENGTH_LONG).show();
 
                 }
 
