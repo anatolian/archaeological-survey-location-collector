@@ -18,4 +18,10 @@
     <string name="location_not_set">No GPS location set</string>
     <string name="gallery_button">GALLERY</string>
     <string name="camera_button">CAMERA</string>
+    <string name="save_failed_exception">Failed to save the file</string>
+    <string name="save_failed_message">Unexpected error while fetching image, please try again</string>
+    <string name="select_image_prompt" type="id">Select Picture</string>
+    <string name="external_storage_permission_granted_prompt">Permission granted. Please try fetching capturing image again.</string>
+    <string name="external_storage_permission_denied_prompt">This app needs external storage access for capturing images with camera. Please allow access.</string>
+    <string name="camera_app_not_found">Could not find any apps that can take a picture</string>
 </resources>

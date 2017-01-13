@@ -73,6 +73,7 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/data_entry_open_gallery"
                 android:background="@color/dataEntryButtonBackgroundColor"
                 android:textColor="@color/dataEntryButtonTextColor"
                 android:layout_margin="5dp"
@@ -82,6 +83,7 @@
                 android:text="@string/gallery_button" />
 
             <Button
+                android:id="@+id/data_entry_open_camera"
                 android:background="@color/dataEntryButtonBackgroundColor"
                 android:textColor="@color/dataEntryButtonTextColor"
                 android:layout_margin="5dp"
@@ -91,6 +93,12 @@
                 android:text="@string/camera_button" />
 
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/data_entry_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"/>
 
     </LinearLayout>
 
