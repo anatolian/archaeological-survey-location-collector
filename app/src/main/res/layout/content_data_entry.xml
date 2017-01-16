@@ -100,6 +100,19 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"/>
 
+        <Spinner
+            android:id="@+id/data_entry_materials_drop_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"/>
+
+        <EditText
+            android:id="@+id/data_entry_comment_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/comments_text_input_hint"
+            android:layout_margin="16dp"/>
+
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

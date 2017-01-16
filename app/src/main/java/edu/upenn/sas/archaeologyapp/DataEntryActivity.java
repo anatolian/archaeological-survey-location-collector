@@ -20,7 +20,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,6 +96,16 @@ public class DataEntryActivity extends BaseActivity {
      */
     String photoPath;
 
+    /**
+     * The spinner for displaying the dropdown of materials
+     */
+    Spinner materialsDropdown;
+
+    /**
+     * The text box where the user can enter comments
+     */
+    EditText commentsEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -122,7 +135,12 @@ public class DataEntryActivity extends BaseActivity {
         // Get reference to the image view
         imageView = (ImageView) findViewById(R.id.data_entry_image_view);
 
-        // Configure click handler for update gps button
+        // Get reference to the comments edit text
+        commentsEditText = (EditText) findViewById(R.id.data_entry_comment_text_view);
+
+        /**
+         * Configure click handler for update gps button
+         */
         findViewById(R.id.data_entry_update_gps).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -238,7 +256,9 @@ public class DataEntryActivity extends BaseActivity {
 
         });
 
-        // Configure click handler for show GPS location on map button
+        /**
+         * Configure click handler for show GPS location on map button
+         */
         findViewById(R.id.data_entry_show_map).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -263,7 +283,9 @@ public class DataEntryActivity extends BaseActivity {
 
         });
 
-        // Configure click handler for opening gallery and allowing the user to select an image
+        /**
+         * Configure click handler for opening gallery and allowing the user to select an image
+         */
         findViewById(R.id.data_entry_open_gallery).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -279,6 +301,9 @@ public class DataEntryActivity extends BaseActivity {
 
         });
 
+        /**
+         * Configure click handler for opening camera and allowing the user to take a picture
+         */
         findViewById(R.id.data_entry_open_camera).setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -324,6 +349,17 @@ public class DataEntryActivity extends BaseActivity {
             }
 
         });
+
+        /**
+         * Configure the materials dropdown menu
+         */
+        materialsDropdown = (Spinner) findViewById(R.id.data_entry_materials_drop_down);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> materialsAdapter = ArrayAdapter.createFromResource(this, R.array.materials_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        materialsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        materialsDropdown.setAdapter(materialsAdapter);
 
     }
 
