@@ -21,7 +21,7 @@
     <string name="save_failed_exception">Failed to save the file</string>
     <string name="save_failed_message">Unexpected error while fetching image, please try again</string>
     <string name="select_image_prompt" type="id">Select Picture</string>
-    <string name="external_storage_permission_granted_prompt">Permission granted. Please try fetching capturing image again.</string>
+    <string name="external_storage_permission_granted_prompt">Permission granted. Please try capturing image again.</string>
     <string name="external_storage_permission_denied_prompt">This app needs external storage access for capturing images with camera. Please allow access.</string>
     <string name="camera_app_not_found">Could not find any apps that can take a picture</string>
     <string name="comments_text_input_hint">Additional Comments</string>
