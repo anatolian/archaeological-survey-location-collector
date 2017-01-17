@@ -33,6 +33,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * The Activity where the user enters all the data
+ * Created by eanvith on 01/01/17.
+ */
+
 public class DataEntryActivity extends BaseActivity {
 
     /**
