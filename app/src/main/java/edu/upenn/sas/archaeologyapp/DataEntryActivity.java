@@ -19,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -699,7 +700,31 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
-        // Save the data
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case android.R.id.home:
+
+                // Save data when back arrow on action bar is pressed
+                saveData();
+                return false;
+
+        }
+
+        return true;
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        super.onBackPressed();
+
+        // Save data when back button on action bar is pressed
         saveData();
 
     }
@@ -728,7 +753,7 @@ public class DataEntryActivity extends BaseActivity {
         }
 
         // Check if image is set
-        if (!photoPath.equalsIgnoreCase("")) {
+        if (photoPath.equalsIgnoreCase("")) {
 
             return;
 
@@ -739,9 +764,12 @@ public class DataEntryActivity extends BaseActivity {
         String comment = commentsEditText.getText().toString();
 
         // Create a data entry element
-        DataEntryElement dataEntryElement = new DataEntryElement(id, latitude, longitude, photoPath, material, comment);
+        DataEntryElement list[] = new DataEntryElement[1];
+        list[0] = new DataEntryElement(id, latitude, longitude, photoPath, material, comment);
 
-        // TODO: Save the dataEntryElement to DB
+        // Save the dataEntryElement to DB
+        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
+        dataBaseHandler.addRows(list);
 
     }
 
