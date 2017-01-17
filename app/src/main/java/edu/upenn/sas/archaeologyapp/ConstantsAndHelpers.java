@@ -17,4 +17,9 @@ public class ConstantsAndHelpers {
      */
     public static int GPS_TIME_OUT = 20000;
 
+    /**
+     * The intent extra key name which will hold ID of a element
+     */
+    public static String DATA_ENTRY_ELEMENT_ID = "data_entry_element_id";
+
 }

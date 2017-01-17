@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * The Activity where the user enters all the data
@@ -99,7 +100,7 @@ public class DataEntryActivity extends BaseActivity {
     /**
      * The path where the image is saved
      */
-    String photoPath;
+    String photoPath = "";
 
     /**
      * The spinner for displaying the dropdown of materials
@@ -698,5 +699,50 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
+        // Save the data
+        saveData();
+
     }
+
+    /**
+     * Save all the data entered in the form
+     */
+    private void saveData() {
+
+        // Get uuid from intent extras if this activity was opened for existing bucket entry
+        String id = getIntent().getStringExtra(ConstantsAndHelpers.DATA_ENTRY_ELEMENT_ID);
+
+        // If this is a new entry, check and generate a new uuid
+        if (id == null) {
+
+            id = UUID.randomUUID().toString();
+
+        }
+
+        // We only save changes if latitude, longitude and image are present
+        // Check if latitude and longitude are set
+        if (!isLocationSet) {
+
+            return;
+
+        }
+
+        // Check if image is set
+        if (!photoPath.equalsIgnoreCase("")) {
+
+            return;
+
+        }
+
+        // Get the material and the comment
+        String material = materialsDropdown.getSelectedItem().toString();
+        String comment = commentsEditText.getText().toString();
+
+        // Create a data entry element
+        DataEntryElement dataEntryElement = new DataEntryElement(id, latitude, longitude, photoPath, material, comment);
+
+        // TODO: Save the dataEntryElement to DB
+
+    }
+
 }

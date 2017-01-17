@@ -8,6 +8,11 @@ package edu.upenn.sas.archaeologyapp;
 public class DataEntryElement {
 
     /**
+     * The ID for this entry
+     */
+    private final String ID;
+
+    /**
      * The latitude of the entry
      */
     private final double latitude;
@@ -32,8 +37,9 @@ public class DataEntryElement {
      */
     private final String comments;
 
-    DataEntryElement(double latitude, double longitude, String imagePath, String material, String comments) {
+    DataEntryElement(String ID, double latitude, double longitude, String imagePath, String material, String comments) {
 
+        this.ID = ID;
         this.latitude = latitude;
         this.longitude = longitude;
         this.imagePath = imagePath;
@@ -45,6 +51,12 @@ public class DataEntryElement {
     /**
      * Getters for all the variables
      */
+    public String getID() {
+
+        return ID;
+
+    }
+
     public double getLatitude() {
 
         return latitude;
