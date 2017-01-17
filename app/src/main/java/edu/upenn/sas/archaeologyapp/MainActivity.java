@@ -120,7 +120,22 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
      */
     private void populateDataFromLocalStore() {
 
-        // TODO: Populate data from DB
+        // Get data from DB
+        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
+
+        // Clear list and populate with data got from DB
+        listEntryAdapter.clear();
+        listEntryAdapter.addAll(dataBaseHandler.getRows());
+        listEntryAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+        populateDataFromLocalStore();
 
     }
 
