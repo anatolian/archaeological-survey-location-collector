@@ -12,7 +12,7 @@ import android.widget.TextView;
  * Created by eanvith on 30/12/16.
  */
 
-public class BucketListEntryAdapter extends ArrayAdapter<BucketEntry> {
+public class BucketListEntryAdapter extends ArrayAdapter<DataEntryElement> {
 
     /**
      * Resource ID of the layout for a bucket list entry
@@ -39,10 +39,10 @@ public class BucketListEntryAdapter extends ArrayAdapter<BucketEntry> {
         // retrieve its corresponding ViewHolder, which optimizes lookup efficiency
         final View view = getWorkingView(convertView);
         final ViewHolder viewHolder = getViewHolder(view);
-        final BucketEntry entry = getItem(position);
+        final DataEntryElement entry = getItem(position);
 
         // Set all the fields of a list entry below
-        viewHolder.titleTV.setText(entry.getTitle());
+        viewHolder.titleTV.setText(entry.getMaterial());
 
         return view;
 
