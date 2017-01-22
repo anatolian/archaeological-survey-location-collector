@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+    <string name="app_name">Arkeoloji Uygulaması</string>
+    <string name="splash_activity_title_text">Penn Müzesi\nArkeoloji</string>
+    <string name="title_activity_main">Kayıt listesi</string>
+    <string name="title_activity_data_entry">Yeni Kayıt Formu</string>
+    <string name="get_the_gps_location">GPS konumunu al</string>
+    <string name="data_entry_show_map_button_description">GPS konumunu haritada göster</string>
+    <string name="latitude">Enlem: %f</string>
+    <string name="longitude">Boylam: %f</string>
+    <string name="location_permission_denied_prompt">This app needs GPS to get the location. Please allow access.</string>
+    <string name="location_not_found">Sorry, but we were unable to determing your location. Please try again.</string>
+    <string name="location_permission_granted_prompt">GPS permission granted. Please try fetching location again.</string>
+    <string name="gps_enable_alert_box">Your GPS seems to be disabled. Do you want to enable it?</string>
+    <string name="enable_gps_alert_positive_button">Etkinleştir</string>
+    <string name="enable_gps_alert_negative_button">İptal etmek</string>
+    <string name="retrieving_location">Konum alınıyor…</string>
+    <string name="location_map_pin_label">Seçilen Konum</string>
+    <string name="location_not_set">GPS konumu ayarlanmadı</string>
+    <string name="gallery_button">GALERİ</string>
+    <string name="camera_button">KAMERA</string>
+    <string name="save_failed_exception">Dosya kaydedilemedi</string>
+    <string name="save_failed_message">Unexpected error while fetching image. Please try again</string>
+    <string name="select_image_prompt" type="id">Fotoğrafı seçin</string>
+    <string name="external_storage_permission_granted_prompt">Permission granted. Please try capturing image again.</string>
+    <string name="external_storage_permission_denied_prompt">This app needs external storage access for capturing images with camera. Please allow access.</string>
+    <string name="camera_app_not_found">Could not find any apps that can take a picture</string>
+    <string name="comments_text_input_hint">Ek Yorumlar</string>
+    <string-array name="materials_array">
+        <item>Kemik</item>
+        <item>Taşlar</item>
+        <item>Seramik</item>
+        <item>Mimari</item>
+        <item>Metal</item>
+        <item>Diğer</item>
+    </string-array>
 </resources>
