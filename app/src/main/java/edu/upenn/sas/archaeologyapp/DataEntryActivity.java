@@ -368,6 +368,72 @@ public class DataEntryActivity extends BaseActivity {
         // Apply the adapter to the spinner
         materialsDropdown.setAdapter(materialsAdapter);
 
+        prePopulateFields();
+
+    }
+
+    /**
+     * Check if any parameters were passed to this activity, and pre populate the data if required
+     */
+    private void prePopulateFields() {
+
+        String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
+
+        // If null, it means nothing was passed
+        if (id == null) {
+
+            return;
+
+        }
+
+        // Populate the latitude and longitude, if present
+        double _latitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LATITUDE, 9999.0);
+        double _longitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, 9999.0);
+
+        if (!(_latitude == 9999.0 || _longitude == 9999.0)) {
+
+            setLocationDetails(_latitude, _longitude);
+
+        }
+
+        // Populate the image, if present
+        String _path = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_IMAGE);
+
+        if(_path != null) {
+
+            photoPath = _path;
+            imageView.setImageURI(Uri.fromFile(new File(photoPath)));
+
+        }
+
+        // Populate the material, if present
+        String _material = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_MATERIAL);
+
+        if(_material != null) {
+
+            // Search the dropdown for a matching material, and set to that if found
+            // TODO: See ISSUE #6 on github
+            for (int i = 0; i < materialsDropdown.getCount(); i++) {
+
+                if (materialsDropdown.getItemAtPosition(i).toString().equalsIgnoreCase(_material)) {
+
+                    materialsDropdown.setSelection(i);
+
+                }
+
+            }
+
+        }
+
+        // Populate the comments, if present
+        String _comments = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_COMMENTS);
+
+        if(_comments != null) {
+
+            commentsEditText.setText(_comments);
+
+        }
+
     }
 
     @Override
@@ -577,6 +643,27 @@ public class DataEntryActivity extends BaseActivity {
     }
 
     /**
+     * Set the required variables and text views once we get location from previous activity
+     * @param _latitude The latitude to be set
+     * @param _longitude The longitude to be set
+     */
+    private void setLocationDetails(double _latitude, double _longitude) {
+
+        // Get the latitude and longitutde and save it in the respective variables
+        longitude = _longitude;
+        latitude = _latitude;
+
+        // Update the text views
+        latitudeTextView.setText(String.format(getResources().getString(R.string.latitude), latitude));
+        longitudeTextView.setText(String.format(getResources().getString(R.string.longitude), longitude));
+
+        // Update the flags
+        isLocationSet = true;
+        locationUpdated = true;
+
+    }
+
+    /**
      * Set the required variables and text views once we get the users location
      * @param location The location to be used
      */
@@ -735,7 +822,7 @@ public class DataEntryActivity extends BaseActivity {
     private void saveData() {
 
         // Get uuid from intent extras if this activity was opened for existing bucket entry
-        String id = getIntent().getStringExtra(ConstantsAndHelpers.DATA_ENTRY_ELEMENT_ID);
+        String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
 
         // If this is a new entry, check and generate a new uuid
         if (id == null) {

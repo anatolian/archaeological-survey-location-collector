@@ -47,7 +47,8 @@ public class BucketListEntryAdapter extends ArrayAdapter<DataEntryElement> {
         final ViewHolder viewHolder = getViewHolder(view);
         final DataEntryElement entry = getItem(position);
 
-        // Set all the fields of a list entry below
+        // Set the category
+        // TODO: See ISSUE #6 on github
         viewHolder.categoryTV.setText(entry.getMaterial());
 
         // Set the image

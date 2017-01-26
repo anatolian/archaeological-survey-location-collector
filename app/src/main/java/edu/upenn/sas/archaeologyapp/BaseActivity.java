@@ -1,6 +1,7 @@
 package edu.upenn.sas.archaeologyapp;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,14 +35,22 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * Function to start a new Activity
+     * Function to start a new Activity with parameters passed to the new activity
      * @param activityToOpen The class of the Activity to be opened
      * @param finishCurrentActivity This flag decides whether the current activity must be closed
      *                              after starting the new activity
+     * @param paramsToPass The parameters to be passed to the new activity
      */
-    protected void startActivityUsingIntent(Class activityToOpen, boolean finishCurrentActivity) {
+    protected void startActivityUsingIntent(Class activityToOpen, boolean finishCurrentActivity, Bundle paramsToPass) {
 
         Intent i = new Intent(this, activityToOpen);
+
+        if (paramsToPass != null) {
+
+            i.putExtras(paramsToPass);
+
+        }
+
         startActivity(i);
 
         if (finishCurrentActivity) {
@@ -49,6 +58,29 @@ public class BaseActivity extends AppCompatActivity {
             finish();
 
         }
+
+    }
+
+    /**
+     * Function to start a new Activity with parameters passed to the new activity, and finish the current activity
+     * @param activityToOpen The class of the Activity to be opened
+     * @param paramsToPass The parameters to be passed to the new activity
+     */
+    protected void startActivityUsingIntent(Class activityToOpen, Bundle paramsToPass) {
+
+        startActivityUsingIntent(activityToOpen, true, paramsToPass);
+
+    }
+
+    /**
+     * Function to start a new Activity
+     * @param activityToOpen The class of the Activity to be opened
+     * @param finishCurrentActivity This flag decides whether the current activity must be closed
+     *                              after starting the new activity
+     */
+    protected void startActivityUsingIntent(Class activityToOpen, boolean finishCurrentActivity) {
+
+        startActivityUsingIntent(activityToOpen, finishCurrentActivity, null);
 
     }
 
