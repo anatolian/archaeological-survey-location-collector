@@ -331,7 +331,7 @@ public class DataEntryActivity extends BaseActivity {
 
                     // Image file to be passed to camera app.
                     // The camera app saves captured image in this file
-                    outputFromCamera = createImageFile(false);
+                    outputFromCamera = createImageFile(true);
 
                 } catch (Exception e) {
 
