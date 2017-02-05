@@ -37,7 +37,12 @@ public class DataEntryElement {
      */
     private final String comments;
 
-    DataEntryElement(String ID, double latitude, double longitude, String imagePath, String material, String comments) {
+    /**
+     * Timestamp when the entry was first created
+     */
+    private final long createdTimestamp;
+
+    DataEntryElement(String ID, double latitude, double longitude, String imagePath, String material, String comments, long createdTimestamp) {
 
         this.ID = ID;
         this.latitude = latitude;
@@ -45,6 +50,7 @@ public class DataEntryElement {
         this.imagePath = imagePath;
         this.material = material;
         this.comments = comments;
+        this.createdTimestamp = createdTimestamp;
 
     }
 
@@ -84,6 +90,12 @@ public class DataEntryElement {
     public String getComments() {
 
         return comments;
+
+    }
+
+    public long getCreatedTimestamp() {
+
+        return createdTimestamp;
 
     }
 

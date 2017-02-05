@@ -29,6 +29,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     private static final String KEY_IMAGE_PATH = "image_path";
     private static final String KEY_MATERIAL = "material";
     private static final String KEY_COMMENT = "comment";
+    private static final String KEY_CREATED_TIMESTAMP = "created_timestamp";
 
     /**
      * Constructor
@@ -49,7 +50,8 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 + KEY_LONGITUDE + " FLOAT,"
                 + KEY_IMAGE_PATH + " TEXT,"
                 + KEY_MATERIAL + " TEXT,"
-                + KEY_COMMENT + " TEXT)"
+                + KEY_COMMENT + " TEXT,"
+                + KEY_CREATED_TIMESTAMP + " INTEGER)"
                 ;
 
 
@@ -159,6 +161,10 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
                     // If update fails, it means the ID does not exist in table. Create a new row with the ID.
                     values.put(KEY_ID, entry[i].getID());
+
+                    // Also add timestamp for creation of entry
+                    values.put(KEY_CREATED_TIMESTAMP, entry[i].getCreatedTimestamp());
+
                     db.insert(TABLE_NAME, null, values);
 
                 }
@@ -207,7 +213,8 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_IMAGE_PATH)),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
-                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT)));
+                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
+                            cursor.getLong(cursor.getColumnIndex(KEY_CREATED_TIMESTAMP)));
 
                     dataEntryElements.add(entry);
 
@@ -263,7 +270,8 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_IMAGE_PATH)),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
-                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT)));
+                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
+                            cursor.getLong(cursor.getColumnIndex(KEY_CREATED_TIMESTAMP)));
 
                 } while (cursor.moveToNext());
 
