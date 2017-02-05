@@ -239,7 +239,10 @@ public class DataEntryActivity extends BaseActivity {
                                     locationManager.removeUpdates(locationListener);
 
                                     // Call function to set location details
-                                    setLocationDetails(location);
+                                    // setLocationDetails(location);
+
+                                    // Do not fallback to previous location, as per Github Issue 8
+                                    Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
 
                                 } catch (SecurityException e) {
 
