@@ -17,4 +17,34 @@ public class ConstantsAndHelpers {
      */
     public static int GPS_TIME_OUT = 20000;
 
+    /**
+     * Bundle key for ID
+     */
+    public static String PARAM_KEY_ID = "entry_id";
+
+    /**
+     * Bundle key for latitude
+     */
+    public static String PARAM_KEY_LATITUDE = "latitude";
+
+    /**
+     * Bundle key for longitude
+     */
+    public static String PARAM_KEY_LONGITUDE = "longitude";
+
+    /**
+     * Bundle key for material
+     */
+    public static String PARAM_KEY_MATERIAL = "material";
+
+    /**
+     * Bundle key for image
+     */
+    public static String PARAM_KEY_IMAGE = "image";
+
+    /**
+     * Bundle key for comments
+     */
+    public static String PARAM_KEY_COMMENTS = "comments";
+
 }

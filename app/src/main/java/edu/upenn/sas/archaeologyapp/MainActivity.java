@@ -87,7 +87,18 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
-                // TODO: Do we need to take the user to a new screen where he can see details about the clicked item?
+                // Open the data entry activity with fields pre-populated
+                DataEntryElement dataEntryElement = listEntryAdapter.getItem(position);
+
+                Bundle paramsToPass = new Bundle();
+                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_ID, dataEntryElement.getID());
+                paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LATITUDE, dataEntryElement.getLatitude());
+                paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
+                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_IMAGE, dataEntryElement.getImagePath());
+                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_MATERIAL, dataEntryElement.getMaterial());
+                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_COMMENTS, dataEntryElement.getComments());
+
+                startActivityUsingIntent(DataEntryActivity.class, false, paramsToPass);
 
             }
 
@@ -120,7 +131,22 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
      */
     private void populateDataFromLocalStore() {
 
-        // TODO: Populate data from DB
+        // Get data from DB
+        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
+
+        // Clear list and populate with data got from DB
+        listEntryAdapter.clear();
+        listEntryAdapter.addAll(dataBaseHandler.getRows());
+        listEntryAdapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+        populateDataFromLocalStore();
 
     }
 
