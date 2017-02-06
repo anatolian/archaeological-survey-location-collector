@@ -31,3 +31,7 @@ This document briefly covers the overall flow of the application, and is a good 
 - The manifest file can be found at [/app/src/main/AndroidManifest.xml](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/AndroidManifest.xml). This file contains information about what Actvities need to be packaged into the application, and the permissions the application requires.
 
 - Debug APKs with details about each version can be found at [/debug-APKs/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/debug-APKs)
+
+# LICENSE
+
+The use of this project is governed by the license found [here](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/LICENSE)
