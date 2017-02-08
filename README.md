@@ -20,7 +20,7 @@ This document briefly covers the overall flow of the application, and is a good 
 
 - The build settings for the app including target Android SDK version, current app version name and number, dependencies, etc. can be found in [/app/build.gradle](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/build.gradle)
 
-- The code can be found at [/app/src/main/java/edu/upenn/sas/archaeologyapp/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/java/edu/upenn/sas/archaeologyapp). The files are heavily commented for ease of understanding.
+- The code can be found at [/app/src/main/java/edu/upenn/sas/archaeologyapp/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/java/edu/upenn/sas/archaeologyapp). The folder also contains an additional readme file for further information.
 
 - Resources including layouts, strings, colors, images, etc. can be found at [/app/src/main/res/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/res)
 
