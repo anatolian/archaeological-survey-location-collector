@@ -16,14 +16,12 @@ This section provides a brief overview of the structure and location of the file
 
 - The Java code for the app can be found at [/app/src/main/java/edu/upenn/sas/archaeologyapp/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/java/edu/upenn/sas/archaeologyapp). That folder also contains an additional readme file specific to the Java side of the app, for further information.
 
-- Resources are the graphical elements of the app and include screen layouts, display text, colors, images, etc.  These can be found at [/app/src/main/res/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/res)
+- Resources are the graphical elements of the app and include screen layouts, display text, colors, images, etc.  These can be found at [/app/src/main/res/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/res) That folder also contains an additional readme file specific to the Resources side of the app, for further information.
 
-  - Strings also includes Turkish translations. Other languages can be added at the same location. Please see [this](https://github.com/anatolian/archaeological-survey-location-collector/issues/3) and [this](https://github.com/anatolian/archaeological-survey-location-collector/commit/d1706bf44bf62493ac0962476d1024c265510454) to learn more about adding a new language.
+  - Text displayed in the app can be displayed in multiple languages, current support is for Turkish and English.  Additional languages can be supported by adding a values subfolder and Strings.xml specific to the language in [/app/src/main/res/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/res).
   
   - Screen layouts are .xml files that determine how other resources appear on each screen
-  
-  - More specific detail about the resources in this app can be found at: [/app/src/main/res/README.md](https://github.com/anatolian/archaeological-survey-location-collector/blob/eanvith/documentation/app/src/main/res/README.md)
-  
+    
 - An Android manifest file contains information about which workflows and Java classes, known as Actvities, need to be packaged into the application, and the overall permissions that the application requires from the device.  The manifest file can be found at [/app/src/main/AndroidManifest.xml](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/AndroidManifest.xml).
 
 - Debug APKs with details about each version can be found at [/debug-APKs/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/debug-APKs)
