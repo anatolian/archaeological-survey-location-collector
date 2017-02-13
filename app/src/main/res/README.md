@@ -28,9 +28,7 @@ The color palette of the overall application, and other specific colors within t
 
 The english strings are present at values/strings.xml. Turkish translations of the strings are present at values-tr/strings.xml.
 
-To change a string, it would have to be changed in all strings.xml for every language.
-
-Please see [this](https://github.com/anatolian/archaeological-survey-location-collector/issues/3) and [this](https://github.com/anatolian/archaeological-survey-location-collector/commit/d1706bf44bf62493ac0962476d1024c265510454) to learn more about adding a new language.
+To change a string, it would have to be changed in all strings.xml for every language.  A new language can be added parallel to the Turkish strings.
 
 ## Layouts
 
