@@ -10,37 +10,37 @@ A second git project called archaeological-survey-location-service is designed t
 In order to better enable reuse of this code base for other projects and data structures, the intent of this documentation is to briefly overview the flow of the application. Readme files within certain important project folders also help provide details on the files in those folders.
 
 ## Project File and Folder Structure
+This section provides a brief overview of the structure and location of the files in this Android app, as well as links to further information about each.
 
 - The build settings for the app including target Android SDK version, current app version name and number, dependencies, etc. can be found in [/app/build.gradle](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/build.gradle)
 
-- The code can be found at [/app/src/main/java/edu/upenn/sas/archaeologyapp/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/java/edu/upenn/sas/archaeologyapp). The folder also contains an additional readme file for further information.
+- The Java code for the app can be found at [/app/src/main/java/edu/upenn/sas/archaeologyapp/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/java/edu/upenn/sas/archaeologyapp). That folder also contains an additional readme file specific to the Java side of the app, for further information.
 
-- Resources including layouts, strings, colors, images, etc. can be found at [/app/src/main/res/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/res)
+- Resources are the graphical elements of the app and include screen layouts, display text, colors, images, etc.  These can be found at [/app/src/main/res/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/app/src/main/res)
 
   - Strings also includes Turkish translations. Other languages can be added at the same location. Please see [this](https://github.com/anatolian/archaeological-survey-location-collector/issues/3) and [this](https://github.com/anatolian/archaeological-survey-location-collector/commit/d1706bf44bf62493ac0962476d1024c265510454) to learn more about adding a new language.
   
-  - Layouts determine how elements appear on each screen
+  - Screen layouts are .xml files that determine how other resources appear on each screen
   
-  - For more information about the resources folder, please see [/app/src/main/res/README.md](https://github.com/anatolian/archaeological-survey-location-collector/blob/eanvith/documentation/app/src/main/res/README.md)
+  - More specific detail about the resources in this app can be found at: [/app/src/main/res/README.md](https://github.com/anatolian/archaeological-survey-location-collector/blob/eanvith/documentation/app/src/main/res/README.md)
   
-- The manifest file can be found at [/app/src/main/AndroidManifest.xml](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/AndroidManifest.xml). This file contains information about what Actvities need to be packaged into the application, and the permissions the application requires.
+- An Android manifest file contains information about which workflows and Java classes, known as Actvities, need to be packaged into the application, and the overall permissions that the application requires from the device.  The manifest file can be found at [/app/src/main/AndroidManifest.xml](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/AndroidManifest.xml).
 
 - Debug APKs with details about each version can be found at [/debug-APKs/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/debug-APKs)
 
 
-## UI flow
+## The User Experience
+This section provides an overivew of how the user experiences the app, and contains links to the Java Activity classes and Resource files that impact each screen.
 
+- The app starts with a brief splash screen followed by a screen that lists the records currently present on the device.  These data were collected earlier but have not yet been uploaded.
 
-- The app starts with a splash screen that is presented for a very brief amount of time, followed by the list of records currently present on the phone.
+- The records list screen has a '+' floating action button at the bottom that takes a user to the data entry screen where they can enter new data.
 
-- The records list screen has a '+' floating action button at the bottom, clicking which opens up the data entry screen.
+- When the new data entry screen opens, it immediately attempts to read a GNSS point.  This point can be updated mnaully by pressing the GNSS button again while still on the screen. The user can now take multiple photos of the item, and fill out some descriptive data. Once done, the user hits back and the record is automatically saved if the two mandatory fields have been entered (GNSS point and at least one photograph).  A warning message will popup if either is missing, allowing the user to either continue back to the list screen without saving the data, or staying on the new data entry form.
 
-- On the data entry screen, users can fill in information associated with a new record. Once done, and the user hits back, the record is automatically saved if mandatory fields have been filled (GPS, picture). Else, the new record is discarded.
+- Selecting an existing record from the records list screen opens up the data entry screen with a display of the current information about the selected record. The user can make any necessary changes, and hit back to save and go back to the records list screen again. 
 
-- Selecting an existing record from the records list screen opens up the data entry screen with information about the selected entry pre-populated. The user can then go ahead and make any necessary changes, and hit back to save and go back to the records list screen.
-
-- On the top right of the records list screen is the 'settings' button - this is still a work in progress, but will lead the user to a settings screen where he can configure server information.
-
+- On the top right of the records list screen is the 'settings' button for configuring server information.
 
 # LICENSE
 
