@@ -9,20 +9,7 @@ A second git project called archaeological-survey-location-service is designed t
 
 In order to better enable reuse of this code base for other projects and data structures, the intent of this documentation is to briefly overview the flow of the application. Readme files within certain important project folders also help provide details on the files in those folders.
 
-## UI flow
-
-
-- The app starts with a splash screen that is presented for a very brief amount of time, followed by the list of records currently present on the phone.
-
-- The records list screen has a '+' floating action button at the bottom, clicking which opens up the data entry screen.
-
-- On the data entry screen, users can fill in information associated with a new record. Once done, and the user hits back, the record is automatically saved if mandatory fields have been filled (GPS, picture). Else, the new record is discarded.
-
-- Selecting an existing record from the records list screen opens up the data entry screen with information about the selected entry pre-populated. The user can then go ahead and make any necessary changes, and hit back to save and go back to the records list screen.
-
-- On the top right of the records list screen is the 'settings' button - this is still a work in progress, but will lead the user to a settings screen where he can configure server information.
-
-## Project Structure
+## Project File and Folder Structure
 
 - The build settings for the app including target Android SDK version, current app version name and number, dependencies, etc. can be found in [/app/build.gradle](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/build.gradle)
 
@@ -39,6 +26,21 @@ In order to better enable reuse of this code base for other projects and data st
 - The manifest file can be found at [/app/src/main/AndroidManifest.xml](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/AndroidManifest.xml). This file contains information about what Actvities need to be packaged into the application, and the permissions the application requires.
 
 - Debug APKs with details about each version can be found at [/debug-APKs/](https://github.com/anatolian/archaeological-survey-location-collector/tree/master/debug-APKs)
+
+
+## UI flow
+
+
+- The app starts with a splash screen that is presented for a very brief amount of time, followed by the list of records currently present on the phone.
+
+- The records list screen has a '+' floating action button at the bottom, clicking which opens up the data entry screen.
+
+- On the data entry screen, users can fill in information associated with a new record. Once done, and the user hits back, the record is automatically saved if mandatory fields have been filled (GPS, picture). Else, the new record is discarded.
+
+- Selecting an existing record from the records list screen opens up the data entry screen with information about the selected entry pre-populated. The user can then go ahead and make any necessary changes, and hit back to save and go back to the records list screen.
+
+- On the top right of the records list screen is the 'settings' button - this is still a work in progress, but will lead the user to a settings screen where he can configure server information.
+
 
 # LICENSE
 
