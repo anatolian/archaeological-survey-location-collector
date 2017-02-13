@@ -1,10 +1,16 @@
 # Archaeology Survey - Android App
 
-This Android application is meant for maintaining a record of artificats found in the field. Each record entry has a picture, GPS location, and additional information associated with it. In the future, there will also be mechanisms in place to sync the collected data with a server.
+This Android app is designed to support data collection during archaeological fieldwork.  Specifically, this app can be modified to fit the data structures and infrastructure of a field surface survey project that involves fieldwalking.  The main goal of this app is to geolocate field observations, objects, and other remains (finds) at a high level of accuracy.  An external GNSS hardware device is the central feature of this application.  New technology enables the inexpensive use of differential GNSS, where one GNSS receiver placed over a known point transmits corrections of the satellite signals to a roving GNSS unit with the field walkers.  These devices communicate over the internet.
 
-This document briefly covers the overall flow of the application, and is a good starting point to understand the codebase. Readme files will also be added within certain important project folders to help with a deeper understanding of the project.
+Although it can be easily modified, the default data collection enabled by the application include the normal types of data collected during surface survey: the GNSS coordinates of a find, photographs of the finds, and descriptive information.  The app is initially designed to capture point information, though polygons and 3d information could eventually be recorded as well.
+
+A second git project called archaeological-survey-location-service is designed to support a server-side implementation that will enable the upload of the data collected during fieldwalking to a project's central database.  This upload process could happen in real-time or be delayed until wifi is available.
+
+
+In order to better enable reuse of this code base for other projects and data structures, the intent of this documentation is to briefly overview the flow of the application. Readme files within certain important project folders also help provide details on the files in those folders.
 
 ## UI flow
+
 
 - The app starts with a splash screen that is presented for a very brief amount of time, followed by the list of records currently present on the phone.
 
