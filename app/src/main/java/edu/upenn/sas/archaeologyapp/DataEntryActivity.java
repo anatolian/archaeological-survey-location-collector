@@ -855,7 +855,7 @@ public class DataEntryActivity extends BaseActivity {
 
         // Create a data entry element
         DataEntryElement list[] = new DataEntryElement[1];
-        list[0] = new DataEntryElement(id, latitude, longitude, photoPath, material, comment, (new Date()).getTime());
+        list[0] = new DataEntryElement(id, latitude, longitude, photoPath, material, comment, (new Date()).getTime(), (new Date()).getTime());
 
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
