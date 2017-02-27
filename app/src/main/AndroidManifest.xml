@@ -3,7 +3,10 @@
     package="edu.upenn.sas.archaeologyapp">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
@@ -30,6 +33,14 @@
         <activity
             android:name=".DataEntryActivity"
             android:label="@string/title_activity_data_entry"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
+        </activity>
+        <activity android:name=".SyncActivity"
+            android:label="@string/title_activity_sync"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

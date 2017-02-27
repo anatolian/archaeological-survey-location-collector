@@ -47,4 +47,14 @@ public class ConstantsAndHelpers {
      */
     public static String PARAM_KEY_COMMENTS = "comments";
 
+    /**
+     * The REST API endpoint for syncing data
+     */
+    public static String UPLOAD_URL = "https://pennmuseum2017.pythonanywhere.com/index/m_upload_record/";
+
+    /**
+     * The secret code expected by the server to authenticate the request
+     */
+    public static String APP_SECRET = "6de72eea-251a-45e6-96b3-8f8fa7a2a2de";
+
 }

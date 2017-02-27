@@ -63,14 +63,12 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         });
 
         // Configure the settings action button to handle clicks
-        findViewById(R.id.fab_settings).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.fab_sync).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
-                // TODO: Settings activity
-                Snackbar.make(view, "Work in progress, try again later.", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                MainActivity.this.startActivityUsingIntent(SyncActivity.class, false);
 
             }
 

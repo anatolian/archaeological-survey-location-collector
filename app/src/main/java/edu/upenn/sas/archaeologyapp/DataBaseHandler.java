@@ -99,7 +99,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
      * Helper function to remove
      * @param id The id of the element to be removed from the table
      */
-    private void removeRow(String id){
+    public void removeRow(String id){
 
         SQLiteDatabase db = this.getWritableDatabase();
 
