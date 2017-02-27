@@ -197,7 +197,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
         ArrayList<DataEntryElement> dataEntryElements = new ArrayList<DataEntryElement>();
 
-        String selectQuery = "SELECT  * FROM " + TABLE_NAME;
+        String selectQuery = "SELECT  * FROM " + TABLE_NAME + " ORDER BY " + KEY_CREATED_TIMESTAMP + " DESC";
 
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = null;
