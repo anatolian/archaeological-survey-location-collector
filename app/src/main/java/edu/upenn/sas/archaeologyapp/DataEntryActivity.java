@@ -239,7 +239,10 @@ public class DataEntryActivity extends BaseActivity {
                                     locationManager.removeUpdates(locationListener);
 
                                     // Call function to set location details
-                                    setLocationDetails(location);
+                                    // setLocationDetails(location);
+
+                                    // Do not fallback to previous location, as per Github Issue 8
+                                    Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
 
                                 } catch (SecurityException e) {
 
@@ -852,7 +855,7 @@ public class DataEntryActivity extends BaseActivity {
 
         // Create a data entry element
         DataEntryElement list[] = new DataEntryElement[1];
-        list[0] = new DataEntryElement(id, latitude, longitude, photoPath, material, comment);
+        list[0] = new DataEntryElement(id, latitude, longitude, photoPath, material, comment, (new Date()).getTime(), (new Date()).getTime());
 
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
