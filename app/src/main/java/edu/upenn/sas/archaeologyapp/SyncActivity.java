@@ -165,8 +165,11 @@ public class SyncActivity extends AppCompatActivity {
                         // Check if errors or success
                         if (jObj.isNull("errors")) {
 
-                            // If there are no errors, this means the record was uploaded successfully so the local copy is deleted
-                            dataBaseHandler.removeRow(elementsToUpload.get(uploadIndex).getID());
+                            // Server returns record_id if successfully uploaded
+                            String recordId = jObj.getString("results");
+
+                            // Remove local copy
+                            dataBaseHandler.removeRow(recordId);
 
                             // Move to the next record to be uploaded
                             uploadIndex++;
