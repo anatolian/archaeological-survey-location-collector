@@ -53,9 +53,9 @@ public class DataEntryActivity extends BaseActivity {
     private LocationListener locationListener;
 
     /**
-     * Variables to store the users location
+     * Variables to store the users location data
      */
-    private double latitude, longitude;
+    private double latitude, longitude, altitude;
 
     /**
      * This variable is set to true once a GPS location is got and saved in above variables
@@ -89,9 +89,9 @@ public class DataEntryActivity extends BaseActivity {
     private static final int CAMERA_REQUEST = 2;
 
     /**
-     * The text views for displaying latitude and longitude values
+     * The text views for displaying latitude, longitude and altitude values
      */
-    private TextView latitudeTextView, longitudeTextView;
+    private TextView latitudeTextView, longitudeTextView, altitudeTextView;
 
     /**
      * The image view for displaying the image captured/selected by the user
@@ -135,9 +135,10 @@ public class DataEntryActivity extends BaseActivity {
         // Configure up button to go back to previous activity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Get references to the latitude and longitude text views
+        // Get references to the latitude, longitude and altitude text views
         latitudeTextView = (TextView) findViewById(R.id.data_entry_lat_text);
         longitudeTextView = (TextView) findViewById(R.id.data_entry_lng_text);
+        altitudeTextView = (TextView) findViewById(R.id.data_entry_alt_text);
 
         // Get reference to the image view
         imageView = (ImageView) findViewById(R.id.data_entry_image_view);
@@ -401,13 +402,14 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
-        // Populate the latitude and longitude, if present
-        double _latitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LATITUDE, 9999.0);
-        double _longitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, 9999.0);
+        // Populate the latitude, longitude and altitude, if present
+        double _latitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LATITUDE, Double.MIN_VALUE);
+        double _longitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, Double.MIN_VALUE);
+        double _altitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, Double.MIN_VALUE);
 
-        if (!(_latitude == 9999.0 || _longitude == 9999.0)) {
+        if (!(_latitude == Double.MIN_VALUE || _longitude == Double.MIN_VALUE || _altitude == Double.MIN_VALUE)) {
 
-            setLocationDetails(_latitude, _longitude);
+            setLocationDetails(_latitude, _longitude, _altitude);
 
         }
 
@@ -661,16 +663,19 @@ public class DataEntryActivity extends BaseActivity {
      * Set the required variables and text views once we get location from previous activity
      * @param _latitude The latitude to be set
      * @param _longitude The longitude to be set
+     * @param _altitude The altitude to be set
      */
-    private void setLocationDetails(double _latitude, double _longitude) {
+    private void setLocationDetails(double _latitude, double _longitude, double _altitude) {
 
-        // Get the latitude and longitutde and save it in the respective variables
+        // Get the latitude, longitutde, altitude, and save it in the respective variables
         longitude = _longitude;
         latitude = _latitude;
+        altitude = _altitude;
 
         // Update the text views
         latitudeTextView.setText(String.format(getResources().getString(R.string.latitude), latitude));
         longitudeTextView.setText(String.format(getResources().getString(R.string.longitude), longitude));
+        altitudeTextView.setText(String.format(getResources().getString(R.string.altitude), altitude));
 
         // Update the flags
         isLocationSet = true;
@@ -684,13 +689,15 @@ public class DataEntryActivity extends BaseActivity {
      */
     private void setLocationDetails(Location location) {
 
-        // Get the latitude and longitutde and save it in the respective variables
+        // Get the latitude, longitutde, altitude, and save it in the respective variables
         longitude = location.getLongitude();
         latitude = location.getLatitude();
+        altitude = location.getAltitude();
 
         // Update the text views
         latitudeTextView.setText(String.format(getResources().getString(R.string.latitude), latitude));
         longitudeTextView.setText(String.format(getResources().getString(R.string.longitude), longitude));
+        altitudeTextView.setText(String.format(getResources().getString(R.string.altitude), altitude));
 
         // Update the flags
         isLocationSet = true;
@@ -846,8 +853,8 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
-        // We only save changes if latitude, longitude and image are present
-        // Check if latitude and longitude are set
+        // We only save changes if location info and image are present
+        // Check if location info is set
         if (!isLocationSet) {
 
             return;
@@ -867,7 +874,7 @@ public class DataEntryActivity extends BaseActivity {
 
         // Create a data entry element
         DataEntryElement list[] = new DataEntryElement[1];
-        list[0] = new DataEntryElement(id, latitude, longitude, photoPath, material, comment, (new Date()).getTime(), (new Date()).getTime());
+        list[0] = new DataEntryElement(id, latitude, longitude, altitude, photoPath, material, comment, (new Date()).getTime(), (new Date()).getTime());
 
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);

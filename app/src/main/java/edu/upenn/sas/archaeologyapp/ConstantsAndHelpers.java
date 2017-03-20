@@ -33,6 +33,11 @@ public class ConstantsAndHelpers {
     public static String PARAM_KEY_LONGITUDE = "longitude";
 
     /**
+     * Bundle key for altitude
+     */
+    public static String PARAM_KEY_ALTITUDE = "altitude";
+
+    /**
      * Bundle key for material
      */
     public static String PARAM_KEY_MATERIAL = "material";

@@ -7,6 +7,7 @@
     <string name="data_entry_show_map_button_description">Show GNSS location on map</string>
     <string name="latitude">Lat: %f</string>
     <string name="longitude">Lng: %f</string>
+    <string name="altitude">Alt: %f</string>
     <string name="location_permission_denied_prompt">This app needs GNSS to get the location. Please allow access.</string>
     <string name="location_not_found">Sorry, but we were unable to determing your location. Please try again.</string>
     <string name="location_permission_granted_prompt">GNSS permission granted. Please try fetching location again.</string>

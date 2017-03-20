@@ -23,6 +23,11 @@ public class DataEntryElement {
     private final double longitude;
 
     /**
+     * The altitude of the entry
+     */
+    private final double altitude;
+
+    /**
      * The path of the image linked to the entry
      */
     private final String imagePath;
@@ -47,11 +52,12 @@ public class DataEntryElement {
      */
     private final long updateTimestamp;
 
-    DataEntryElement(String ID, double latitude, double longitude, String imagePath, String material, String comments, long createdTimestamp, long updateTimestamp) {
+    DataEntryElement(String ID, double latitude, double longitude, double altitude, String imagePath, String material, String comments, long createdTimestamp, long updateTimestamp) {
 
         this.ID = ID;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.altitude = altitude;
         this.imagePath = imagePath;
         this.material = material;
         this.comments = comments;
@@ -78,6 +84,12 @@ public class DataEntryElement {
     public double getLongitude() {
 
         return longitude;
+
+    }
+
+    public double getAltitude() {
+
+        return altitude;
 
     }
 

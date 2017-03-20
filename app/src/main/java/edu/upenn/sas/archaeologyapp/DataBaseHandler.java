@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String DATABASE_NAME = "BUCKETDB";
 
@@ -26,6 +26,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     private static final String KEY_ID = "bucket_id";
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
+    private static final String KEY_ALTITUDE = "altitude";
     private static final String KEY_IMAGE_PATH = "image_path";
     private static final String KEY_MATERIAL = "material";
     private static final String KEY_COMMENT = "comment";
@@ -49,6 +50,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 "(" + KEY_ID + " TEXT PRIMARY KEY,"
                 + KEY_LATITUDE + " FLOAT,"
                 + KEY_LONGITUDE + " FLOAT,"
+                + KEY_ALTITUDE + " FLOAT,"
                 + KEY_IMAGE_PATH + " TEXT,"
                 + KEY_MATERIAL + " TEXT,"
                 + KEY_COMMENT + " TEXT,"
@@ -150,6 +152,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
                 values.put(KEY_LATITUDE, entry[i].getLatitude());
                 values.put(KEY_LONGITUDE, entry[i].getLongitude());
+                values.put(KEY_ALTITUDE, entry[i].getAltitude());
                 values.put(KEY_IMAGE_PATH, entry[i].getImagePath());
                 values.put(KEY_MATERIAL, entry[i].getMaterial());
                 values.put(KEY_COMMENT, entry[i].getComments());
@@ -213,6 +216,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                     DataEntryElement entry = new DataEntryElement(cursor.getString(cursor.getColumnIndex(KEY_ID)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_LATITUDE)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_IMAGE_PATH)),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
                             cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
@@ -271,6 +275,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                     dataEntryElement = new DataEntryElement(cursor.getString(cursor.getColumnIndex(KEY_ID)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_LATITUDE)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_IMAGE_PATH)),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
                             cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
