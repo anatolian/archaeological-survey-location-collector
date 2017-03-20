@@ -153,114 +153,7 @@ public class DataEntryActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
 
-                // Acquire a reference to the system Location Manager
-                if (locationManager == null) {
-
-                    locationManager = (LocationManager) DataEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
-
-                }
-
-                // Check if GPS is turned on. If not, prompt the user to turn it on.
-                if ( !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
-
-                    buildAlertMessageNoGps();
-                    return;
-
-                }
-
-                // Define a listener that responds to location updates
-                if (locationListener == null) {
-
-                    locationListener = new LocationListener() {
-
-                        public void onLocationChanged(Location location) {
-
-                            // Called when a new location is found by the GPS location provider.
-                            setLocationDetails(location);
-
-                            try {
-
-                                // Stop listening to the GPS
-                                locationManager.removeUpdates(locationListener);
-
-                            } catch (SecurityException e) {
-
-                                // Show error message if permissions are missing
-                                Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
-
-                            }
-
-                        }
-
-                        public void onStatusChanged(String provider, int status, Bundle extras) {
-                        }
-
-                        public void onProviderEnabled(String provider) {
-                        }
-
-                        public void onProviderDisabled(String provider) {
-                        }
-
-                    };
-
-                }
-
-                // Check if the user has granted permission for using GPS
-                if ( ContextCompat.checkSelfPermission( DataEntryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-
-                    // Ask user for permission
-                    ActivityCompat.requestPermissions( DataEntryActivity.this, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  }, MY_PERMISSION_ACCESS_FINE_LOCATION );
-
-                } else {
-
-                    // Set flag to false. This flag is set to true inside location listener when user location is got.
-                    locationUpdated = false;
-
-                    // Register the listener with the Location Manager to receive location updates
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                    Toast.makeText(DataEntryActivity.this, R.string.retrieving_location, Toast.LENGTH_LONG).show();
-
-                    // Wait for specified time and check if we got a location. If not, use last known location.
-                    new Handler().postDelayed(new Runnable() {
-
-                        @Override
-                        public void run() {
-
-                            // Check if locationUpdated flag is still false. If it is still false, it means
-                            // users location still not determined. Try using previous location.
-                            if (!locationUpdated) {
-
-                                try {
-
-                                    // Get last known location
-                                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-                                    // Stop listening to GPS updates
-                                    locationManager.removeUpdates(locationListener);
-
-                                    // Call function to set location details
-                                    // setLocationDetails(location);
-
-                                    // Do not fallback to previous location, as per Github Issue 8
-                                    Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
-
-                                } catch (SecurityException e) {
-
-                                    Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
-
-                                } catch (Exception e) {
-
-                                    Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
-                                    e.printStackTrace();
-
-                                }
-
-                            }
-
-                        }
-                    }, ConstantsAndHelpers.GPS_TIME_OUT);
-
-                }
+                initiateGpsFetch();
 
             }
 
@@ -372,6 +265,125 @@ public class DataEntryActivity extends BaseActivity {
         materialsDropdown.setAdapter(materialsAdapter);
 
         prePopulateFields();
+
+        // Automatically query GPS data when Activity starts
+        initiateGpsFetch();
+
+    }
+
+    /**
+     * This function contains the flow for fetching data from GPS
+     */
+    private void initiateGpsFetch() {
+
+        // Acquire a reference to the system Location Manager
+        if (locationManager == null) {
+
+            locationManager = (LocationManager) DataEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
+
+        }
+
+        // Check if GPS is turned on. If not, prompt the user to turn it on.
+        if ( !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
+
+            buildAlertMessageNoGps();
+            return;
+
+        }
+
+        // Define a listener that responds to location updates
+        if (locationListener == null) {
+
+            locationListener = new LocationListener() {
+
+                public void onLocationChanged(Location location) {
+
+                    // Called when a new location is found by the GPS location provider.
+                    setLocationDetails(location);
+
+                    try {
+
+                        // Stop listening to the GPS
+                        locationManager.removeUpdates(locationListener);
+
+                    } catch (SecurityException e) {
+
+                        // Show error message if permissions are missing
+                        Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
+
+                    }
+
+                }
+
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                }
+
+                public void onProviderEnabled(String provider) {
+                }
+
+                public void onProviderDisabled(String provider) {
+                }
+
+            };
+
+        }
+
+        // Check if the user has granted permission for using GPS
+        if ( ContextCompat.checkSelfPermission( DataEntryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+
+            // Ask user for permission
+            ActivityCompat.requestPermissions( DataEntryActivity.this, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  }, MY_PERMISSION_ACCESS_FINE_LOCATION );
+
+        } else {
+
+            // Set flag to false. This flag is set to true inside location listener when user location is got.
+            locationUpdated = false;
+
+            // Register the listener with the Location Manager to receive location updates
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            Toast.makeText(DataEntryActivity.this, R.string.retrieving_location, Toast.LENGTH_LONG).show();
+
+            // Wait for specified time and check if we got a location. If not, use last known location.
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    // Check if locationUpdated flag is still false. If it is still false, it means
+                    // users location still not determined. Try using previous location.
+                    if (!locationUpdated) {
+
+                        try {
+
+                            // Get last known location
+                            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                            // Stop listening to GPS updates
+                            locationManager.removeUpdates(locationListener);
+
+                            // Call function to set location details
+                            // setLocationDetails(location);
+
+                            // Do not fallback to previous location, as per Github Issue 8
+                            Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
+
+                        } catch (SecurityException e) {
+
+                            Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
+
+                        } catch (Exception e) {
+
+                            Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+
+                        }
+
+                    }
+
+                }
+            }, ConstantsAndHelpers.GPS_TIME_OUT);
+
+        }
 
     }
 
