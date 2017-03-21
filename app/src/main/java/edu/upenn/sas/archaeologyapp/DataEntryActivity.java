@@ -265,10 +265,14 @@ public class DataEntryActivity extends BaseActivity {
         // Apply the adapter to the spinner
         materialsDropdown.setAdapter(materialsAdapter);
 
-        prePopulateFields();
+        boolean prepopulatedData = prePopulateFields();
 
-        // Automatically query GPS data when Activity starts
-        initiateGpsFetch();
+        // Automatically query GPS data when Activity starts, if this is a new entry
+        if (!prepopulatedData) {
+
+            initiateGpsFetch();
+
+        }
 
     }
 
@@ -390,15 +394,16 @@ public class DataEntryActivity extends BaseActivity {
 
     /**
      * Check if any parameters were passed to this activity, and pre populate the data if required
+     * @return True if data was pre populated, false otherwise.
      */
-    private void prePopulateFields() {
+    private boolean prePopulateFields() {
 
         String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
 
         // If null, it means nothing was passed
         if (id == null) {
 
-            return;
+            return false;
 
         }
 
@@ -450,6 +455,8 @@ public class DataEntryActivity extends BaseActivity {
             commentsEditText.setText(_comments);
 
         }
+
+        return true;
 
     }
 
