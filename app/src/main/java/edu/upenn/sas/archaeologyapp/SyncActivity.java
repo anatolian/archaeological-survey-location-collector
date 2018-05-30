@@ -6,6 +6,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,6 +18,11 @@ import net.gotev.uploadservice.UploadNotificationConfig;
 import net.gotev.uploadservice.UploadServiceBroadcastReceiver;
 
 import java.util.ArrayList;
+
+import static android.os.Build.VERSION_CODES.M;
+import static edu.upenn.sas.archaeologyapp.R.string.latitude;
+import static edu.upenn.sas.archaeologyapp.util.StateStatic.globalWebServerURL;
+import edu.upenn.sas.archaeologyapp.services.*;
 
 /**
  * This activity is responsible for uploading all the records from the local database onto a server.
@@ -47,16 +56,22 @@ public class SyncActivity extends AppCompatActivity {
      */
     DataBaseHandler dataBaseHandler;
 
+    /**
+     * A request queue to handle python requests
+     */
+    RequestQueue queue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sync);
 
-        // Initialise the database helper class object, and read in the records from the local databse
+        // Initialise the database helper class object, and read in the records from the local database
         dataBaseHandler = new DataBaseHandler(this);
         elementsToUpload = dataBaseHandler.getRows();
         totalItems = elementsToUpload.size();
         uploadIndex = 0;
+        queue = Volley.newRequestQueue(this);
 
         // Attach a click listener to the sync button, and trigger the sync process on click of the button
         syncButton = (Button) findViewById(R.id.sync_button_sync_activity);
@@ -71,11 +86,19 @@ public class SyncActivity extends AppCompatActivity {
 
                 }
 
+
                 // Disable the sync button while the sync is in progress
                 syncButton.setEnabled(false);
 
-                try {
+                uploadFind();
 
+
+
+
+
+
+                /* OLD METHOD
+                try {
                     // Make a call to upload the current record
                     Toast.makeText(SyncActivity.this, String.format("Uploading item %2d out of %2d", uploadIndex+1, totalItems), Toast.LENGTH_SHORT).show();
                     new MultipartUploadRequest(SyncActivity.this, ConstantsAndHelpers.UPLOAD_URL)
@@ -88,20 +111,85 @@ public class SyncActivity extends AppCompatActivity {
                         .addParameter("comment", elementsToUpload.get(uploadIndex).getComments())
                         .addParameter("created_ts", Long.toString(elementsToUpload.get(uploadIndex).getCreatedTimestamp()))
                         .addParameter("updated_ts", Long.toString(elementsToUpload.get(uploadIndex).getUpdateTimestamp()))
-                        .addFileToUpload(elementsToUpload.get(uploadIndex).getImagePath(), "image")
+                        // TODO: .addFileToUpload(elementsToUpload.get(uploadIndex).getImagePath(), "image")
                         .setNotificationConfig(new UploadNotificationConfig())
                         .setMaxRetries(2)
                         .startUpload();
+
 
                 } catch (Exception ex) {
                     Toast.makeText(SyncActivity.this, "Unexpected error while trying to upload record.", Toast.LENGTH_SHORT).show();
                     syncButton.setEnabled(true);
                     ex.printStackTrace();
                 }
+                */
 
             }
         });
 
+    }
+
+    private void uploadFind() {
+        if (uploadIndex < totalItems) {
+            DataEntryElement find = elementsToUpload.get(uploadIndex);
+
+
+            String zone = Integer.toString(find.getZone());
+            String hemisphere = find.getHemisphere();
+            String easting = Integer.toString(find.getEasting());
+            String northing = Integer.toString(find.getNorthing());
+            String sample = Integer.toString(find.getSample());
+
+            String latitude = Double.toString(find.getLatitude());
+            String longitude = Double.toString(find.getLongitude());
+            String altitude = Double.toString(find.getAltitude());
+
+            String status = find.getStatus();
+            String category = "Misc"; //find.getCategory();
+            String ARratio = "1.7";
+            String comments = find.getComments();
+
+            edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?zone=" + zone
+                            + "&hemisphere=" + hemisphere + "&easting=" + easting + "&northing=" + northing
+                            + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude + "&altitude=" + altitude + "&status=" + status + "&category=" + category + "&comments=" + comments + "&ARratio=" + ARratio, queue,
+                    new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
+                        /**
+                         * Response received
+                         * @param response - database response
+                         */
+                        @Override
+                        public void responseMethod(String response)
+                        {
+                            if (response.contains("Error"))
+                            {
+                                Toast.makeText(getApplicationContext(), "Successfully added find", Toast.LENGTH_SHORT).show();
+                                uploadIndex++;
+                                uploadFind();
+                            }
+                            else
+                            {
+                                Toast.makeText(getApplicationContext(), "Upload unsuccessful", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+
+                        /**
+                         * Connection failed
+                         * @param error - failure
+                         */
+                        @Override
+                        public void errorMethod(VolleyError error)
+                        {
+                            Toast.makeText(getApplicationContext(), "Upload unsuccessful: communication error", Toast.LENGTH_SHORT).show();
+                            error.printStackTrace();
+                        }
+                    });
+
+        } else {
+
+            Toast.makeText(SyncActivity.this, "Done syncing finds", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     @Override
@@ -196,7 +284,7 @@ public class SyncActivity extends AppCompatActivity {
                                 .addParameter("comment", elementsToUpload.get(uploadIndex).getComments())
                                 .addParameter("created_ts", Long.toString(elementsToUpload.get(uploadIndex).getCreatedTimestamp()))
                                 .addParameter("updated_ts", Long.toString(elementsToUpload.get(uploadIndex).getUpdateTimestamp()))
-                                .addFileToUpload(elementsToUpload.get(uploadIndex).getImagePath(), "image")
+                                // TODO: .addFileToUpload(elementsToUpload.get(uploadIndex).getImagePath(), "image")
                                 .setNotificationConfig(new UploadNotificationConfig())
                                 .setMaxRetries(2)
                                 .startUpload();

@@ -23,6 +23,31 @@ public class ConstantsAndHelpers {
     public static String PARAM_KEY_ID = "entry_id";
 
     /**
+     * Bundle key for zone
+     */
+    public static String PARAM_KEY_ZONE = "zone";
+
+    /**
+     * Bundle key for hemisphere
+     */
+    public static String PARAM_KEY_HEMISPHERE = "hemisphere";
+
+    /**
+     * Bundle key for northing
+     */
+    public static String PARAM_KEY_NORTHING = "northing";
+
+    /**
+     * Bundle key for easting
+     */
+    public static String PARAM_KEY_EASTING = "easting";
+
+    /**
+     * Bundle key for sample
+     */
+    public static String PARAM_KEY_SAMPLE = "sample";
+
+    /**
      * Bundle key for latitude
      */
     public static String PARAM_KEY_LATITUDE = "latitude";
@@ -38,6 +63,11 @@ public class ConstantsAndHelpers {
     public static String PARAM_KEY_ALTITUDE = "altitude";
 
     /**
+     * Bundle key for status
+     */
+    public static String PARAM_KEY_STATUS = "status";
+
+    /**
      * Bundle key for material
      */
     public static String PARAM_KEY_MATERIAL = "material";
@@ -45,7 +75,7 @@ public class ConstantsAndHelpers {
     /**
      * Bundle key for image
      */
-    public static String PARAM_KEY_IMAGE = "image";
+    public static String PARAM_KEY_IMAGES = "images";
 
     /**
      * Bundle key for comments
@@ -61,5 +91,10 @@ public class ConstantsAndHelpers {
      * The secret code expected by the server to authenticate the request
      */
     public static String APP_SECRET = "6de72eea-251a-45e6-96b3-8f8fa7a2a2de";
+
+    /**
+     * Default time interval for updating the position
+     */
+    public static int DEFAULT_POSITION_UPDATE_INTERVAL = 1;
 
 }

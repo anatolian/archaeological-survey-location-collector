@@ -25,7 +25,7 @@
         <TextView
             android:id="@+id/bucket_list_entry_category_text_view"
             android:layout_weight="2"
-            style="@android:style/TextAppearance.DeviceDefault.Large"
+            style="@android:style/TextAppearance.DeviceDefault.Medium"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
@@ -33,7 +33,7 @@
             android:ellipsize="end"
             android:padding="10dp"
             android:textStyle="bold"
-            android:maxLines="2"
+            android:maxLines="1"
             android:textColor="@android:color/black" />
 
         <ImageButton
@@ -41,7 +41,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_dialog_map"
-            android:layout_weight="1"/>
+            android:layout_weight="0.80"/>
 
     </LinearLayout>
 

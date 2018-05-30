@@ -10,6 +10,7 @@
 
     <!-- DATA ENTRY ACTIVITY -->
     <color name="dataEntryButtonBackgroundColor">#000000</color>
+    <color name="dataEntryButtonBackgroundColorPaused">#444444</color>
     <color name="dataEntryButtonTextColor">#FFFFFF</color>
 
 </resources>

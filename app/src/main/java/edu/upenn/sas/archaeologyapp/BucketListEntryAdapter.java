@@ -11,7 +11,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.File;
+
+import static edu.upenn.sas.archaeologyapp.R.id.map;
 
 /**
  * The adapter class for populating each item in the bucket list
@@ -24,6 +30,11 @@ public class BucketListEntryAdapter extends ArrayAdapter<DataEntryElement> {
      * Resource ID of the layout for a bucket list entry
      */
     private final int listItemLayoutResource;
+
+    /**
+     * A reference to MainActivity's google map
+     */
+    private GoogleMap googleMap;
 
     /**
      * Constructor
@@ -45,31 +56,39 @@ public class BucketListEntryAdapter extends ArrayAdapter<DataEntryElement> {
         // retrieve its corresponding ViewHolder, which optimizes lookup efficiency
         final View view = getWorkingView(convertView);
         final ViewHolder viewHolder = getViewHolder(view);
-        final DataEntryElement entry = getItem(position);
+        final DataEntryElement elem = getItem(position);
 
         // Set the category
         // TODO: See ISSUE #6 on github
-        viewHolder.categoryTV.setText(entry.getMaterial());
+        String id = elem.getZone()+"."+elem.getHemisphere()+"."+elem.getNorthing()+"."+elem.getEasting()+"."+elem.getSample();
+        viewHolder.categoryTV.setText(id);
 
         // Set the image
-        viewHolder.imageView.setImageURI(Uri.fromFile(new File(entry.getImagePath())));
+        //viewHolder.imageView.setImageURI(Uri.fromFile(new File(elem.getImagePaths().get(0))));
 
         // Open Maps with GPS locaiton of this entry
         viewHolder.mapButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-
-                // Open maps with saved latitude and longitude
-                String loc = "geo:0,0?q=" + entry.getLatitude() + "," + entry.getLongitude() + "(" + getContext().getString(R.string.location_map_pin_label) + ")" + "&z=16";
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(loc));
-                getContext().startActivity(mapIntent);
-
+                if (googleMap != null) {
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(elem.getLatitude(), elem.getLongitude()), 20));
+                }
             }
 
         });
 
         return view;
+
+    }
+
+    /**
+     * A helper function to pass this adapter a reference to MainActivity's google map
+     * @param map
+     */
+    public void setMap(GoogleMap map) {
+
+        googleMap = map;
 
     }
 
