@@ -335,6 +335,8 @@ public class DataEntryActivity extends BaseActivity {
                 // Create an intent for selecting an image, and start that activity with SELECT_IMAGE requestCode
                 Intent chooseIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 chooseIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                chooseIntent.setType("image/*");
+//                chooseIntent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(chooseIntent, SELECT_IMAGE);
             }
 
@@ -675,7 +677,20 @@ public class DataEntryActivity extends BaseActivity {
                 if (requestCode == SELECT_IMAGE) {
 
                     // Get the multiples images returned within a ClipData object
+
                     ClipData imageData = data.getClipData();
+                    if (imageData == null)
+                    {
+                        Uri uri = data.getData();
+                        // Add this image to the bitmap arraylist
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        ArrayList<Bitmap> bitmapArray = new ArrayList<Bitmap>();
+                        bitmapArray.add(bitmap);
+                        // Try saving this bitmap
+                        if(!saveToFile(bitmap)) {
+                            throw new Exception(getString(R.string.save_failed_exception));
+                        }
+                    }
                     // Define a bitmap arraylist to display later
                     ArrayList<Bitmap> bitmapArray = new ArrayList<Bitmap>();
 
@@ -688,7 +703,6 @@ public class DataEntryActivity extends BaseActivity {
                             // Add this image to the bitmap arraylist
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                             bitmapArray.add(bitmap);
-
                             // Try saving this bitmap
                             if(!saveToFile(bitmap)) {
                                 throw new Exception(getString(R.string.save_failed_exception));

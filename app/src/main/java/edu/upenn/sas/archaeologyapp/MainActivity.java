@@ -161,7 +161,14 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 googleMap = m;
                 findsListEntryAdapter.setMap(m);
                 pathsListEntryAdapter.setMap(m);
-                m.setMyLocationEnabled(true);
+                try
+                {
+                    m.setMyLocationEnabled(true);
+                }
+                catch (SecurityException e)
+                {
+                    Toast.makeText(getApplicationContext(), "Location must be enabled", Toast.LENGTH_LONG).show();
+                }
                 m.getUiSettings().setMyLocationButtonEnabled(true);
                 m.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
