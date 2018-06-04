@@ -20,6 +20,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -375,10 +376,12 @@ public class DataEntryActivity extends BaseActivity {
 
                 // Open a camera app to capture images, if available
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
+                cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outputFromCamera));
+                    Context context = getApplicationContext();
+                    Uri photoURI = FileProvider.getUriForFile(context, context.getPackageName()
+                            + ".my.package.name.provider", outputFromCamera);
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                     startActivityForResult(cameraIntent, CAMERA_REQUEST);
 
                 } else {
@@ -717,7 +720,10 @@ public class DataEntryActivity extends BaseActivity {
                 else if (requestCode == CAMERA_REQUEST) {
 
                     // Read the captured image into BITMAP
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(lastCameraPictureURI)));
+                    Context context = getApplicationContext();
+                    Uri photoURI = FileProvider.getUriForFile(context, context.getPackageName()
+                            + ".my.package.name.provider", createImageFile(true));
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), photoURI);
 
                     // Try saving the image
                     if(!saveToFile(bitmap)) {
