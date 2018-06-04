@@ -722,9 +722,9 @@ public class DataEntryActivity extends BaseActivity {
                     // Read the captured image into BITMAP
                     Context context = getApplicationContext();
                     Uri photoURI = FileProvider.getUriForFile(context, context.getPackageName()
-                            + ".my.package.name.provider", createImageFile(true));
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), photoURI);
-
+                            + ".my.package.name.provider", createImageFile(false));
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
+                    Log.v("Camera", bitmap.toString());
                     // Try saving the image
                     if(!saveToFile(bitmap)) {
                         throw new Exception(getString(R.string.save_failed_exception));
@@ -910,17 +910,17 @@ public class DataEntryActivity extends BaseActivity {
         // Create an image file name using timestamp
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-
+        Log.v("Camera", imageFileName);
         // Use the apps storage
-        File storageDir = getFilesDir();
-
+        File storageDir = new File(Environment.getExternalStorageDirectory().toString());
+        Log.v("Camera", storageDir.getAbsolutePath());
         // If the file is being created to be sent to camera app, we need to use external storage
         // as the app storage returned above is private to the app and the camera will not be able to
         // access it
         if (forCamera) {
 
             storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
+            Log.v("Camera", storageDir.getAbsolutePath());
         }
 
         // Create the image file with required name, extension type and storage path
@@ -933,7 +933,7 @@ public class DataEntryActivity extends BaseActivity {
                     ".jpg",         /* suffix */
                     storageDir      /* directory */
             );
-
+            Log.v("Camera", image.getAbsolutePath());
         } catch (Exception e) {
 
             e.printStackTrace();
