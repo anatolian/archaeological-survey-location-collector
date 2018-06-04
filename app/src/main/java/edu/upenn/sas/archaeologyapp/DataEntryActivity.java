@@ -967,10 +967,10 @@ public class DataEntryActivity extends BaseActivity {
     }
 
     private void resetUTMLocation() {
-        gridTextView.setText(R.string.blank_id);
-        northingTextView.setText(R.string.blank_id);
-        eastingTextView.setText(R.string.blank_id);
-        sampleTextView.setText(R.string.blank_id);
+        gridTextView.setText(R.string.blank_assignment);
+        northingTextView.setText(R.string.blank_assignment);
+        eastingTextView.setText(R.string.blank_assignment);
+        sampleTextView.setText(R.string.blank_assignment);
     }
 
     /**
@@ -1384,7 +1384,7 @@ public class DataEntryActivity extends BaseActivity {
 
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
-        dataBaseHandler.addRows(list);
+        dataBaseHandler.addFindsRows(list);
 
     }
 

@@ -68,7 +68,7 @@ public class SyncActivity extends AppCompatActivity {
 
         // Initialise the database helper class object, and read in the records from the local database
         dataBaseHandler = new DataBaseHandler(this);
-        elementsToUpload = dataBaseHandler.getRows();
+        elementsToUpload = dataBaseHandler.getFindsRows();
         totalItems = elementsToUpload.size();
         uploadIndex = 0;
         queue = Volley.newRequestQueue(this);
@@ -258,7 +258,7 @@ public class SyncActivity extends AppCompatActivity {
                             String recordId = jObj.getString("results");
 
                             // Remove local copy
-                            dataBaseHandler.removeRow(recordId);
+                            dataBaseHandler.removeFindsRow(recordId);
 
                             // Move to the next record to be uploaded
                             uploadIndex++;

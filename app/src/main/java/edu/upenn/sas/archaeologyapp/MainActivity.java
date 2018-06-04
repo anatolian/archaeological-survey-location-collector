@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,10 +17,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Color;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +30,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,20 +51,38 @@ import static edu.upenn.sas.archaeologyapp.R.string.longitude;
 
 public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener{
 
+    private static int FINDS_MODE = 0;
+    private static int PATHS_MODE = 1;
+
+    /**
+     * This int represents what we want to display (paths or finds). We start with finds.
+     */
+    int displayMode = FINDS_MODE;
+
     /**
      * Reference to the list view
      */
     ListView listView;
 
     /**
-     * Reference to the list entry adapter
+     * Reference to the list entry adapter for finds
      */
-    BucketListEntryAdapter listEntryAdapter;
+    BucketListEntryAdapter findsListEntryAdapter;
+
+    /**
+     * Reference to the list entry adapter for paths
+     */
+    PathEntryAdapter pathsListEntryAdapter;
 
     /**
      * Reference to the swipe refresh layout
      */
     SwipeRefreshLayout swipeRefreshLayout;
+
+    /**
+     * Reference to the bottom bar
+     */
+    BottomNavigationView displayModeBar;
 
     /**
      * Reference to the Google map
@@ -136,7 +159,10 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             @Override
             public void onMapReady(GoogleMap m) {
                 googleMap = m;
-                listEntryAdapter.setMap(m);
+                findsListEntryAdapter.setMap(m);
+                pathsListEntryAdapter.setMap(m);
+                m.setMyLocationEnabled(true);
+                m.getUiSettings().setMyLocationButtonEnabled(true);
                 m.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                 googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
                     @Override
@@ -165,14 +191,49 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
+        // Set the bottom bar
+        displayModeBar = (BottomNavigationView) findViewById(R.id.displayModeBar);
+        displayModeBar.setOnNavigationItemSelectedListener(
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.navigation_finds:
+                            // Clicked on finds button
+                            displayMode = FINDS_MODE;
+                            listView.setAdapter(findsListEntryAdapter);
+                            setTitle(R.string.title_activity_main);
+                            break;
+                        case R.id.navigation_paths:
+                            // Clicked on paths button
+                            displayMode = PATHS_MODE;
+                            listView.setAdapter(pathsListEntryAdapter);
+                            setTitle(R.string.title_activity_paths);
+                            break;
+                    }
+                    populateDataFromLocalStore();
+                    return false;
+                }
+        });
+
         // Configure the new action button to handle clicks
         findViewById(R.id.fab_new).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
-                // Open DataEntryActivity to create a new entry
-                MainActivity.super.startActivityUsingIntent(DataEntryActivity.class, false);
+                if (displayMode == FINDS_MODE) {
+
+                    // Open DataEntryActivity to create a new find entry
+                    MainActivity.super.startActivityUsingIntent(DataEntryActivity.class, false);
+
+                } else if (displayMode == PATHS_MODE) {
+
+                    // Open PathEntryActivity to create a new path entry
+                    MainActivity.super.startActivityUsingIntent(PathEntryActivity.class, false);
+
+                }
+
 
             }
 
@@ -192,8 +253,11 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
         // Store references to the list and list entry
         listView = (ListView) findViewById(R.id.main_activity_list_view);
-        listEntryAdapter = new BucketListEntryAdapter(this, R.layout.bucket_list_entry);
-        listView.setAdapter(listEntryAdapter);
+        findsListEntryAdapter = new BucketListEntryAdapter(this, R.layout.bucket_list_entry);
+        pathsListEntryAdapter = new PathEntryAdapter(this, R.layout.paths_list_entry);
+
+        // Default to lisitng the finds first
+        listView.setAdapter(findsListEntryAdapter);
 
         // Configure the list items to handle clicks
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -201,25 +265,53 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
-                // Open the data entry activity with fields pre-populated
-                DataEntryElement dataEntryElement = listEntryAdapter.getItem(position);
+                if (displayMode == FINDS_MODE) {
 
-                Bundle paramsToPass = new Bundle();
-                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_ID, dataEntryElement.getID());
-                paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_ZONE, dataEntryElement.getZone());
-                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE, dataEntryElement.getHemisphere());
-                paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_NORTHING, dataEntryElement.getNorthing());
-                paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_EASTING, dataEntryElement.getEasting());
-                paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_SAMPLE, dataEntryElement.getSample());
-                paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LATITUDE, dataEntryElement.getLatitude());
-                paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
-                paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, dataEntryElement.getAltitude());
-                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_STATUS, dataEntryElement.getStatus());
-                paramsToPass.putStringArrayList(ConstantsAndHelpers.PARAM_KEY_IMAGES, dataEntryElement.getImagePaths());
-                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_MATERIAL, dataEntryElement.getMaterial());
-                paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_COMMENTS, dataEntryElement.getComments());
+                    // Open the data entry activity with fields pre-populated
+                    DataEntryElement dataEntryElement = findsListEntryAdapter.getItem(position);
 
-                startActivityUsingIntent(DataEntryActivity.class, false, paramsToPass);
+                    Bundle paramsToPass = new Bundle();
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_ID, dataEntryElement.getID());
+                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_ZONE, dataEntryElement.getZone());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE, dataEntryElement.getHemisphere());
+                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_NORTHING, dataEntryElement.getNorthing());
+                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_EASTING, dataEntryElement.getEasting());
+                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_SAMPLE, dataEntryElement.getSample());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LATITUDE, dataEntryElement.getLatitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, dataEntryElement.getAltitude());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_STATUS, dataEntryElement.getStatus());
+                    paramsToPass.putStringArrayList(ConstantsAndHelpers.PARAM_KEY_IMAGES, dataEntryElement.getImagePaths());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_MATERIAL, dataEntryElement.getMaterial());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_COMMENTS, dataEntryElement.getComments());
+
+                    startActivityUsingIntent(DataEntryActivity.class, false, paramsToPass);
+
+                } else if (displayMode == PATHS_MODE) {
+
+                    // Open the paths entry activity with fields pre-populated
+                    PathElement pathElement = pathsListEntryAdapter.getItem(position);
+
+                    Bundle paramsToPass = new Bundle();
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_TEAM_MEMBER, pathElement.getTeamMember());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_LATITUDE, pathElement.getBeginLatitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_LONGITUDE, pathElement.getBeginLongitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_ALTITUDE, pathElement.getBeginAltitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_LATITUDE, pathElement.getEndLatitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_LONGITUDE, pathElement.getEndLongitude());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_ALTITUDE, pathElement.getEndAltitude());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE, pathElement.getHemisphere());
+                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_ZONE, pathElement.getZone());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_EASTING, pathElement.getBeginEasting());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_NORTHING, pathElement.getBeginNorthing());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_EASTING, pathElement.getEndEasting());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_NORTHING, pathElement.getEndNorthing());
+                    paramsToPass.putLong(ConstantsAndHelpers.PARAM_KEY_BEGIN_TIME, pathElement.getBeginTime());
+                    paramsToPass.putLong(ConstantsAndHelpers.PARAM_KEY_END_TIME, pathElement.getEndTime());
+
+                    startActivityUsingIntent(PathEntryActivity.class, false, paramsToPass);
+
+                }
 
             }
 
@@ -258,6 +350,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 public void onLocationChanged(Location location) {
 
                     // Called when a new location is found by the GPS location provider.
+                    System.out.println("CHANGING LOCATION!!!!");
                     updateGPSlocation(location);
 
                 }
@@ -307,29 +400,71 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
      */
     private void populateDataFromLocalStore() {
 
-        // Get data from DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
-        int numrows = dataBaseHandler.getRows().size();
 
-        // Populate map markers
-        if (googleMap != null) {
-            googleMap.clear();
-            for (DataEntryElement elem : dataBaseHandler.getRows()) {
-                String id = elem.getZone()+"."+elem.getHemisphere()+"."+elem.getNorthing()+"."+elem.getEasting()+"."+elem.getSample();
-                googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getLatitude(), elem.getLongitude())).title(id));
+        if (displayMode == FINDS_MODE) {
+
+            // Get data from DB
+            int numrows = dataBaseHandler.getFindsRows().size();
+
+            // Populate map markers
+            if (googleMap != null) {
+                googleMap.clear();
+                for (DataEntryElement elem : dataBaseHandler.getFindsRows()) {
+                    String id = elem.getZone()+"."+elem.getHemisphere()+"."+elem.getNorthing()+"."+elem.getEasting()+"."+elem.getSample();
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getLatitude(), elem.getLongitude())).title(id));
+                }
+
+                // Set map center to last placed marker
+                if (numrows > 0) {
+                    DataEntryElement lastElem = dataBaseHandler.getFindsRows().get(numrows - 1);
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastElem.getLatitude(), lastElem.getLongitude()), 14));
+                }
             }
 
-            // Set map center to last placed marker
-            if (numrows > 0) {
-                DataEntryElement lastElem = dataBaseHandler.getRows().get(numrows - 1);
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastElem.getLatitude(), lastElem.getLongitude()), 14));
+            // Clear list and populate with data got from DB
+            findsListEntryAdapter.clear();
+            findsListEntryAdapter.addAll(dataBaseHandler.getUnsyncedFindsRows());
+            findsListEntryAdapter.notifyDataSetChanged();
+
+        } else if (displayMode == PATHS_MODE) {
+
+            // Get data from DB
+            int numrows = dataBaseHandler.getPathsRows().size();
+
+            // Populate map markers and lines
+            if (googleMap != null) {
+                googleMap.clear();
+                for (PathElement elem : dataBaseHandler.getPathsRows()) {
+                    String id = elem.getTeamMember()+"'s path, "+elem.getBeginTime();
+
+                    // Add the starting point
+                    googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude())).title(id));
+
+                    // Add the end point and line if it exists
+                    if (elem.getEndTime() != 0) {
+                        googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getEndLatitude(), elem.getEndLongitude())).title(id));
+                        Polyline line = googleMap.addPolyline(new PolylineOptions()
+                                .add(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude()), new LatLng(elem.getEndLatitude(), elem.getEndLongitude()))
+                                .width(5)
+                                .color(Color.RED));
+                    }
+
+                }
+
+                // Set map center to last placed path marker
+                if (numrows > 0) {
+                    PathElement lastElem = dataBaseHandler.getPathsRows().get(numrows - 1);
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastElem.getBeginLatitude(), lastElem.getBeginLongitude()), 17));
+                }
             }
+
+            pathsListEntryAdapter.clear();
+            pathsListEntryAdapter.addAll(dataBaseHandler.getPathsRows());
+            pathsListEntryAdapter.notifyDataSetChanged();
+
         }
 
-        // Clear list and populate with data got from DB
-        listEntryAdapter.clear();
-        listEntryAdapter.addAll(dataBaseHandler.getUnsyncedRows());
-        listEntryAdapter.notifyDataSetChanged();
 
     }
 
@@ -376,9 +511,9 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     }
 
     private void resetUTMLocation() {
-        gridTextView.setText(R.string.blank_id);
-        northingTextView.setText(R.string.blank_id);
-        eastingTextView.setText(R.string.blank_id);
+        gridTextView.setText(R.string.blank_assignment);
+        northingTextView.setText(R.string.blank_assignment);
+        eastingTextView.setText(R.string.blank_assignment);
     }
 
     /**
@@ -450,11 +585,38 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     }
 
     @Override
+    protected void onPause() {
+
+        super.onPause();
+
+        // Stop listening to GPS, if still listening
+        try {
+
+            locationManager.removeUpdates(locationListener);
+
+        } catch (SecurityException e) {
+
+            //Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+
+    @Override
     protected void onResume() {
 
         super.onResume();
 
+        // Repopulate data
         populateDataFromLocalStore();
+
+        // initiate GPS again
+        initiateGPS();
 
     }
 

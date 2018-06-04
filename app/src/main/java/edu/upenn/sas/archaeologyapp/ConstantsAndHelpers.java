@@ -83,6 +83,71 @@ public class ConstantsAndHelpers {
     public static String PARAM_KEY_COMMENTS = "comments";
 
     /**
+     * Bundle key for team member
+     */
+    public static String PARAM_KEY_TEAM_MEMBER = "team_member";
+
+    /**
+     * Bundle key for begin latitude
+     */
+    public static String PARAM_KEY_BEGIN_LATITUDE = "begin_latitude";
+
+    /**
+     * Bundle key for end latitude
+     */
+    public static String PARAM_KEY_END_LATITUDE = "end_latitude";
+
+    /**
+     * Bundle key for begin longitude
+     */
+    public static String PARAM_KEY_BEGIN_LONGITUDE = "begin_longitude";
+
+    /**
+     * Bundle key for end longitude
+     */
+    public static String PARAM_KEY_END_LONGITUDE = "end_longitude";
+
+    /**
+     * Bundle key for beign altitude
+     */
+    public static String PARAM_KEY_BEGIN_ALTITUDE = "begin_altitude";
+
+    /**
+     * Bundle key for end altitude
+     */
+    public static String PARAM_KEY_END_ALTITUDE = "end_altitude";
+
+    /**
+     * Bundle key for begin easting
+     */
+    public static String PARAM_KEY_BEGIN_EASTING = "begin_easting";
+
+    /**
+     * Bundle key for begin northing
+     */
+    public static String PARAM_KEY_BEGIN_NORTHING = "begin_northing";
+
+    /**
+     * Bundle key for end easting
+     */
+    public static String PARAM_KEY_END_EASTING = "end_easting";
+
+    /**
+     * Bundle key for end northing
+     */
+    public static String PARAM_KEY_END_NORTHING = "end_northing";
+
+    /**
+     * Bundle key for begin time
+     */
+    public static String PARAM_KEY_BEGIN_TIME = "begin_time";
+
+    /**
+     * Bundle key for end time
+     */
+    public static String PARAM_KEY_END_TIME = "end_time";
+
+    /**
      * The REST API endpoint for syncing data
      */
     public static String UPLOAD_URL = "https://pennmuseum2017.pythonanywhere.com/index/m_upload_record/";
@@ -96,5 +161,15 @@ public class ConstantsAndHelpers {
      * Default time interval for updating the position
      */
     public static int DEFAULT_POSITION_UPDATE_INTERVAL = 1;
+
+    /**
+     * Default host for an Emlid Reach position output server
+     */
+    public static final String DEFAULT_REACH_HOST = "127.0.0.1";
+
+    /**
+     * Default port for an Emlid Reach position output server
+     */
+    public static final String DEFAULT_REACH_PORT = "9001";
 
 }

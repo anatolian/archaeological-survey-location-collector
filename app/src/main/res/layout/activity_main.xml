@@ -23,17 +23,42 @@
     </android.support.design.widget.AppBarLayout>
 
     <include
-        android:layout_marginTop="?attr/actionBarSize"
+        layout="@layout/content_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        layout="@layout/content_main" />
+        android:layout_marginTop="?attr/actionBarSize"
+        app:layout_anchorGravity="left|top" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:gravity="bottom">
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/displayModeBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:foregroundGravity="bottom"
+            app:itemBackground="@color/colorPrimary"
+            app:itemIconTint="#ffffff"
+            app:itemTextColor="#ffffff"
+            app:menu="@menu/display_mode">
+
+
+        </android.support.design.widget.BottomNavigationView>
+
+    </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_new"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="60dp"
         app:srcCompat="@drawable/ic_plus_one_white_24dp" />
 
 

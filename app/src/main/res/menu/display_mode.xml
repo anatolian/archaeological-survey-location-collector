@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_finds"
+        android:icon="@drawable/baseline_add_location_white_24dp"
+        android:title="Finds"/>
+
+    <item
+        android:id="@+id/navigation_paths"
+        android:icon="@drawable/baseline_pin_drop_white_24dp"
+        android:title="Paths"/>
+
+</menu>

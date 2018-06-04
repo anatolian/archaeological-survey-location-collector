@@ -42,7 +42,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
         </activity>
-        <activity android:name=".SyncActivity"
+        <activity
+            android:name=".SyncActivity"
             android:label="@string/title_activity_sync"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -50,12 +51,23 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
         </activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBOrcno5jbXenfkX5q6QLynutngpw4shVo"/>
+            android:value="AIzaSyBOrcno5jbXenfkX5q6QLynutngpw4shVo" />
+
+        <activity
+            android:name=".PathEntryActivity"
+            android:label="@string/title_activity_path_entry"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

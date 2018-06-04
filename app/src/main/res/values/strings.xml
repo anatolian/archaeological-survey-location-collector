@@ -1,14 +1,22 @@
 <resources>
     <string name="app_name">Location Collector</string>
     <string name="splash_activity_title_text">Archaeological Survey\nLocation Collector</string>
-    <string name="title_activity_main">Record List</string>
+    <string name="title_activity_main">Finds List</string>
+    <string name="title_activity_paths">Paths List</string>
     <string name="title_activity_data_entry">New Record Form</string>
+    <string name="title_activity_path_entry">New Path Form</string>
     <string name="get_the_gps_location">Get the GNSS location</string>
     <string name="data_entry_show_map_button_description">Show GNSS location on map</string>
     <string name="latitude">Lat: %f</string>
     <string name="longitude">Lng: %f</string>
     <string name="altitude">Alt: %f</string>
     <string name="status">Status: %s</string>
+    <string name="grid">Grid: %s</string>
+    <string name="easting">Easting: %d</string>
+    <string name="northing">Northing: %d</string>
+    <string name="timestamp">Time: %f</string>
+    <string name="GPSConnection">GPS: %s</string>
+    <string name="reachConnection">Reach: %s</string>
     <string name="location_permission_denied_prompt">This app needs GNSS to get the location. Please allow access.</string>
     <string name="location_not_found">Sorry, but we were unable to determing your location. Please try again.</string>
     <string name="location_permission_granted_prompt">GNSS permission granted. Please try fetching location again.</string>
@@ -21,6 +29,8 @@
     <string name="gallery_button">GALLERY</string>
     <string name="camera_button">CAMERA</string>
     <string name="submit_button">SUBMIT</string>
+    <string name="start_path_button">START PATH</string>
+    <string name="stop_path_button">STOP PATH</string>
     <string name="save_failed_exception">Failed to save the file</string>
     <string name="save_failed_message">Unexpected error while fetching image. Please try again</string>
     <string name="select_image_prompt" type="id">Select Picture</string>
@@ -30,7 +40,7 @@
     <string name="comments_text_input_hint">Additional Comments</string>
     <string name="sync_button">SYNC</string>
     <string name="title_activity_sync">Sync</string>
-    <string name="blank_id">--</string>
+    <string name="blank_assignment">--</string>
     <string-array name="materials_array">
         <item>Bone</item>
         <item>Lithic</item>
@@ -39,4 +49,8 @@
         <item>Metal</item>
         <item>Other</item>
     </string-array>
+    <string name="no_connection">No Connection</string>
+    <string name="no_data">No Data</string>
+    <string name="timeout">Timeout</string>
+    <string name="connected">Connected</string>
 </resources>
