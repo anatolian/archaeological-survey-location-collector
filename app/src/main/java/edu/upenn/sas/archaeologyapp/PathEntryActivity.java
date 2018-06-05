@@ -1,71 +1,31 @@
 package edu.upenn.sas.archaeologyapp;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
-import android.widget.AdapterView;
 
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.math.RoundingMode;
-import java.math.BigDecimal;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
 
-import static android.R.attr.button;
-import static android.R.attr.start;
-import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.*;
-import static java.lang.System.currentTimeMillis;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_HOST;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_PORT;
 
 /**
  * The Activity where the user enters all the data
@@ -96,7 +56,7 @@ public class PathEntryActivity extends BaseActivity {
 
     private LocationCollector locationCollector;
 
-    private double liveLatitude, liveLongitude, liveAltitude;
+    private Double liveLatitude, liveLongitude, liveAltitude;
     private String liveStatus;
 
     private Integer beginZone, endZone;
@@ -128,55 +88,11 @@ public class PathEntryActivity extends BaseActivity {
 
         initialiseViews();
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.settings, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-
-    /**
-     * Initialises all the views and other layout components
-     */
-    private void initialiseViews() {
-
-        // Set the toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_path_entry);
-        setSupportActionBar(toolbar);
-
-        // Configure up button to go back to previous activity
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         // Load persistent app data from shared preferences
         SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
         String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
         String reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
         Integer positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
-
-        // Get references to the latitude, longitude, altitude, and status text views
-        beginLatitudeTextView = (TextView) findViewById(R.id.beginLatitude);
-        beginLongitudeTextView = (TextView) findViewById(R.id.beginLongitude);
-        beginAltitudeTextView = (TextView) findViewById(R.id.beginAltitude);
-        beginGridTextView = (TextView) findViewById(R.id.beginGrid);
-        beginNorthingTextView = (TextView) findViewById(R.id.beginNorthing);
-        beginEastingTextView = (TextView) findViewById(R.id.beginEasting);
-        beginTimeTextView = (TextView) findViewById(R.id.beginTime);
-        endLatitudeTextView = (TextView) findViewById(R.id.endLatitude);
-        endLongitudeTextView = (TextView) findViewById(R.id.endLongitude);
-        endAltitudeTextView = (TextView) findViewById(R.id.endAltitude);
-        endGridTextView = (TextView) findViewById(R.id.endGrid);
-        endNorthingTextView = (TextView) findViewById(R.id.endNorthing);
-        endEastingTextView = (TextView) findViewById(R.id.endEasting);
-        endTimeTextView = (TextView) findViewById(R.id.endTime);
-
-        GPSConnectionTextView = (TextView) findViewById(R.id.GPSConnection);
-        reachConnectionTextView = (TextView) findViewById(R.id.reachConnection);
-
-        GPSConnectionTextView.setText(String.format(getResources().getString(R.string.GPSConnection), getString(R.string.blank_assignment)));
-        reachConnectionTextView.setText(String.format(getResources().getString(R.string.GPSConnection), getString(R.string.blank_assignment)));
 
         // Initialize the locationCollector
         locationCollector = new LocationCollector(PathEntryActivity.this, reachHost, reachPort, positionUpdateInterval) {
@@ -199,16 +115,69 @@ public class PathEntryActivity extends BaseActivity {
             }
         };
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        locationCollector.cancelPositionUpdateTimer();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+
+    /**
+     * Initialises all the views and other layout components
+     */
+    private void initialiseViews() {
+
+        // Set the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_path_entry);
+        setSupportActionBar(toolbar);
+
+        // Configure up button to go back to previous activity
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Get references to the latitude, longitude, altitude, and status text views
+        beginLatitudeTextView = (TextView) findViewById(R.id.beginLatitude);
+        beginLongitudeTextView = (TextView) findViewById(R.id.beginLongitude);
+        beginAltitudeTextView = (TextView) findViewById(R.id.beginAltitude);
+        beginGridTextView = (TextView) findViewById(R.id.beginGrid);
+        beginNorthingTextView = (TextView) findViewById(R.id.beginNorthing);
+        beginEastingTextView = (TextView) findViewById(R.id.beginEasting);
+        beginTimeTextView = (TextView) findViewById(R.id.beginTime);
+        endLatitudeTextView = (TextView) findViewById(R.id.endLatitude);
+        endLongitudeTextView = (TextView) findViewById(R.id.endLongitude);
+        endAltitudeTextView = (TextView) findViewById(R.id.endAltitude);
+        endGridTextView = (TextView) findViewById(R.id.endGrid);
+        endNorthingTextView = (TextView) findViewById(R.id.endNorthing);
+        endEastingTextView = (TextView) findViewById(R.id.endEasting);
+        endTimeTextView = (TextView) findViewById(R.id.endTime);
+
+        GPSConnectionTextView = (TextView) findViewById(R.id.GPSConnection);
+        reachConnectionTextView = (TextView) findViewById(R.id.reachConnection);
+
+        GPSConnectionTextView.setText(String.format(getResources().getString(R.string.GPSConnection), getString(R.string.blank_assignment)));
+        reachConnectionTextView.setText(String.format(getResources().getString(R.string.reachConnection), getString(R.string.blank_assignment)));
+
         /**
          * Configure the materials dropdown menu
          */
         teamMembersDropdown = (Spinner) findViewById(R.id.path_entry_team_members_drop_down);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> teamMemberAdapter = ArrayAdapter.createFromResource(this, R.array.materials_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> teamMemberAdapter = ArrayAdapter.createFromResource(this, R.array.people_array, android.R.layout.simple_spinner_item);
         // Specify the layout to use when the list of choices appears
         teamMemberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         teamMembersDropdown.setAdapter(teamMemberAdapter);
+        teamMember = teamMembersDropdown.getSelectedItem().toString();
         teamMembersDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -224,26 +193,44 @@ public class PathEntryActivity extends BaseActivity {
 
         // Set text on submit button (depending on newPath)
         Button submitButton = (Button) findViewById(R.id.path_entry_submit_button);
-        if (newPath) {
+        if (!startPointSet) {
             submitButton.setText(R.string.start_path_button);
-        } else {
+        } else if (!endPointSet) {
             submitButton.setText(R.string.stop_path_button);
+        } else {
+            submitButton.setText(R.string.reset_stop_path_button);
         }
         submitButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                if (newPath) {
+                Button submitButton = (Button) v;
+                if (liveLatitude != null && !liveLatitude.equals(0)) {
+                    if (!startPointSet) {
 
-                    setStartPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
-                    saveData();
+                        setStartPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
+                        startPointSet = true;
+                        submitButton.setText(R.string.stop_path_button);
+                        saveData();
 
+                    } else if (!endPointSet) {
+
+                        setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
+                        endPointSet = true;
+                        submitButton.setText(R.string.reset_stop_path_button);
+                        onBackPressed();
+
+                    } else {
+
+                        setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
+                        onBackPressed();
+                        Toast.makeText(PathEntryActivity.this, "End point reset.", Toast.LENGTH_LONG).show();
+
+                    }
                 } else {
-
-                    setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
-                    onBackPressed();
-
+                    Toast.makeText(PathEntryActivity.this, "You do not have a valid point.", Toast.LENGTH_LONG).show();
                 }
+
             }
 
         });
@@ -263,8 +250,11 @@ public class PathEntryActivity extends BaseActivity {
         Long _beginTime = getIntent().getLongExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_TIME, 0);
         String _teamMember = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_TEAM_MEMBER);
 
+        System.out.println(_teamMember);
+        System.out.println(Long.toString(_beginTime));
+
         // If null, it means nothing was passed
-        if (_beginTime == null || _teamMember == null) {
+        if (_beginTime.equals(0) || _teamMember == null) {
 
             return false;
 
@@ -276,18 +266,6 @@ public class PathEntryActivity extends BaseActivity {
 
         beginTime = _beginTime;
 
-        // Check to see if the end point has been set before
-        String _endTime = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_END_TIME);
-        if (_endTime != null) {
-            endPointSet = true;
-
-            double _endLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LATITUDE, Double.MIN_VALUE);
-            double _endLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LONGITUDE, Double.MIN_VALUE);
-            double _endAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_ALTITUDE, Double.MIN_VALUE);
-            setStartPoint(_endLatitude, _endLongitude, _endAltitude, getString(R.string.blank_assignment));
-            // TODO: setEndPoint();
-        }
-
         double _beginLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_LATITUDE, Double.MIN_VALUE);
         double _beginLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_LONGITUDE, Double.MIN_VALUE);
         double _beginAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_ALTITUDE, Double.MIN_VALUE);
@@ -295,7 +273,7 @@ public class PathEntryActivity extends BaseActivity {
 
         // TODO: Add delete button below submit button
 
-        // Populate the team member
+        // Populate the selected team member
         // Search the dropdown for a matching teamMember, and set to that if found
         // TODO: DO THIS
         for (int i = 0; i < teamMembersDropdown.getCount(); i++) {
@@ -306,6 +284,18 @@ public class PathEntryActivity extends BaseActivity {
 
             }
 
+        }
+
+        // Check to see if the end point has been set before
+        Long _endTime = getIntent().getLongExtra(ConstantsAndHelpers.PARAM_KEY_END_TIME, 0);
+        if (!_endTime.equals(0)) {
+            endPointSet = true;
+
+            double _endLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LATITUDE, Double.MIN_VALUE);
+            double _endLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LONGITUDE, Double.MIN_VALUE);
+            double _endAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_ALTITUDE, Double.MIN_VALUE);
+            setEndPoint(_endLatitude, _endLongitude, _endAltitude, getString(R.string.blank_assignment));
+            // TODO: setEndPoint();
         }
 
         return true;
@@ -495,52 +485,35 @@ public class PathEntryActivity extends BaseActivity {
 
                 // Create and open a settings menu dialog box
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setTitle("Set Emlid Reach host & port");
 
-                String reachHost = locationCollector.getReachHost();
-                String reachPort = locationCollector.getReachPort();
-                Integer positionUpdateInterval = locationCollector.getPositionUpdateInterval();
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.connection_settings_dialog, null);
+                final EditText reachHostTextView = (EditText) layout.findViewById(R.id.reach_host);
+                final EditText reachPortTextView = (EditText) layout.findViewById(R.id.reach_port);
+                final EditText positionUpdateIntervalTextView = (EditText) layout.findViewById(R.id.position_update_interval);
 
-                LinearLayout layout = new LinearLayout(this);
-                layout.setOrientation(LinearLayout.VERTICAL);
+                dialog.setTitle(getString(R.string.connection_settings));
 
-                final EditText hostBox = new EditText(this);
-                hostBox.setHint("Host");
-                hostBox.setSingleLine();
-                layout.addView(hostBox);
-                hostBox.setText(reachHost, TextView.BufferType.EDITABLE);
+                SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+                String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
+                String reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
+                Integer positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
 
-                final EditText portBox = new EditText(this);
-                portBox.setHint("Port");
-                portBox.setSingleLine();
-                layout.addView(portBox);
-                portBox.setText(reachPort, TextView.BufferType.EDITABLE);
-
-                final EditText intervalBox = new EditText(this);
-                intervalBox.setHint("Position update interval (seconds)");
-                intervalBox.setSingleLine();
-                layout.addView(intervalBox);
-                intervalBox.setText(String.valueOf(positionUpdateInterval), TextView.BufferType.EDITABLE);
+                reachHostTextView.setText(reachHost, TextView.BufferType.EDITABLE);
+                reachPortTextView.setText(reachPort, TextView.BufferType.EDITABLE);
+                positionUpdateIntervalTextView.setText(String.valueOf(positionUpdateInterval), TextView.BufferType.EDITABLE);
 
                 dialog.setCancelable(true);
 
-                dialog.setPositiveButton(
-                        "Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
                 dialog.setNegativeButton(
-                        "Confirm",
+                        "Done",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                                 // Set the new host and port
-                                String reachHost = hostBox.getText().toString();
-                                String reachPort = portBox.getText().toString();
-                                Integer positionUpdateInterval = Integer.parseInt(intervalBox.getText().toString());
+                                String reachHost = reachHostTextView.getText().toString();
+                                String reachPort = reachPortTextView.getText().toString();
+                                Integer positionUpdateInterval = Integer.parseInt(positionUpdateIntervalTextView.getText().toString());
 
                                 // Reset the socket connection
                                 locationCollector.resetReachConnection(reachHost, reachPort);
@@ -561,6 +534,14 @@ public class PathEntryActivity extends BaseActivity {
                             }
                         });
 
+                dialog.setPositiveButton(
+                        "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
                 dialog.setView(layout);
                 dialog.show();
 
@@ -573,25 +554,48 @@ public class PathEntryActivity extends BaseActivity {
     }
 
     private void previewLocationDetails() {
+        if (!startPointSet) {
+            beginLatitudeTextView.setText(String.format(getResources().getString(R.string.latitude), liveLatitude));
+            beginLongitudeTextView.setText(String.format(getResources().getString(R.string.longitude), liveLongitude));
+            beginAltitudeTextView.setText(String.format(getResources().getString(R.string.altitude), liveAltitude));
 
-        if (newPath) {
-            beginLatitudeTextView.setText(Double.toString(liveLatitude));
-            beginLongitudeTextView.setText(Double.toString(liveLongitude));
-            beginAltitudeTextView.setText(Double.toString(liveAltitude));
+            // Update UTM positions
+            Angle lat = Angle.fromDegrees(endLatitude);
 
-            beginGridTextView.setText(R.string.blank_assignment);
-            beginNorthingTextView.setText(R.string.blank_assignment);
-            beginEastingTextView.setText(R.string.blank_assignment);
+            Angle lon = Angle.fromDegrees(endLongitude);
+
+            UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
+
+            Integer liveZone = UTMposition.getZone();
+            String liveHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
+            Integer liveNorthing = new Integer((int) Math.floor(UTMposition.getNorthing()));
+            Integer liveEasting = new Integer((int) Math.floor(UTMposition.getEasting()));
+
+            beginGridTextView.setText(String.format(getResources().getString(R.string.grid), liveZone + liveHemisphere));
+            beginNorthingTextView.setText(String.format(getResources().getString(R.string.northing), liveNorthing));
+            beginEastingTextView.setText(String.format(getResources().getString(R.string.easting), liveEasting));
 
             beginTimeTextView.setText(R.string.blank_assignment);
-        } else {
+        } else if (!endPointSet) {
             endLatitudeTextView.setText(Double.toString(liveLatitude));
             endLongitudeTextView.setText(Double.toString(liveLongitude));
             endAltitudeTextView.setText(Double.toString(liveAltitude));
 
-            endGridTextView.setText(R.string.blank_assignment);
-            endNorthingTextView.setText(R.string.blank_assignment);
-            endEastingTextView.setText(R.string.blank_assignment);
+            // Update UTM positions
+            Angle lat = Angle.fromDegrees(endLatitude);
+
+            Angle lon = Angle.fromDegrees(endLongitude);
+
+            UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
+
+            Integer liveZone = UTMposition.getZone();
+            String liveHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
+            Integer liveNorthing = new Integer((int) Math.floor(UTMposition.getNorthing()));
+            Integer liveEasting = new Integer((int) Math.floor(UTMposition.getEasting()));
+
+            endGridTextView.setText(String.format(getResources().getString(R.string.grid), liveZone + liveHemisphere));
+            endNorthingTextView.setText(String.format(getResources().getString(R.string.northing), liveNorthing));
+            endEastingTextView.setText(String.format(getResources().getString(R.string.easting), liveEasting));
 
             endTimeTextView.setText(R.string.blank_assignment);
         }
@@ -641,9 +645,6 @@ public class PathEntryActivity extends BaseActivity {
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
         dataBaseHandler.addPathsRows(list);
-
-        // Now go into end point mode
-        newPath = false;
 
     }
 

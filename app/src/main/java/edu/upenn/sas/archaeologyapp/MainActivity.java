@@ -33,6 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -357,7 +359,6 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 public void onLocationChanged(Location location) {
 
                     // Called when a new location is found by the GPS location provider.
-                    System.out.println("CHANGING LOCATION!!!!");
                     updateGPSlocation(location);
 
                 }
@@ -443,7 +444,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             if (googleMap != null) {
                 googleMap.clear();
                 for (PathElement elem : dataBaseHandler.getPathsRows()) {
-                    String id = elem.getTeamMember()+"'s path, "+elem.getBeginTime();
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+                    String id = elem.getTeamMember()+"'s path, "+sdf.format(new Date(elem.getBeginTime()));
 
                     // Add the starting point
                     googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude())).title(id));

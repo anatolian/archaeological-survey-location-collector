@@ -18,7 +18,7 @@ import static android.R.attr.id;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
 
     private static final String DATABASE_NAME = "BUCKETDB";
 

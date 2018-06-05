@@ -160,12 +160,12 @@ public class ConstantsAndHelpers {
     /**
      * Default time interval for updating the position
      */
-    public static int DEFAULT_POSITION_UPDATE_INTERVAL = 1;
+    public static int DEFAULT_POSITION_UPDATE_INTERVAL = 2;
 
     /**
      * Default host for an Emlid Reach position output server
      */
-    public static final String DEFAULT_REACH_HOST = "127.0.0.1";
+    public static final String DEFAULT_REACH_HOST = "192.168.43.162";
 
     /**
      * Default port for an Emlid Reach position output server
