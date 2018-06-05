@@ -560,9 +560,9 @@ public class PathEntryActivity extends BaseActivity {
             beginAltitudeTextView.setText(String.format(getResources().getString(R.string.altitude), liveAltitude));
 
             // Update UTM positions
-            Angle lat = Angle.fromDegrees(endLatitude);
+            Angle lat = Angle.fromDegrees(liveLatitude);
 
-            Angle lon = Angle.fromDegrees(endLongitude);
+            Angle lon = Angle.fromDegrees(liveLongitude);
 
             UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
 
@@ -582,9 +582,9 @@ public class PathEntryActivity extends BaseActivity {
             endAltitudeTextView.setText(Double.toString(liveAltitude));
 
             // Update UTM positions
-            Angle lat = Angle.fromDegrees(endLatitude);
+            Angle lat = Angle.fromDegrees(liveLatitude);
 
-            Angle lon = Angle.fromDegrees(endLongitude);
+            Angle lon = Angle.fromDegrees(liveLongitude);
 
             UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
 
