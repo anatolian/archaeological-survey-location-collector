@@ -145,8 +145,8 @@ public class SyncActivity extends AppCompatActivity {
             String altitude = Double.toString(find.getAltitude());
 
             String status = find.getStatus();
-            String category = "Misc"; //find.getCategory();
-            String ARratio = "1.7";
+            String category = find.getMaterial();
+            String ARratio = "0";
             String comments = find.getComments();
 
             edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?zone=" + zone
@@ -168,7 +168,7 @@ public class SyncActivity extends AppCompatActivity {
                             }
                             else
                             {
-                                Toast.makeText(getApplicationContext(), "Upload unsuccessful", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Upload unsuccessful: "+response, Toast.LENGTH_SHORT).show();
 
                             }
                         }

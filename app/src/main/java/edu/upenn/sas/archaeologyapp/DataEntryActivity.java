@@ -60,6 +60,8 @@ import gov.nasa.worldwind.geom.coords.UTMCoord;
 
 import static android.R.attr.button;
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_HOST;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_PORT;
 import static java.lang.System.currentTimeMillis;
 
 /**
@@ -89,20 +91,7 @@ public class DataEntryActivity extends BaseActivity {
      */
     private Double latitude, longitude, altitude;
 
-    /**
-     * Variables to store status of the position fetch
-     */
     private String status;
-
-    /**
-     * Variables to store the users location data obtained from GPS, as a backup to the Reach data
-     */
-    private Double GPSlatitude, GPSlongitude, GPSaltitude;
-
-    /**
-     * A timestamp of the last time the GPS location variables were updated
-     */
-    private long lastKnownGPSupdate = System.currentTimeMillis();
 
     /**
      * Int constant used to determine if GPS permission was granted or denied
@@ -126,42 +115,6 @@ public class DataEntryActivity extends BaseActivity {
     private static final int CAMERA_REQUEST = 2;
 
     /**
-     * Corresponding strings for status codes in LLH format as defined in the RTKLIB manual v2.4.2, p.102
-     */
-    private static final String[] STATUS_CODES = {"Error", "Fixed", "Float", "Reserved", "DGPS", "Single"};
-
-    /**
-     * Default host for an Emlid Reach position output server
-     */
-    private static final String DEFAULT_REACH_HOST = "127.0.0.1";
-
-    /**
-     * Default port for an Emlid Reach position output server
-     */
-    private static final String DEFAULT_REACH_PORT = "9001";
-
-    /**
-     * The global string for the Emlid Reach host
-     */
-    private String reachHost = DEFAULT_REACH_HOST;
-
-    /**
-     * The global string for the Emlid Reach port
-     */
-    private String reachPort = DEFAULT_REACH_PORT;
-
-
-    /**
-     * The global variable used for the position update interval
-     */
-    private int positionUpdateInterval = DEFAULT_POSITION_UPDATE_INTERVAL;
-
-    /**
-     * The timer used to periodically update the position
-     */
-    private Timer positionUpdateTimer;
-
-    /**
      * The shared preferences file name where we will store persistent app data
      */
     public static final String PREFERENCES = "archaeological-survey-location-collector-preferences";
@@ -170,6 +123,8 @@ public class DataEntryActivity extends BaseActivity {
      * The text views for displaying latitude, longitude, altitude, and status values
      */
     private TextView latitudeTextView, longitudeTextView, altitudeTextView, statusTextView, gridTextView, northingTextView, eastingTextView, sampleTextView;
+
+    private TextView GPSConnectionTextView, reachConnectionTextView;
 
     /**
      * The image view for displaying the image captured/selected by the user
@@ -201,17 +156,12 @@ public class DataEntryActivity extends BaseActivity {
      */
     EditText commentsEditText;
 
-
-
-    Socket SOCKETechoSocket;
-    PrintWriter SOCKETout;
-    BufferedReader SOCKETin;
-    BufferedReader SOCKETstdIn;
     private Integer zone;
     private String hemisphere;
     private Integer northing;
     private Integer easting;
     private Integer sample;
+    private LocationCollector locationCollector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -220,6 +170,39 @@ public class DataEntryActivity extends BaseActivity {
         setContentView(R.layout.activity_data_entry);
 
         initialiseViews();
+
+        // Load persistent app data from shared preferences
+        SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+        String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
+        String reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
+        Integer positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
+
+        // Initialize the locationCollector
+        locationCollector = new LocationCollector(DataEntryActivity.this, reachHost, reachPort, positionUpdateInterval) {
+            @Override
+            public void broadcastLocation(double _latitude, double _longitude, double _altitude, String _status) {
+                if (liveUpdatePosition) {
+                    setLocationDetails(_latitude, _longitude, _altitude, _status);
+                }
+            }
+
+            @Override
+            public void broadcastGPSStatus(String status) {
+                setGPSStatus(status);
+            }
+
+            public void broadcastReachStatus(String status) {
+                setReachStatus(status);
+            }
+        };
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        locationCollector.cancelPositionUpdateTimer();
 
     }
 
@@ -243,12 +226,6 @@ public class DataEntryActivity extends BaseActivity {
         // Configure up button to go back to previous activity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Load persistent app data from shared preferences
-        SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
-        reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
-        reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
-        positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
-
         // Get references to the latitude, longitude, altitude, and status text views
         latitudeTextView = (TextView) findViewById(R.id.data_entry_lat_text);
         longitudeTextView = (TextView) findViewById(R.id.data_entry_lng_text);
@@ -259,18 +236,18 @@ public class DataEntryActivity extends BaseActivity {
         eastingTextView = (TextView) findViewById(R.id.data_entry_easting);
         sampleTextView = (TextView) findViewById(R.id.data_entry_sample);
 
+        GPSConnectionTextView = (TextView) findViewById(R.id.GPSConnection);
+        reachConnectionTextView = (TextView) findViewById(R.id.reachConnection);
+
+        GPSConnectionTextView.setText(String.format(getResources().getString(R.string.GPSConnection), getString(R.string.blank_assignment)));
+        reachConnectionTextView.setText(String.format(getResources().getString(R.string.reachConnection), getString(R.string.blank_assignment)));
+
         // Get reference to the image container
         imageContainer = (GridLayout) findViewById(R.id.data_entry_image_container);
 
         // Get reference to the comments edit text
         commentsEditText = (EditText) findViewById(R.id.data_entry_comment_text_view);
 
-        // Initialize the GPS listener
-        initiateGPS();
-
-        // Setup the position updater
-        positionUpdateTimer = new Timer();
-        restartPositionUpdateTimer();
 
         /**
          * Configure switch handler for update gps switch
@@ -284,7 +261,6 @@ public class DataEntryActivity extends BaseActivity {
                 liveUpdatePosition = isChecked;
                 if (liveUpdatePosition) {
                     resetUTMLocation();
-                    initiatePositionFetch();
                 } else {
                     // Ensure we only update the sample #, UTM position if the user pressed the button (otherwise this would happen on activity load)
                     if (buttonView.isPressed()) {
@@ -421,154 +397,6 @@ public class DataEntryActivity extends BaseActivity {
         boolean prepopulatedData = prePopulateFields();
 
     }
-
-
-    private void initiateGPS() {
-        // Acquire a reference to the system Location Manager
-        if (locationManager == null) {
-
-            locationManager = (LocationManager) DataEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
-
-        }
-
-        // Check if GPS is turned on. If not, prompt the user to turn it on.
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            buildAlertMessageNoGps();
-            return;
-
-        }
-
-        // Define a listener that responds to location updates
-        if (locationListener == null) {
-
-            locationListener = new LocationListener() {
-
-                public void onLocationChanged(Location location) {
-
-                    // Called when a new location is found by the GPS location provider.
-                    updateGPSlocation(location);
-
-                }
-
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                }
-
-                public void onProviderEnabled(String provider) {
-                }
-
-                public void onProviderDisabled(String provider) {
-                }
-
-            };
-
-        }
-
-        // Check if the user has granted permission for using GPS
-        if (ContextCompat.checkSelfPermission(DataEntryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            // Ask user for permission
-            ActivityCompat.requestPermissions(DataEntryActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-
-        } else {
-
-            // Register the listener with the Location Manager to receive location updates
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-
-        }
-    }
-
-    private class GetPositionOutputFromReach extends AsyncTask<String, String, String> {
-        protected String doInBackground(String... params) {
-            String host = params[0];
-            Integer port = Integer.parseInt(params[1]);
-            String msg = "";
-
-            if (SOCKETechoSocket == null || SOCKETout == null || SOCKETin == null || SOCKETstdIn == null) {
-                try {
-                    publishProgress("Attempting to connect to the Reach");
-
-                    int timeout = positionUpdateInterval * 1000;
-                    SOCKETechoSocket = new Socket();
-                    SOCKETechoSocket.setSoTimeout(timeout);
-                    SOCKETechoSocket.connect(new InetSocketAddress(host, port), timeout);
-                    SOCKETin = new BufferedReader(new InputStreamReader(SOCKETechoSocket.getInputStream()));
-
-
-                    //SOCKETout = new PrintWriter(SOCKETechoSocket.getOutputStream(), true);
-                    //SOCKETstdIn = new BufferedReader(new InputStreamReader(System.in));
-                } catch(Exception e) {
-                    //e.printStackTrace();
-                    return msg;
-                }
-            }
-            try {
-                Log.e("##################", "Attempting connection to Reach :: "+reachHost+" :: "+reachPort);
-                String currentLine;
-                while ((currentLine = SOCKETin.readLine()) != null) {
-                    msg = currentLine;
-                }
-                /*
-                while ((userInput = SOCKETstdIn.readLine()) != null || msg.equals("")) {
-                    Log.v("reading...", "readLine");
-                    String readLine = SOCKETin.readLine();
-                    Log.v("DONE", "readLine");
-                    msg += readLine;
-                    Log.v("#######################", readLine);
-                }
-                */
-            } catch (Exception e) {
-                //Toast.makeText(DataEntryActivity.this, "Failed to connect to socket: "+e, Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-            return msg;
-        }
-
-        protected void onProgressUpdate(String... progress) {
-            //Toast.makeText(DataEntryActivity.this, "Attempting to connect to the Reach.", Toast.LENGTH_SHORT).show();
-        }
-
-        protected void onPostExecute(String result) {
-            String[] parsed = result.split("\\s+");
-            if (parsed.length < 15) {
-                initiateGpsFetch();
-            } else {
-                double lat = Double.parseDouble(parsed[2]);
-                double lon = Double.parseDouble(parsed[3]);
-                double height = Double.parseDouble(parsed[4]);
-                String status = STATUS_CODES[Integer.parseInt(parsed[5])];
-                setLocationDetails(lat, lon, height, status);
-            }
-        }
-    }
-
-
-    /**
-     * This function initiates fetching data from an Emlid Reach output server
-     */
-    private void initiatePositionFetch() {
-
-        new GetPositionOutputFromReach().execute(reachHost, reachPort);
-
-    }
-
-
-    /**
-     * This function contains the flow for fetching data from GPS
-     */
-    private void initiateGpsFetch() {
-
-        long timeSinceLastGPSupdate = currentTimeMillis() - lastKnownGPSupdate;
-        if (false) { //timeSinceLastGPSupdate > GPS_TIME_OUT) {
-            setLocationDetailsFromLastKnownGPSlocation();
-        } else {
-            if (GPSlatitude != null && GPSlongitude != null && GPSlatitude != null) {
-                setLocationDetails(GPSlatitude, GPSlongitude, GPSaltitude, "GPS");
-            }
-        }
-
-    }
-
 
     /**
      * Check if any parameters were passed to this activity, and pre populate the data if required
@@ -994,124 +822,6 @@ public class DataEntryActivity extends BaseActivity {
         statusTextView.setText(String.format(getResources().getString(R.string.status), status));
     }
 
-    /**
-     * Set the required variables and text views once we get the users location
-     * @param location The location to be used
-     */
-    private void setLocationDetails(Location location, String _status) {
-
-        // Get the latitude, longitutde, altitude, and save it in the respective variables
-        longitude = location.getLongitude();
-        latitude = location.getLatitude();
-        altitude = location.getAltitude();
-        status = _status;
-
-        // Update the text views
-        latitudeTextView.setText(String.format(getResources().getString(R.string.latitude), latitude));
-        longitudeTextView.setText(String.format(getResources().getString(R.string.longitude), longitude));
-        altitudeTextView.setText(String.format(getResources().getString(R.string.altitude), altitude));
-        statusTextView.setText(String.format(getResources().getString(R.string.status), status));
-    }
-
-    /**
-     * Set the required variables and text views from the last known GPS location
-     */
-    private void setLocationDetailsFromLastKnownGPSlocation() {
-        try {
-
-            // Get last known location
-            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            // Stop listening to GPS updates
-            locationManager.removeUpdates(locationListener);
-
-            // Call function to set location details
-            setLocationDetails(location, "GPS (old)");
-
-            // Do not fallback to previous location, as per Github Issue 8
-            Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
-
-        } catch (SecurityException e) {
-
-            /*
-             * We shouldn't use a Toast here -- having a toast will cause a "Screen overlay detected" error and won't let the user grant the app location permission
-             */
-            //Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
-
-        } catch (Exception e) {
-
-            //Toast.makeText(DataEntryActivity.this, R.string.location_not_found, Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-
-        }
-    }
-
-    /**
-     * Update the GPS location details from the GPS stream, but don't update the items position data
-     * @param location The location to be used
-     */
-    private void updateGPSlocation(Location location) {
-
-        // Get the latitude, longitutde, altitude, and save it in the respective variables
-        GPSlongitude = location.getLongitude();
-        GPSlatitude = location.getLatitude();
-        GPSaltitude = location.getAltitude();
-
-        lastKnownGPSupdate = System.currentTimeMillis();
-    }
-
-    /**
-     * Restart the position update timer using the global interval variable positionUpdateInterval
-     */
-    private void restartPositionUpdateTimer() {
-        positionUpdateTimer.cancel();
-        positionUpdateTimer = new Timer();
-        positionUpdateTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if (liveUpdatePosition) {
-                    initiatePositionFetch();
-                }
-            }
-        }, 0, positionUpdateInterval * 1000);
-    }
-
-
-    /**
-     * Build and show alert dialog to the user, requesting him to turn GPS on
-     */
-    private void buildAlertMessageNoGps() {
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setMessage(R.string.gps_enable_alert_box)
-                .setCancelable(false)
-                .setPositiveButton(R.string.enable_gps_alert_positive_button, new DialogInterface.OnClickListener() {
-
-                    public void onClick(final DialogInterface dialog, final int id) {
-
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        dialog.cancel();
-
-                    }
-
-                })
-                .setNegativeButton(R.string.enable_gps_alert_negative_button, new DialogInterface.OnClickListener() {
-
-                    public void onClick(final DialogInterface dialog, final int id) {
-
-                        // Show a toast to the user requesting that he allows permission for GPS use
-                        Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
-                        dialog.cancel();
-
-                    }
-
-                });
-
-        final AlertDialog alert = builder.create();
-        alert.show();
-
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -1124,7 +834,7 @@ public class DataEntryActivity extends BaseActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     // Permission was granted by user
-                    initiateGPS();
+                    // initiateGPS();
 
                 } else {
 
@@ -1166,20 +876,7 @@ public class DataEntryActivity extends BaseActivity {
 
         super.onPause();
 
-        // Stop listening to GPS, if still listening
-        try {
-
-            locationManager.removeUpdates(locationListener);
-
-        } catch (SecurityException e) {
-
-            //Toast.makeText(DataEntryActivity.this, R.string.location_permission_denied_prompt, Toast.LENGTH_LONG).show();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
+        locationCollector.pause();
 
     }
 
@@ -1188,8 +885,7 @@ public class DataEntryActivity extends BaseActivity {
 
         super.onResume();
 
-        // initiate GPS again
-        initiateGPS();
+        locationCollector.resume();
 
     }
 
@@ -1210,6 +906,10 @@ public class DataEntryActivity extends BaseActivity {
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                 dialog.setTitle("Set Emlid Reach host & port");
 
+                SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+                String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
+                String reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
+                Integer positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
 
                 LinearLayout layout = new LinearLayout(this);
                 layout.setOrientation(LinearLayout.VERTICAL);
@@ -1248,12 +948,12 @@ public class DataEntryActivity extends BaseActivity {
                             public void onClick(DialogInterface dialog, int id) {
 
                                 // Set the new host and port
-                                reachHost = hostBox.getText().toString();
-                                reachPort = portBox.getText().toString();
-                                positionUpdateInterval = Integer.parseInt(intervalBox.getText().toString());
+                                String reachHost = hostBox.getText().toString();
+                                String reachPort = portBox.getText().toString();
+                                Integer positionUpdateInterval = Integer.parseInt(intervalBox.getText().toString());
 
                                 // Reset the socket connection
-                                SOCKETechoSocket = null;
+                                locationCollector.resetReachConnection(reachHost, reachPort);
 
                                 // Save these new values to shared preferences
                                 SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
@@ -1263,8 +963,8 @@ public class DataEntryActivity extends BaseActivity {
                                 editor.putInt("positionUpdateInterval", positionUpdateInterval);
                                 editor.commit();
 
-                                // Attempt to connect, restart the timer
-                                restartPositionUpdateTimer();
+                                // Restart the timer
+                                locationCollector.resetPositionUpdateInterval(positionUpdateInterval);
 
                                 // Close the dialog
                                 dialog.cancel();
@@ -1296,7 +996,16 @@ public class DataEntryActivity extends BaseActivity {
         saveData();
 
         // Disconnect from GPS
+        locationCollector.pause();
 
+    }
+
+    private void setGPSStatus(String status) {
+        GPSConnectionTextView.setText(String.format(getResources().getString(R.string.GPSConnection), status));
+    }
+
+    private void setReachStatus(String status) {
+        reachConnectionTextView.setText(String.format(getResources().getString(R.string.reachConnection), status));
     }
 
     private void setNewSampleNum() {
@@ -1304,6 +1013,10 @@ public class DataEntryActivity extends BaseActivity {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Set new sample #");
 
+        SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+        String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
+        String reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
+        Integer positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);

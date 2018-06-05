@@ -11,7 +11,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -54,14 +56,14 @@ public class PathEntryAdapter extends ArrayAdapter<PathElement> {
         // retrieve its corresponding ViewHolder, which optimizes lookup efficiency
         final View view = getWorkingView(convertView);
         final ViewHolder viewHolder = getViewHolder(view);
-        final PathElement entry = getItem(position);
+        final PathElement elem = getItem(position);
 
         // Set the startTime
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-        viewHolder.startTime.setText(sdf.format(new Date(entry.getBeginTime())));
+        viewHolder.startTime.setText(sdf.format(new Date(elem.getBeginTime())));
 
         // Set the teamMember
-        viewHolder.teamMember.setText("path by "+entry.getTeamMember());
+        viewHolder.teamMember.setText("path by "+elem.getTeamMember());
 
         // Open Maps with GPS locaiton of this entry
         viewHolder.mapButton.setOnClickListener(new View.OnClickListener() {
@@ -69,10 +71,9 @@ public class PathEntryAdapter extends ArrayAdapter<PathElement> {
             @Override
             public void onClick(View v) {
 
-                // Open maps with saved latitude and longitude
-                String loc = "geo:0,0?q=" + entry.getBeginLatitude() + "," + entry.getBeginLongitude() + "(" + getContext().getString(R.string.location_map_pin_label) + ")" + "&z=16";
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(loc));
-                getContext().startActivity(mapIntent);
+                if (googleMap != null) {
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude()), 20));
+                }
 
             }
 

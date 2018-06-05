@@ -31,6 +31,7 @@
     <string name="submit_button">SUBMIT</string>
     <string name="start_path_button">START PATH</string>
     <string name="stop_path_button">STOP PATH</string>
+    <string name="reset_stop_path_button">RESET END POINT</string>
     <string name="save_failed_exception">Failed to save the file</string>
     <string name="save_failed_message">Unexpected error while fetching image. Please try again</string>
     <string name="select_image_prompt" type="id">Select Picture</string>
@@ -48,6 +49,13 @@
         <item>Architecture</item>
         <item>Metal</item>
         <item>Other</item>
+    </string-array>
+    <string-array name="people_array">
+        <item>Andrew</item>
+        <item>Chris</item>
+        <item>Colin</item>
+        <item>Malkia</item>
+        <item>Peter</item>
     </string-array>
     <string name="no_connection">No Connection</string>
     <string name="no_data">No Data</string>
