@@ -56,6 +56,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+
+import edu.upenn.sas.archaeologyapp.util.StateStatic;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
 
@@ -213,6 +215,7 @@ public class DataEntryActivity extends BaseActivity {
     private Integer northing;
     private Integer easting;
     private Integer sample;
+    private Uri photoURI = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -366,7 +369,7 @@ public class DataEntryActivity extends BaseActivity {
                     // Image file to be passed to camera app.
                     // The camera app saves captured image in this file
                     outputFromCamera = createImageFile(true);
-
+                    Log.v("Camera", outputFromCamera.getAbsolutePath());
                     // Android handles saving data in intents to the camera poorly, so we save the URI of the future image in this variable for future use
                     lastCameraPictureURI = outputFromCamera.getAbsolutePath();
 
@@ -381,8 +384,9 @@ public class DataEntryActivity extends BaseActivity {
                 cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 if (cameraIntent.resolveActivity(getPackageManager()) != null) {
                     Context context = getApplicationContext();
-                    Uri photoURI = FileProvider.getUriForFile(context, context.getPackageName()
+                    photoURI = FileProvider.getUriForFile(context, context.getPackageName()
                             + ".my.package.name.provider", outputFromCamera);
+                    Log.v("Camera", photoURI.toString());
                     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                     startActivityForResult(cameraIntent, CAMERA_REQUEST);
 
@@ -732,11 +736,7 @@ public class DataEntryActivity extends BaseActivity {
                 }
                 // If user captured image with camera
                 else if (requestCode == CAMERA_REQUEST) {
-
                     // Read the captured image into BITMAP
-                    Context context = getApplicationContext();
-                    Uri photoURI = FileProvider.getUriForFile(context, context.getPackageName()
-                            + ".my.package.name.provider", createImageFile(false));
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
                     Log.v("Camera", bitmap.toString());
                     // Try saving the image
@@ -919,35 +919,28 @@ public class DataEntryActivity extends BaseActivity {
      * @return
      * @throws IOException
      */
-    private File createImageFile(boolean forCamera) throws IOException {
+    private File createImageFile(boolean forCamera) {
 
         // Create an image file name using timestamp
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         Log.v("Camera", imageFileName);
         // Use the apps storage
-        File storageDir = new File(Environment.getExternalStorageDirectory().toString());
-        Log.v("Camera", storageDir.getAbsolutePath());
-        // If the file is being created to be sent to camera app, we need to use external storage
-        // as the app storage returned above is private to the app and the camera will not be able to
-        // access it
-        if (forCamera) {
-
-            storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            Log.v("Camera", storageDir.getAbsolutePath());
+        File storageDir = new File(Environment.getExternalStorageDirectory().toString() + "/Archaeology");
+        if (!storageDir.exists())
+        {
+            storageDir.mkdirs();
         }
+        Log.v("Camera", storageDir.getAbsolutePath());
 
         // Create the image file with required name, extension type and storage path
         File image = null;
 
         try {
 
-            image = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-            Log.v("Camera", image.getAbsolutePath());
+            String path = Environment.getExternalStorageDirectory() + "/Archaeology/" + imageFileName;
+            Log.v("Camera", path);
+            image = new File(path);
         } catch (Exception e) {
 
             e.printStackTrace();

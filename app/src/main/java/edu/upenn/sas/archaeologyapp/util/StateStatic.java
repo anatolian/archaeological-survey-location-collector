@@ -6,7 +6,15 @@ import android.bluetooth.BluetoothAdapter;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.DisplayMetrics;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -57,5 +65,41 @@ public class StateStatic
     public static String getTimeStamp()
     {
         return new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ENGLISH).format(new Date());
+    }
+
+    /**
+     * Creating a thumbnail for requested image
+     * @param inputFileName - image file
+     * @return Returns image URI
+     */
+    public static Uri getThumbnail(String inputFileName)
+    {
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "Archaeology");
+        String originalFilePath = mediaStorageDir.getPath() + File.separator + inputFileName;
+        String thumbPath = mediaStorageDir.getPath() + File.separator + THUMBNAIL_EXTENSION_STRING;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        // Returns null, sizes are in the options variable
+        BitmapFactory.decodeFile(originalFilePath, options);
+        int width = options.outWidth;
+        int height = options.outHeight;
+        File thumbFile = new File(thumbPath);
+        // creating a thumbnail image and setting the bounds of the thumbnail
+        Bitmap thumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory
+                        .decodeFile(originalFilePath), Math.round(width / 4.1f),
+                Math.round(height / 4.1f));
+        try
+        {
+            FileOutputStream fos = new FileOutputStream(thumbFile);
+            thumbImage.compress(Bitmap.CompressFormat.PNG, 90, fos);
+            fos.close();
+        }
+        catch (Exception ex)
+        {
+            // e.getMessage is returning a null value
+            ex.printStackTrace();
+        }
+        return Uri.fromFile(thumbFile);
     }
 }
