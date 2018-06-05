@@ -20,6 +20,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -55,6 +56,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+
+import edu.upenn.sas.archaeologyapp.util.StateStatic;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
 
@@ -212,6 +215,7 @@ public class DataEntryActivity extends BaseActivity {
     private Integer northing;
     private Integer easting;
     private Integer sample;
+    private Uri photoURI = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -334,6 +338,8 @@ public class DataEntryActivity extends BaseActivity {
                 // Create an intent for selecting an image, and start that activity with SELECT_IMAGE requestCode
                 Intent chooseIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 chooseIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                chooseIntent.setType("image/*");
+//                chooseIntent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(chooseIntent, SELECT_IMAGE);
             }
 
@@ -363,7 +369,7 @@ public class DataEntryActivity extends BaseActivity {
                     // Image file to be passed to camera app.
                     // The camera app saves captured image in this file
                     outputFromCamera = createImageFile(true);
-
+                    Log.v("Camera", outputFromCamera.getAbsolutePath());
                     // Android handles saving data in intents to the camera poorly, so we save the URI of the future image in this variable for future use
                     lastCameraPictureURI = outputFromCamera.getAbsolutePath();
 
@@ -375,10 +381,13 @@ public class DataEntryActivity extends BaseActivity {
 
                 // Open a camera app to capture images, if available
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
+                cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 if (cameraIntent.resolveActivity(getPackageManager()) != null) {
-
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(outputFromCamera));
+                    Context context = getApplicationContext();
+                    photoURI = FileProvider.getUriForFile(context, context.getPackageName()
+                            + ".my.package.name.provider", outputFromCamera);
+                    Log.v("Camera", photoURI.toString());
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                     startActivityForResult(cameraIntent, CAMERA_REQUEST);
 
                 } else {
@@ -672,7 +681,20 @@ public class DataEntryActivity extends BaseActivity {
                 if (requestCode == SELECT_IMAGE) {
 
                     // Get the multiples images returned within a ClipData object
+
                     ClipData imageData = data.getClipData();
+                    if (imageData == null)
+                    {
+                        Uri uri = data.getData();
+                        // Add this image to the bitmap arraylist
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        ArrayList<Bitmap> bitmapArray = new ArrayList<Bitmap>();
+                        bitmapArray.add(bitmap);
+                        // Try saving this bitmap
+                        if(!saveToFile(bitmap)) {
+                            throw new Exception(getString(R.string.save_failed_exception));
+                        }
+                    }
                     // Define a bitmap arraylist to display later
                     ArrayList<Bitmap> bitmapArray = new ArrayList<Bitmap>();
 
@@ -685,7 +707,6 @@ public class DataEntryActivity extends BaseActivity {
                             // Add this image to the bitmap arraylist
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                             bitmapArray.add(bitmap);
-
                             // Try saving this bitmap
                             if(!saveToFile(bitmap)) {
                                 throw new Exception(getString(R.string.save_failed_exception));
@@ -715,10 +736,9 @@ public class DataEntryActivity extends BaseActivity {
                 }
                 // If user captured image with camera
                 else if (requestCode == CAMERA_REQUEST) {
-
                     // Read the captured image into BITMAP
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(lastCameraPictureURI)));
-
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
+                    Log.v("Camera", bitmap.toString());
                     // Try saving the image
                     if(!saveToFile(bitmap)) {
                         throw new Exception(getString(R.string.save_failed_exception));
@@ -899,35 +919,28 @@ public class DataEntryActivity extends BaseActivity {
      * @return
      * @throws IOException
      */
-    private File createImageFile(boolean forCamera) throws IOException {
+    private File createImageFile(boolean forCamera) {
 
         // Create an image file name using timestamp
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-
+        Log.v("Camera", imageFileName);
         // Use the apps storage
-        File storageDir = getFilesDir();
-
-        // If the file is being created to be sent to camera app, we need to use external storage
-        // as the app storage returned above is private to the app and the camera will not be able to
-        // access it
-        if (forCamera) {
-
-            storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
+        File storageDir = new File(Environment.getExternalStorageDirectory().toString() + "/Archaeology");
+        if (!storageDir.exists())
+        {
+            storageDir.mkdirs();
         }
+        Log.v("Camera", storageDir.getAbsolutePath());
 
         // Create the image file with required name, extension type and storage path
         File image = null;
 
         try {
 
-            image = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-
+            String path = Environment.getExternalStorageDirectory() + "/Archaeology/" + imageFileName;
+            Log.v("Camera", path);
+            image = new File(path);
         } catch (Exception e) {
 
             e.printStackTrace();
