@@ -6,10 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-
-import static android.R.attr.id;
 
 /**
  * Data base helper class to create, read and write data
@@ -18,7 +15,7 @@ import static android.R.attr.id;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     private static final String DATABASE_NAME = "BUCKETDB";
 
@@ -284,6 +281,63 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                     deleteImages(entry[i].getID());
                     addImages(entry[i].getID(), entry[i].getImagePaths());
                 }
+
+            }
+
+            db.setTransactionSuccessful();
+            db.endTransaction();
+
+        }
+        catch(Exception e){
+
+            e.printStackTrace();
+
+        }
+        finally{
+
+            db.close();
+
+        }
+    }
+
+    /**
+     * Helper function to set a find to synced
+     * @param entry
+     */
+    public void setFindSynced(DataEntryElement entry) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try {
+
+            db.beginTransaction();
+
+            // The values to be written in a row
+            ContentValues values = new ContentValues();
+
+            values.put(KEY_LATITUDE, entry.getLatitude());
+            values.put(KEY_LONGITUDE, entry.getLongitude());
+            values.put(KEY_ALTITUDE, entry.getAltitude());
+            values.put(KEY_STATUS, entry.getStatus());
+            values.put(KEY_MATERIAL, entry.getMaterial());
+            values.put(KEY_COMMENT, entry.getComments());
+            values.put(KEY_UPDATED_TIMESTAMP, entry.getUpdateTimestamp());
+            values.put(KEY_ZONE, entry.getZone());
+            values.put(KEY_HEMISPHERE, entry.getHemisphere());
+            values.put(KEY_NORTHING, entry.getNorthing());
+            values.put(KEY_EASTING, entry.getEasting());
+            values.put(KEY_SAMPLE, entry.getSample());
+
+            // Set beenSynced to true
+            values.put(KEY_BEEN_SYNCED, 1);
+
+            // Make an update call
+            int rowsAffected = db.update(FINDS_TABLE_NAME, values, KEY_ID + " ='" + entry.getID()+"'", null);
+
+            // If update call fails, rowsAffected will be 0. If not, it means the row was updated
+            if (rowsAffected == 1){
+
+                // Success
 
             }
 
