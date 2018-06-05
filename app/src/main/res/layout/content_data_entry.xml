@@ -259,16 +259,6 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/data_entry_open_gallery"
-                    android:background="@color/dataEntryButtonBackgroundColor"
-                    android:textColor="@color/dataEntryButtonTextColor"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/gallery_button" />
-
-                <Button
                     android:id="@+id/data_entry_open_camera"
                     android:background="@color/dataEntryButtonBackgroundColor"
                     android:textColor="@color/dataEntryButtonTextColor"
@@ -277,6 +267,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/camera_button" />
+
+                <Button
+                    android:id="@+id/data_entry_open_gallery"
+                    android:background="@color/dataEntryButtonBackgroundColor"
+                    android:textColor="@color/dataEntryButtonTextColor"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/gallery_button" />
 
             </LinearLayout>
 

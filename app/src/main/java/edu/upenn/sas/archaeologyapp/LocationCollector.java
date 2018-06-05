@@ -86,11 +86,6 @@ public abstract class LocationCollector {
      */
     Socket reachSocket;
 
-    /**
-     * The input stream from the reachSocket
-     */
-    BufferedReader reachSocketInput;
-
 
     public LocationCollector(android.app.Activity _context, String _reachHost, String _reachPort, Integer _positionUpdateInterval) {
 
@@ -174,8 +169,9 @@ public abstract class LocationCollector {
             String host = params[0];
             Integer port = Integer.parseInt(params[1]);
             String msg = "";
+            BufferedReader reachSocketInput;
 
-            if (reachSocket == null ||  reachSocketInput == null) {
+            if (reachSocket == null) {
                 System.out.println("Trying to create Socket, host: "+host);
                 try {
                     int timeout = positionUpdateInterval * 1000;
@@ -183,7 +179,6 @@ public abstract class LocationCollector {
                     reachSocket = new Socket();
                     reachSocket.setSoTimeout(timeout);
                     reachSocket.connect(new InetSocketAddress(host, port), timeout);
-                    reachSocketInput = new BufferedReader(new InputStreamReader(reachSocket.getInputStream()));
                     System.out.println("MADE SOCKET CONNECTION");
 
                 } catch(ConnectException e) {
@@ -197,6 +192,12 @@ public abstract class LocationCollector {
 
                 }
             }
+            try {
+                reachSocketInput = new BufferedReader(new InputStreamReader(reachSocket.getInputStream()));
+            } catch(Exception E) {
+                return context.getString(R.string.no_connection);
+            }
+
             System.out.println("Socket exists, trying to wait for input");
             try {
                 String currentLine;

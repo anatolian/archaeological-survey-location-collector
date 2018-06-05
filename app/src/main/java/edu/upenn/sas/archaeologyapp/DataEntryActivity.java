@@ -9,11 +9,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
@@ -23,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,35 +33,24 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.math.RoundingMode;
-import java.math.BigDecimal;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
+
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
 
-import static android.R.attr.button;
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_HOST;
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_PORT;
-import static java.lang.System.currentTimeMillis;
 
 /**
  * The Activity where the user enters all the data
@@ -904,53 +892,35 @@ public class DataEntryActivity extends BaseActivity {
 
                 // Create and open a settings menu dialog box
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-                dialog.setTitle("Set Emlid Reach host & port");
+
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.connection_settings_dialog, null);
+                final EditText reachHostTextView = (EditText) layout.findViewById(R.id.reach_host);
+                final EditText reachPortTextView = (EditText) layout.findViewById(R.id.reach_port);
+                final EditText positionUpdateIntervalTextView = (EditText) layout.findViewById(R.id.position_update_interval);
+
+                dialog.setTitle(getString(R.string.connection_settings));
 
                 SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
                 String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
                 String reachPort = settings.getString("reachPort", DEFAULT_REACH_PORT);
                 Integer positionUpdateInterval = settings.getInt("positionUpdateInterval", DEFAULT_POSITION_UPDATE_INTERVAL);
 
-                LinearLayout layout = new LinearLayout(this);
-                layout.setOrientation(LinearLayout.VERTICAL);
-
-                final EditText hostBox = new EditText(this);
-                hostBox.setHint("Host");
-                hostBox.setSingleLine();
-                layout.addView(hostBox);
-                hostBox.setText(reachHost, TextView.BufferType.EDITABLE);
-
-                final EditText portBox = new EditText(this);
-                portBox.setHint("Port");
-                portBox.setSingleLine();
-                layout.addView(portBox);
-                portBox.setText(reachPort, TextView.BufferType.EDITABLE);
-
-                final EditText intervalBox = new EditText(this);
-                intervalBox.setHint("Position update interval (seconds)");
-                intervalBox.setSingleLine();
-                layout.addView(intervalBox);
-                intervalBox.setText(String.valueOf(positionUpdateInterval), TextView.BufferType.EDITABLE);
+                reachHostTextView.setText(reachHost, TextView.BufferType.EDITABLE);
+                reachPortTextView.setText(reachPort, TextView.BufferType.EDITABLE);
+                positionUpdateIntervalTextView.setText(String.valueOf(positionUpdateInterval), TextView.BufferType.EDITABLE);
 
                 dialog.setCancelable(true);
 
-                dialog.setPositiveButton(
-                        "Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-
                 dialog.setNegativeButton(
-                        "Confirm",
+                        "Done",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                                 // Set the new host and port
-                                String reachHost = hostBox.getText().toString();
-                                String reachPort = portBox.getText().toString();
-                                Integer positionUpdateInterval = Integer.parseInt(intervalBox.getText().toString());
+                                String reachHost = reachHostTextView.getText().toString();
+                                String reachPort = reachPortTextView.getText().toString();
+                                Integer positionUpdateInterval = Integer.parseInt(positionUpdateIntervalTextView.getText().toString());
 
                                 // Reset the socket connection
                                 locationCollector.resetReachConnection(reachHost, reachPort);
@@ -967,6 +937,14 @@ public class DataEntryActivity extends BaseActivity {
                                 locationCollector.resetPositionUpdateInterval(positionUpdateInterval);
 
                                 // Close the dialog
+                                dialog.cancel();
+                            }
+                        });
+
+                dialog.setPositiveButton(
+                        "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
                             }
                         });

@@ -39,6 +39,7 @@
     <string name="external_storage_permission_denied_prompt">This app needs external storage access for capturing images with camera. Please allow access.</string>
     <string name="camera_app_not_found">Could not find any apps that can take a picture</string>
     <string name="comments_text_input_hint">Additional Comments</string>
+    <string name="connection_settings">Connection Settings</string>
     <string name="sync_button">SYNC</string>
     <string name="title_activity_sync">Sync</string>
     <string name="blank_assignment">--</string>
