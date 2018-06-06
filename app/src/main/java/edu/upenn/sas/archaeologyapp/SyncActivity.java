@@ -260,7 +260,6 @@ public class SyncActivity extends AppCompatActivity {
         } else {
 
             Toast.makeText(SyncActivity.this, "Done syncing finds", Toast.LENGTH_SHORT).show();
-            finish();
         }
     }
 
@@ -290,10 +289,10 @@ public class SyncActivity extends AppCompatActivity {
      */
     private synchronized void uploadToDrive(String hemisphere, int zone, int easting, int northing, int find, int imageNumber, Bitmap bmp)
     {
-        String key = hemisphere + "." + zone;
-        String key2 = key + "." + easting;
-        String key3 = key2 + "." + northing;
-        String key4 = key3 + "." + find;
+//        String key = hemisphere + "." + zone;
+//        String key2 = key + "." + easting;
+//        String key3 = key2 + "." + northing;
+//        String key4 = key3 + "." + find;
         // This blows tho
         mDriveResourceClient.getRootFolder().continueWithTask(task -> {
             DriveFolder rootFolder = task.getResult();
@@ -301,165 +300,74 @@ public class SyncActivity extends AppCompatActivity {
                     Filters.eq(SearchableField.TRASHED, false))).build();
             return mDriveResourceClient.queryChildren(rootFolder, query);
         }).addOnSuccessListener(this, hemisphereBuffer -> {
-            try
-            {
-                DriveFolder hemisphereFolder = folderCache.containsKey(hemisphere) ? folderCache.get(hemisphere)
-                        : hemisphereBuffer.get(0).getDriveId().asDriveFolder();
-                folderCache.put(hemisphere, hemisphereFolder);
-                Log.v("Hemisphere", hemisphereFolder.getDriveId().toString());
-                Query query = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + zone),
+            DriveFolder hemisphereFolder = hemisphereBuffer.get(0).getDriveId().asDriveFolder();
+            Log.v("Hemisphere", hemisphereFolder.getDriveId().toString());
+            Query query = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + zone),
+                    Filters.eq(SearchableField.TRASHED, false))).build();
+            mDriveResourceClient.queryChildren(hemisphereFolder, query).addOnSuccessListener(this, zoneBuffer -> {
+                DriveFolder zoneFolder = zoneBuffer.get(0).getDriveId().asDriveFolder();
+                Query query2 = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + easting),
                         Filters.eq(SearchableField.TRASHED, false))).build();
-                mDriveResourceClient.queryChildren(hemisphereFolder, query).addOnSuccessListener(this, zoneBuffer -> {
+                mDriveResourceClient.queryChildren(zoneFolder, query2).addOnSuccessListener(this, eastingBuffer -> {
                     try
                     {
-                        DriveFolder zoneFolder = folderCache.containsKey(key) ? folderCache.get(key)
-                                : zoneBuffer.get(0).getDriveId().asDriveFolder();
-                        folderCache.put(key, zoneFolder);
-                        Query query2 = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + easting),
+                        DriveFolder eastingFolder = /*folderCache.containsKey(key2) ? folderCache.get(key2)
+                                    :*/ eastingBuffer.get(0).getDriveId().asDriveFolder();
+//                            folderCache.put(key2, eastingFolder);
+                        Query query3 = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + northing),
                                 Filters.eq(SearchableField.TRASHED, false))).build();
-                        mDriveResourceClient.queryChildren(zoneFolder, query2).addOnSuccessListener(this, eastingBuffer -> {
+                        mDriveResourceClient.queryChildren(eastingFolder, query3).addOnSuccessListener(this, northingBuffer -> {
                             try
                             {
-                                DriveFolder eastingFolder = folderCache.containsKey(key2) ? folderCache.get(key2)
-                                        : eastingBuffer.get(0).getDriveId().asDriveFolder();
-                                folderCache.put(key2, eastingFolder);
-                                Query query3 = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + northing),
+                                DriveFolder northingFolder = /*folderCache.containsKey(key3) ? folderCache.get(key3)
+                                            :*/ northingBuffer.get(0).getDriveId().asDriveFolder();
+//                                    folderCache.put(key3, northingFolder);
+                                Query query4 = new Query.Builder().addFilter(Filters.and(
+                                        Filters.eq(SearchableField.TITLE, "" + find),
                                         Filters.eq(SearchableField.TRASHED, false))).build();
-                                mDriveResourceClient.queryChildren(eastingFolder, query3).addOnSuccessListener(this, northingBuffer -> {
+                                mDriveResourceClient.queryChildren(northingFolder, query4).addOnSuccessListener(this, findBuffer -> {
                                     try
                                     {
-                                        DriveFolder northingFolder = folderCache.containsKey(key3) ? folderCache.get(key3)
-                                                : northingBuffer.get(0).getDriveId().asDriveFolder();
-                                        folderCache.put(key3, northingFolder);
-                                        Query query4 = new Query.Builder().addFilter(Filters.and(
-                                                Filters.eq(SearchableField.TITLE, "" + find),
-                                                Filters.eq(SearchableField.TRASHED, false))).build();
-                                        mDriveResourceClient.queryChildren(northingFolder, query4).addOnSuccessListener(this, findBuffer -> {
-                                            try
-                                            {
-                                                DriveFolder findFolder = folderCache.containsKey(key4) ? folderCache.get(key4)
-                                                        : findBuffer.get(0).getDriveId().asDriveFolder();
-                                                folderCache.put(key4, northingFolder);
-                                                Query query5 = new Query.Builder().addFilter(
-                                                        Filters.eq(SearchableField.TRASHED, false)).build();
-                                                mDriveResourceClient.queryChildren(findFolder, query5).addOnSuccessListener(this, imageBuffer -> {
-                                                    Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
-                                                    createContentsTask.continueWithTask(task -> {
-                                                        DriveContents contents = task.getResult();
-                                                        OutputStream outputStream = contents.getOutputStream();
-                                                        bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                                                        MetadataChangeSet changeSet = new MetadataChangeSet
-                                                                .Builder().setTitle(imageNumber + ".png")
-                                                                .setMimeType("image/png").setStarred(false).build();
-                                                        CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
-                                                                .setInitialDriveContents(contents).setInitialMetadata(changeSet)
-                                                                .setActivityStartFolder(findFolder.getDriveId()).build();
-                                                        return mDriveClient.newCreateFileActivityIntentSender(createOptions);
-                                                    }).addOnSuccessListener(this, intentSender -> {
-                                                        try
-                                                        {
-                                                            startIntentSenderForResult(intentSender, REQUEST_CODE_CREATE_FILE,
-                                                                    null, 0, 0, 0);
-                                                        }
-                                                        catch (IntentSender.SendIntentException e2)
-                                                        {
-                                                            Toast.makeText(getApplicationContext(), "Error uploading to Drive",
-                                                                    Toast.LENGTH_SHORT).show();
-                                                            finish();
-                                                        }
-                                                    });
-                                                });
-                                            }
-                                            // Find folder not found
-                                            catch (Exception e)
-                                            {
-                                                MetadataChangeSet set3 = new MetadataChangeSet.Builder().setTitle("" + find)
-                                                        .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                                                mDriveResourceClient.createFolder(northingFolder, set3).addOnSuccessListener(this, findFolder -> {
-                                                    folderCache.put(key4, findFolder);
-                                                    Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
-                                                    createContentsTask.continueWithTask(task -> {
-                                                        DriveContents contents = task.getResult();
-                                                        OutputStream outputStream = contents.getOutputStream();
-                                                        bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                                                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("1.png")
-                                                                .setMimeType("image/png").setStarred(false).build();
-                                                        CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
-                                                                .setInitialDriveContents(contents).setInitialMetadata(changeSet)
-                                                                .setActivityStartFolder(findFolder.getDriveId()).build();
-                                                        return mDriveClient.newCreateFileActivityIntentSender(createOptions);
-                                                    }).addOnSuccessListener(this, intentSender -> {
-                                                        try
-                                                        {
-                                                            startIntentSenderForResult(intentSender, REQUEST_CODE_CREATE_FILE,
-                                                                    null, 0, 0, 0);
-                                                        }
-                                                        catch (IntentSender.SendIntentException e2)
-                                                        {
-                                                            Toast.makeText(getApplicationContext(), "Error uploading to Drive",
-                                                                    Toast.LENGTH_SHORT).show();
-                                                            finish();
-                                                        }
-                                                    });
-                                                });
-                                            }
-                                        });
-                                    }
-                                    // Northing folder not found
-                                    catch (Exception e)
-                                    {
-                                        MetadataChangeSet set2 = new MetadataChangeSet.Builder().setTitle("" + northing)
-                                                .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                                        mDriveResourceClient.createFolder(eastingFolder, set2).addOnSuccessListener(this, northingFolder -> {
-                                            folderCache.put(key3, northingFolder);
-                                            MetadataChangeSet set3 = new MetadataChangeSet.Builder().setTitle("" + find)
-                                                    .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                                            mDriveResourceClient.createFolder(northingFolder, set3).addOnSuccessListener(this, findFolder -> {
-                                                folderCache.put(key4, findFolder);
-                                                Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
-                                                createContentsTask.continueWithTask(task -> {
-                                                    DriveContents contents = task.getResult();
-                                                    OutputStream outputStream = contents.getOutputStream();
-                                                    bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                                                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("1.png")
-                                                            .setMimeType("image/png").setStarred(false).build();
-                                                    CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
-                                                            .setInitialDriveContents(contents).setInitialMetadata(changeSet)
-                                                            .setActivityStartFolder(findFolder.getDriveId()).build();
-                                                    return mDriveClient.newCreateFileActivityIntentSender(createOptions);
-                                                }).addOnSuccessListener(this, intentSender -> {
-                                                    try
-                                                    {
-                                                        startIntentSenderForResult(intentSender, REQUEST_CODE_CREATE_FILE,
-                                                                null, 0, 0, 0);
-                                                    }
-                                                    catch (IntentSender.SendIntentException e2)
-                                                    {
-                                                        Toast.makeText(getApplicationContext(), "Error uploading to Drive",
-                                                                Toast.LENGTH_SHORT).show();
-                                                        finish();
-                                                    }
-                                                });
+                                        DriveFolder findFolder = /*folderCache.containsKey(key4) ? folderCache.get(key4)
+                                                    :*/ findBuffer.get(0).getDriveId().asDriveFolder();
+//                                            folderCache.put(key4, northingFolder);
+                                        Query query5 = new Query.Builder().addFilter(
+                                                Filters.eq(SearchableField.TRASHED, false)).build();
+                                        mDriveResourceClient.queryChildren(findFolder, query5).addOnSuccessListener(this, imageBuffer -> {
+                                            Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
+                                            createContentsTask.continueWithTask(task -> {
+                                                DriveContents contents = task.getResult();
+                                                OutputStream outputStream = contents.getOutputStream();
+                                                bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                                                MetadataChangeSet changeSet = new MetadataChangeSet
+                                                        .Builder().setTitle(imageNumber + ".png")
+                                                        .setMimeType("image/png").setStarred(false).build();
+                                                CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
+                                                        .setInitialDriveContents(contents).setInitialMetadata(changeSet)
+                                                        .setActivityStartFolder(findFolder.getDriveId()).build();
+                                                return mDriveClient.newCreateFileActivityIntentSender(createOptions);
+                                            }).addOnSuccessListener(this, intentSender -> {
+                                                try
+                                                {
+                                                    startIntentSenderForResult(intentSender, REQUEST_CODE_CREATE_FILE,
+                                                            null, 0, 0, 0);
+                                                }
+                                                catch (IntentSender.SendIntentException e2)
+                                                {
+                                                    Toast.makeText(getApplicationContext(), "Error uploading to Drive",
+                                                            Toast.LENGTH_SHORT).show();
+                                                    finish();
+                                                }
                                             });
                                         });
                                     }
-                                });
-                            }
-                            // Easting not found
-                            catch (Exception e)
-                            {
-                                MetadataChangeSet set1 = new MetadataChangeSet.Builder().setTitle("" + easting)
-                                        .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                                mDriveResourceClient.createFolder(zoneFolder, set1).addOnSuccessListener(this, eastingFolder -> {
-                                    folderCache.put(key2, eastingFolder);
-                                    MetadataChangeSet set2 = new MetadataChangeSet.Builder().setTitle("" + northing)
-                                            .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                                    mDriveResourceClient.createFolder(eastingFolder, set2).addOnSuccessListener(this, northingFolder -> {
-                                        folderCache.put(key3, northingFolder);
+                                    // Find folder not found
+                                    catch (Exception e)
+                                    {
                                         MetadataChangeSet set3 = new MetadataChangeSet.Builder().setTitle("" + find)
                                                 .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
                                         mDriveResourceClient.createFolder(northingFolder, set3).addOnSuccessListener(this, findFolder -> {
-                                            folderCache.put(key4, findFolder);
+//                                                folderCache.put(key4, findFolder);
                                             Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
                                             createContentsTask.continueWithTask(task -> {
                                                 DriveContents contents = task.getResult();
@@ -485,30 +393,20 @@ public class SyncActivity extends AppCompatActivity {
                                                 }
                                             });
                                         });
-                                    });
+                                    }
                                 });
                             }
-                        });
-                    }
-                    // Zone folder not found
-                    catch (Exception e)
-                    {
-                        MetadataChangeSet set0 = new MetadataChangeSet.Builder().setTitle("" + zone)
-                                .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                        mDriveResourceClient.createFolder(hemisphereFolder, set0).addOnSuccessListener(this, zoneFolder -> {
-                            folderCache.put(key, zoneFolder);
-                            MetadataChangeSet set1 = new MetadataChangeSet.Builder().setTitle("" + easting)
-                                    .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                            mDriveResourceClient.createFolder(zoneFolder, set1).addOnSuccessListener(this, eastingFolder -> {
-                                folderCache.put(key2, eastingFolder);
+                            // Northing folder not found
+                            catch (Exception e)
+                            {
                                 MetadataChangeSet set2 = new MetadataChangeSet.Builder().setTitle("" + northing)
                                         .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
                                 mDriveResourceClient.createFolder(eastingFolder, set2).addOnSuccessListener(this, northingFolder -> {
-                                    folderCache.put(key3, northingFolder);
+//                                        folderCache.put(key3, northingFolder);
                                     MetadataChangeSet set3 = new MetadataChangeSet.Builder().setTitle("" + find)
                                             .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
                                     mDriveResourceClient.createFolder(northingFolder, set3).addOnSuccessListener(this, findFolder -> {
-                                        folderCache.put(key4, findFolder);
+//                                            folderCache.put(key4, findFolder);
                                         Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
                                         createContentsTask.continueWithTask(task -> {
                                             DriveContents contents = task.getResult();
@@ -535,41 +433,24 @@ public class SyncActivity extends AppCompatActivity {
                                         });
                                     });
                                 });
-                            });
+                            }
                         });
                     }
-                }).addOnFailureListener(this, e2 -> {
-                    Toast.makeText(getApplicationContext(), "Error retrieving files", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
-            }
-            // Hemisphere was not found
-            catch (Exception e)
-            {
-                mDriveResourceClient.getRootFolder().continueWithTask(task -> {
-                    DriveFolder rootFolder = task.getResult();
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(hemisphere)
-                            .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                    return mDriveResourceClient.createFolder(rootFolder, changeSet);
-                }).addOnSuccessListener(this, hemisphereFolder -> {
-                    folderCache.put(hemisphere, hemisphereFolder);
-                    Log.v("New Hemisphere", hemisphereFolder.getDriveId().toString());
-                    MetadataChangeSet set0 = new MetadataChangeSet.Builder().setTitle("" + zone)
-                            .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
-                    mDriveResourceClient.createFolder(hemisphereFolder, set0).addOnSuccessListener(this, zoneFolder -> {
-                        folderCache.put(key, zoneFolder);
+                    // Easting not found
+                    catch (Exception e)
+                    {
                         MetadataChangeSet set1 = new MetadataChangeSet.Builder().setTitle("" + easting)
                                 .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
                         mDriveResourceClient.createFolder(zoneFolder, set1).addOnSuccessListener(this, eastingFolder -> {
-                            folderCache.put(key2, eastingFolder);
+//                                folderCache.put(key2, eastingFolder);
                             MetadataChangeSet set2 = new MetadataChangeSet.Builder().setTitle("" + northing)
                                     .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
                             mDriveResourceClient.createFolder(eastingFolder, set2).addOnSuccessListener(this, northingFolder -> {
-                                folderCache.put(key3, northingFolder);
+//                                    folderCache.put(key3, northingFolder);
                                 MetadataChangeSet set3 = new MetadataChangeSet.Builder().setTitle("" + find)
                                         .setMimeType(DriveFolder.MIME_TYPE).setStarred(true).build();
                                 mDriveResourceClient.createFolder(northingFolder, set3).addOnSuccessListener(this, findFolder -> {
-                                    folderCache.put(key4, findFolder);
+//                                        folderCache.put(key4, findFolder);
                                     Task<DriveContents> createContentsTask = mDriveResourceClient.createContents();
                                     createContentsTask.continueWithTask(task -> {
                                         DriveContents contents = task.getResult();
@@ -597,9 +478,9 @@ public class SyncActivity extends AppCompatActivity {
                                 });
                             });
                         });
-                    });
+                    }
                 });
-            }
+            });
         });
     }
 }
