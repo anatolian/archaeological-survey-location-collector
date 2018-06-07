@@ -132,7 +132,7 @@ public class SyncActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 // totalItems is 0, so nothing to sync
-                if (uploadIndex >= totalItems) {
+                if (uploadIndex >= totalItems && pathUploadIndex >= totalPaths) {
 
                     Toast.makeText(SyncActivity.this, "There are no records to sync.", Toast.LENGTH_SHORT).show();
 
@@ -213,7 +213,6 @@ public class SyncActivity extends AppCompatActivity {
                             System.out.println(response);
                             if (!response.contains("Error")) {
 
-                                Toast.makeText(getApplicationContext(), "Successfully added find", Toast.LENGTH_SHORT).show();
                                 dataBaseHandler.setFindSynced(find);
                                 ArrayList<String> paths = elementsToUpload.get(uploadIndex).getImagePaths();
                                 String key = hemisphere + "." + zone + "." + easting + "." + northing + "." + find;
@@ -226,16 +225,6 @@ public class SyncActivity extends AppCompatActivity {
                                     imageNumbers.put(key, imageNumbers.get(key) + 1);
                                     try
                                     {
-                                        // File upload is asynchronous on Google's end, need to make sure the last file was uploaded
-                                        // before trying another.
-                                        try
-                                        {
-                                            Thread.sleep(5000);
-                                        }
-                                        catch (InterruptedException e)
-                                        {
-                                            e.printStackTrace();
-                                        }
                                         uploadToDrive(hemisphere, find.getZone(), find.getEasting(),
                                                 find.getNorthing(), find.getSample(), imageNumbers.get(key),
                                                 MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(path))));
@@ -301,11 +290,12 @@ public class SyncActivity extends AppCompatActivity {
             String beginTime = Double.toString(path.getBeginTime());
             String endTime = Double.toString(path.getEndTime());
 
-            edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?teamMember=" + teamMember
+            edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_path?teamMember=" + teamMember
                             + "&hemisphere=" + hemisphere + "&zone=" + zone + "&beginEasting=" + beginEasting + "&beginNorthing=" + beginNorthing
                             + "&endEasting=" + endEasting + "&endNorthing=" + endNorthing + "&beginLatitude=" + beginLatitude + "&beginLongitude=" + beginLongitude
                             + "&beginAltitude=" + beginAltitude + "&beginStatus=" + beginStatus + "&beginARRatio=" + beginARRatio + "&endLatitude=" + endLatitude
-                            + "&endLongitude=" + endLongitude + "&endAltitude=" + endAltitude + "&endStatus=" + endStatus + "&endARRatio=" + endARRatio, queue,
+                            + "&endLongitude=" + endLongitude + "&endAltitude=" + endAltitude + "&endStatus=" + endStatus + "&endARRatio=" + endARRatio
+                            + "&beginTime=" + beginTime + "&endTime=" + endTime, queue,
                     new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
                         /**
                          * Response received
@@ -316,7 +306,6 @@ public class SyncActivity extends AppCompatActivity {
                             System.out.println(response);
                             if (!response.contains("Error")) {
 
-                                Toast.makeText(getApplicationContext(), "Successfully added find", Toast.LENGTH_SHORT).show();
                                 dataBaseHandler.setPathSynced(path);
 
                                 // Upload the next find
