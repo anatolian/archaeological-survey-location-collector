@@ -68,6 +68,11 @@ public class ConstantsAndHelpers {
     public static String PARAM_KEY_STATUS = "status";
 
     /**
+     * Bundle key for AR ratio
+     */
+    public static String PARAM_KEY_AR_RATIO = "AR_ratio";
+
+    /**
      * Bundle key for material
      */
     public static String PARAM_KEY_MATERIAL = "material";
@@ -146,6 +151,26 @@ public class ConstantsAndHelpers {
      * Bundle key for end time
      */
     public static String PARAM_KEY_END_TIME = "end_time";
+
+    /**
+     * Bundle key for begin status
+     */
+    public static String PARAM_KEY_BEGIN_STATUS = "begin_status";
+
+    /**
+     * Bundle key for end status
+     */
+    public static String PARAM_KEY_END_STATUS = "end_status";
+
+    /**
+     * Bundle key for begin AR ratio
+     */
+    public static String PARAM_KEY_BEGIN_AR_RATIO = "begin_AR_ratio";
+
+    /**
+     * Bundle key for end AR ratio
+     */
+    public static String PARAM_KEY_END_AR_RATIO = "end_AR_ratio";
 
     /**
      * The REST API endpoint for syncing data

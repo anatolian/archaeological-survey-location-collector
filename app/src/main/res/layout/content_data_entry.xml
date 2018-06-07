@@ -43,7 +43,7 @@
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Northing"
+                    android:text="Easting"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -53,7 +53,7 @@
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Easting"
+                    android:text="Northing"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -92,7 +92,7 @@
                 <TextView
                     android:ellipsize="end"
                     android:layout_weight="1"
-                    android:id="@+id/data_entry_northing"
+                    android:id="@+id/data_entry_easting"
                     android:text="@string/blank_assignment"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -102,7 +102,7 @@
                 <TextView
                     android:ellipsize="end"
                     android:layout_weight="1"
-                    android:id="@+id/data_entry_easting"
+                    android:id="@+id/data_entry_northing"
                     android:text="@string/blank_assignment"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -345,6 +345,18 @@
                 android:layout_height="wrap_content"
                 android:onClick="submitButtonPressed"
                 android:text="@string/submit_button" />
+
+            <Button
+                android:id="@+id/data_entry_delete_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@color/deleteButtonBackgroundColor"
+                android:onClick="deleteButtonPressed"
+                android:visibility="gone"
+                android:text="@string/delete_button"
+                android:textColor="@color/dataEntryButtonTextColor" />
 
             <Space
                 android:layout_width="match_parent"

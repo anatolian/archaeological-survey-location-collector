@@ -1,8 +1,6 @@
 package edu.upenn.sas.archaeologyapp;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +12,6 @@ import android.widget.TextView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.io.File;
-
-import static edu.upenn.sas.archaeologyapp.R.id.map;
 
 /**
  * The adapter class for populating each item in the bucket list
@@ -60,7 +54,7 @@ public class BucketListEntryAdapter extends ArrayAdapter<DataEntryElement> {
 
         // Set the category
         // TODO: See ISSUE #6 on github
-        String id = elem.getZone()+"."+elem.getHemisphere()+"."+elem.getNorthing()+"."+elem.getEasting()+"."+elem.getSample();
+        String id = elem.getZone()+"."+elem.getHemisphere()+"."+elem.getEasting()+"."+elem.getNorthing()+"."+elem.getSample();
         viewHolder.categoryTV.setText(id);
 
         // Set the image
