@@ -13,21 +13,20 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.net.ConnectException;
 
-import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.*;
-import static java.lang.System.currentTimeMillis;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_HOST;
+import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_PORT;
 
 public abstract class LocationCollector {
 
@@ -172,14 +171,11 @@ public abstract class LocationCollector {
             BufferedReader reachSocketInput;
 
             if (reachSocket == null) {
-                System.out.println("Trying to create Socket, host: "+host);
                 try {
                     int timeout = positionUpdateInterval * 1000;
-                    System.out.println("Timeout: "+Integer.toString(timeout));
                     reachSocket = new Socket();
                     reachSocket.setSoTimeout(timeout);
                     reachSocket.connect(new InetSocketAddress(host, port), timeout);
-                    System.out.println("MADE SOCKET CONNECTION");
 
                 } catch(ConnectException e) {
 
@@ -198,13 +194,9 @@ public abstract class LocationCollector {
                 return context.getString(R.string.no_connection);
             }
 
-            System.out.println("Socket exists, trying to wait for input");
             try {
                 String currentLine;
-                System.out.println("WAITING FOR MSG");
                 while ((currentLine = reachSocketInput.readLine()) != null) {
-                    // TODO: make sure this is the latest line
-                    //msg = currentLine;
                     return currentLine;
                 }
             } catch(SocketTimeoutException e) {
@@ -217,13 +209,11 @@ public abstract class LocationCollector {
                 return context.getString(R.string.timeout);
 
             }
-            System.out.println("DIDN'T GET MSG: "+msg);
             return msg;
 
         }
 
         protected void onPostExecute(String result) {
-            System.out.println(result);
             String[] parsed = result.split("\\s+");
             if (parsed.length < 15) {
                 // Check to see if no data was passed through
@@ -239,7 +229,8 @@ public abstract class LocationCollector {
                 double lon = Double.parseDouble(parsed[3]);
                 double height = Double.parseDouble(parsed[4]);
                 String status = STATUS_CODES[Integer.parseInt(parsed[5])];
-                broadcastLocation(lat, lon, height, status);
+                double ARRatio = Double.parseDouble(parsed[14]);
+                broadcastLocation(lat, lon, height, status, ARRatio);
                 broadcastReachStatus(context.getString(R.string.connected));
             }
         }
@@ -251,7 +242,6 @@ public abstract class LocationCollector {
      */
     private void initiateReachFetch() {
 
-        System.out.println("TRYING TO GETB POSITION");
         new GetPositionOutputFromReach().execute(reachHost, reachPort);
 
     }
@@ -262,7 +252,7 @@ public abstract class LocationCollector {
     private void initiateGpsFetch() {
 
         if (GPSlatitude != null && GPSlongitude != null && GPSlatitude != null) {
-            broadcastLocation(GPSlatitude, GPSlongitude, GPSaltitude, "GPS");
+            broadcastLocation(GPSlatitude, GPSlongitude, GPSaltitude, "GPS", null);
             broadcastGPSStatus(context.getString(R.string.connected));
         } else {
             broadcastGPSStatus(context.getString(R.string.no_data));
@@ -369,8 +359,6 @@ public abstract class LocationCollector {
 
     public void resetReachConnection(String _reachHost, String _reachPort) {
 
-        System.out.println("resetting reach connection"+_reachHost);
-
         // Reset the socket
         reachSocket = null;
 
@@ -414,7 +402,7 @@ public abstract class LocationCollector {
         positionUpdateInterval = _positionUpdateInterval;
     }
 
-    public abstract void broadcastLocation(double latitude, double longitude, double altitude, String status);
+    public abstract void broadcastLocation(double latitude, double longitude, double altitude, String status, Double AR_ratio);
 
     public abstract void broadcastGPSStatus(String status);
 

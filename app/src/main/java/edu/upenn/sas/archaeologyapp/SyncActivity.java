@@ -1,5 +1,4 @@
 package edu.upenn.sas.archaeologyapp;
-
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
@@ -11,47 +10,33 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.drive.CreateFileActivityOptions;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveClient;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.DriveResourceClient;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.tasks.Task;
-
-import net.gotev.uploadservice.MultipartUploadRequest;
-import net.gotev.uploadservice.UploadNotificationConfig;
-import net.gotev.uploadservice.UploadServiceBroadcastReceiver;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import static edu.upenn.sas.archaeologyapp.util.StateStatic.GOOGLE_PLAY_SIGN_IN;
 import static edu.upenn.sas.archaeologyapp.util.StateStatic.REQUEST_CODE_CREATE_FILE;
 import static edu.upenn.sas.archaeologyapp.util.StateStatic.globalWebServerURL;
-
 /**
  * This activity is responsible for uploading all the records from the local database onto a server.
  * Created by eanvith on 27/02/17.
@@ -71,14 +56,29 @@ public class SyncActivity extends AppCompatActivity {
     ArrayList<DataEntryElement> elementsToUpload;
 
     /**
-     * The index of the element currently being uploaded in elementsToUpload list
+     * The index of the find currently being uploaded
      */
     int uploadIndex;
 
     /**
-     * Total number of items contained in elementsToUpload list
+     * Total number of finds to upload
      */
     int totalItems;
+
+    /**
+     * A list of paths populated from the local database, that need to be uploaded onto the server
+     */
+    ArrayList<PathElement> pathsToUpload;
+
+    /**
+     * The index of the path currently being uploaded
+     */
+    int pathUploadIndex;
+
+    /**
+     * Total number of paths to upload
+     */
+    int totalPaths;
 
     /**
      * A database helper class object that enables fetching of records from the local database
@@ -108,14 +108,22 @@ public class SyncActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sync);
+        queue = Volley.newRequestQueue(this);
+
         GoogleSignInClient mGoogleSignInClient = buildGoogleSignInClient();
         startActivityForResult(mGoogleSignInClient.getSignInIntent(), GOOGLE_PLAY_SIGN_IN);
         // Initialise the database helper class object, and read in the records from the local database
         dataBaseHandler = new DataBaseHandler(this);
+
         elementsToUpload = dataBaseHandler.getUnsyncedFindsRows();
+        pathsToUpload = dataBaseHandler.getUnsyncedPathsRows();
+
         totalItems = elementsToUpload.size();
         uploadIndex = 0;
-        queue = Volley.newRequestQueue(this);
+
+        totalPaths = pathsToUpload.size();
+        pathUploadIndex = 0;
+
 
         // Attach a click listener to the sync button, and trigger the sync process on click of the button
         syncButton = (Button) findViewById(R.id.sync_button_sync_activity);
@@ -135,6 +143,9 @@ public class SyncActivity extends AppCompatActivity {
 
                 // Start uploading unsynced items
                 uploadFind();
+
+                // Start uploading unsynced paths
+                uploadPath();
 
             }
         });
@@ -185,7 +196,7 @@ public class SyncActivity extends AppCompatActivity {
 
             String status = find.getStatus();
             String material = find.getMaterial();
-            String ARratio = "0";
+            String ARratio = Double.toString(find.getARRatio());
             String locationTimestamp = "0";
             String comments = find.getComments();
             edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?zone=" + zone
@@ -260,6 +271,81 @@ public class SyncActivity extends AppCompatActivity {
         } else {
 
             Toast.makeText(SyncActivity.this, "Done syncing finds", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void uploadPath() {
+        if (pathUploadIndex < totalPaths) {
+            final PathElement path = pathsToUpload.get(pathUploadIndex);
+
+            String teamMember = path.getTeamMember();
+
+            String beginLatitude = Double.toString(path.getBeginLatitude());
+            String beginLongitude = Double.toString(path.getBeginLongitude());
+            String beginAltitude = Double.toString(path.getBeginAltitude());
+            String beginStatus = path.getBeginStatus();
+            String beginARRatio =  Double.toString(path.getBeginARRatio());
+
+            String endLatitude =  Double.toString(path.getEndLatitude());
+            String endLongitude = Double.toString(path.getEndLongitude());
+            String endAltitude = Double.toString(path.getEndAltitude());
+            String endStatus =  path.getEndStatus();
+            String endARRatio = Double.toString(path.getEndARRatio());
+
+            String hemisphere = path.getHemisphere();
+            String zone = Integer.toString(path.getZone());
+            String beginNorthing = Double.toString(path.getBeginNorthing());
+            String beginEasting = Double.toString(path.getBeginEasting());
+            String endNorthing = Double.toString(path.getEndNorthing());
+            String endEasting = Double.toString(path.getEndEasting());
+            String beginTime = Double.toString(path.getBeginTime());
+            String endTime = Double.toString(path.getEndTime());
+
+            edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?teamMember=" + teamMember
+                            + "&hemisphere=" + hemisphere + "&zone=" + zone + "&beginEasting=" + beginEasting + "&beginNorthing=" + beginNorthing
+                            + "&endEasting=" + endEasting + "&endNorthing=" + endNorthing + "&beginLatitude=" + beginLatitude + "&beginLongitude=" + beginLongitude
+                            + "&beginAltitude=" + beginAltitude + "&beginStatus=" + beginStatus + "&beginARRatio=" + beginARRatio + "&endLatitude=" + endLatitude
+                            + "&endLongitude=" + endLongitude + "&endAltitude=" + endAltitude + "&endStatus=" + endStatus + "&endARRatio=" + endARRatio, queue,
+                    new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
+                        /**
+                         * Response received
+                         * @param response - database response
+                         */
+                        @Override
+                        public void responseMethod(String response) {
+                            System.out.println(response);
+                            if (!response.contains("Error")) {
+
+                                Toast.makeText(getApplicationContext(), "Successfully added find", Toast.LENGTH_SHORT).show();
+                                dataBaseHandler.setPathSynced(path);
+
+                                // Upload the next find
+                                pathUploadIndex++;
+                                uploadPath();
+
+                            } else {
+
+                                Toast.makeText(getApplicationContext(), "Upload unsuccessful: "+response, Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+
+                        /**
+                         * Connection failed
+                         * @param error - failure
+                         */
+                        @Override
+                        public void errorMethod(VolleyError error)
+                        {
+                            Toast.makeText(getApplicationContext(), "Upload unsuccessful (Communication error): "+error, Toast.LENGTH_SHORT).show();
+                            error.printStackTrace();
+                        }
+                    });
+
+        } else {
+
+            Toast.makeText(SyncActivity.this, "Done syncing finds", Toast.LENGTH_SHORT).show();
+
         }
     }
 

@@ -2,8 +2,6 @@ package edu.upenn.sas.archaeologyapp;
 
 import java.util.ArrayList;
 
-import static edu.upenn.sas.archaeologyapp.R.string.status;
-
 /**
  * Model for a data entry element
  * Created by eanvith on 16/01/17.
@@ -35,6 +33,11 @@ public class DataEntryElement {
      * The status of the position fetch
      */
     private final String status;
+
+    /**
+     * The status of the position fetch
+     */
+    private final Double AR_ratio;
 
     /**
      * The paths of the images linked to the entry
@@ -72,13 +75,14 @@ public class DataEntryElement {
     private final String hemisphere;
     private final Integer sample;
 
-    DataEntryElement(String ID, double latitude, double longitude, double altitude, String status, ArrayList<String> imagePaths, String material, String comments, long createdTimestamp, long updateTimestamp, Integer zone, String hemisphere, Integer northing, Integer easting, Integer sample, boolean beenSynced) {
+    DataEntryElement(String ID, double latitude, double longitude, double altitude, String status, Double AR_ratio, ArrayList<String> imagePaths, String material, String comments, long createdTimestamp, long updateTimestamp, Integer zone, String hemisphere, Integer northing, Integer easting, Integer sample, boolean beenSynced) {
 
         this.ID = ID;
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitude;
         this.status = status;
+        this.AR_ratio = AR_ratio;
         this.imagePaths = imagePaths;
         this.material = material;
         this.comments = comments;
@@ -123,6 +127,12 @@ public class DataEntryElement {
     public String getStatus() {
 
         return status;
+
+    }
+
+    public Double getARRatio() {
+
+        return AR_ratio;
 
     }
 

@@ -42,8 +42,8 @@ public class PathEntryActivity extends BaseActivity {
     /**
      * The text views for displaying latitude, longitude, altitude, and status values
      */
-    private TextView beginLatitudeTextView, beginLongitudeTextView, beginAltitudeTextView, beginGridTextView, beginNorthingTextView, beginEastingTextView, beginTimeTextView;
-    private TextView endLatitudeTextView, endLongitudeTextView, endAltitudeTextView, endGridTextView, endNorthingTextView, endEastingTextView, endTimeTextView;
+    private TextView beginLatitudeTextView, beginLongitudeTextView, beginAltitudeTextView, beginGridTextView, beginNorthingTextView, beginEastingTextView, beginTimeTextView, beginStatusTextView;
+    private TextView endLatitudeTextView, endLongitudeTextView, endAltitudeTextView, endGridTextView, endNorthingTextView, endEastingTextView, endTimeTextView, endStatusTextView;
 
     private TextView GPSConnectionTextView, reachConnectionTextView;
 
@@ -56,7 +56,7 @@ public class PathEntryActivity extends BaseActivity {
 
     private LocationCollector locationCollector;
 
-    private Double liveLatitude, liveLongitude, liveAltitude;
+    private Double liveLatitude, liveLongitude, liveAltitude, liveARRatio;
     private String liveStatus;
 
     private Integer beginZone, endZone;
@@ -66,7 +66,7 @@ public class PathEntryActivity extends BaseActivity {
     /**
      * Variables to store the users location data obtained from the Reach
      */
-    private Double beginLatitude, beginLongitude, beginAltitude, endLatitude, endLongitude, endAltitude;
+    private Double beginLatitude, beginLongitude, beginAltitude, endLatitude, endLongitude, endAltitude, beginARRatio, endARRatio;
 
     /**
      * Variables to store status of the position fetch
@@ -97,11 +97,12 @@ public class PathEntryActivity extends BaseActivity {
         // Initialize the locationCollector
         locationCollector = new LocationCollector(PathEntryActivity.this, reachHost, reachPort, positionUpdateInterval) {
             @Override
-            public void broadcastLocation(double _latitude, double _longitude, double _altitude, String _status) {
+            public void broadcastLocation(double _latitude, double _longitude, double _altitude, String _status, Double _ARRatio) {
                 liveLatitude = _latitude;
                 liveLongitude = _longitude;
                 liveAltitude = _altitude;
                 liveStatus = _status;
+                liveARRatio = _ARRatio;
                 previewLocationDetails();
             }
 
@@ -131,8 +132,6 @@ public class PathEntryActivity extends BaseActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-
-
     /**
      * Initialises all the views and other layout components
      */
@@ -153,6 +152,7 @@ public class PathEntryActivity extends BaseActivity {
         beginNorthingTextView = (TextView) findViewById(R.id.beginNorthing);
         beginEastingTextView = (TextView) findViewById(R.id.beginEasting);
         beginTimeTextView = (TextView) findViewById(R.id.beginTime);
+        beginStatusTextView = (TextView) findViewById(R.id.beginStatus);
         endLatitudeTextView = (TextView) findViewById(R.id.endLatitude);
         endLongitudeTextView = (TextView) findViewById(R.id.endLongitude);
         endAltitudeTextView = (TextView) findViewById(R.id.endAltitude);
@@ -160,6 +160,7 @@ public class PathEntryActivity extends BaseActivity {
         endNorthingTextView = (TextView) findViewById(R.id.endNorthing);
         endEastingTextView = (TextView) findViewById(R.id.endEasting);
         endTimeTextView = (TextView) findViewById(R.id.endTime);
+        endStatusTextView = (TextView) findViewById(R.id.endStatus);
 
         GPSConnectionTextView = (TextView) findViewById(R.id.GPSConnection);
         reachConnectionTextView = (TextView) findViewById(R.id.reachConnection);
@@ -170,9 +171,13 @@ public class PathEntryActivity extends BaseActivity {
         /**
          * Configure the materials dropdown menu
          */
+        // Load the team member API response from saved preferences
+        SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+        String teamMemberAPIResponse = settings.getString("teamMemberAPIResponse", getString(R.string.default_team_member));
+        String teamMemberOptions[] = teamMemberAPIResponse.split("\\r?\\n");
         teamMembersDropdown = (Spinner) findViewById(R.id.path_entry_team_members_drop_down);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> teamMemberAdapter = ArrayAdapter.createFromResource(this, R.array.people_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> teamMemberAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, teamMemberOptions);
         // Specify the layout to use when the list of choices appears
         teamMemberAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -182,6 +187,12 @@ public class PathEntryActivity extends BaseActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 teamMember = teamMembersDropdown.getSelectedItem().toString();
+
+                // Save this team member as the default
+                SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("defaultTeamMember", teamMember);
+                editor.commit();
             }
 
             @Override
@@ -189,6 +200,21 @@ public class PathEntryActivity extends BaseActivity {
 
             }
         });
+
+        String teamMemberFromPreferences = settings.getString("defaultTeamMember", teamMembersDropdown.getItemAtPosition(0).toString());
+
+        // Populate team member with a default if there is one
+        for (int i = 0; i < teamMembersDropdown.getCount(); i++) {
+
+            if (teamMembersDropdown.getItemAtPosition(i).toString().equalsIgnoreCase(teamMemberFromPreferences)) {
+
+                teamMembersDropdown.setSelection(i, true);
+
+            }
+
+        }
+
+        // Populate data if passed through
         boolean prepopulatedData = prePopulateFields();
 
         // Set text on submit button (depending on newPath)
@@ -200,40 +226,6 @@ public class PathEntryActivity extends BaseActivity {
         } else {
             submitButton.setText(R.string.reset_stop_path_button);
         }
-        submitButton.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Button submitButton = (Button) v;
-                if (liveLatitude != null && !liveLatitude.equals(0)) {
-                    if (!startPointSet) {
-
-                        setStartPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
-                        startPointSet = true;
-                        submitButton.setText(R.string.stop_path_button);
-                        saveData();
-
-                    } else if (!endPointSet) {
-
-                        setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
-                        endPointSet = true;
-                        submitButton.setText(R.string.reset_stop_path_button);
-                        onBackPressed();
-
-                    } else {
-
-                        setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus);
-                        onBackPressed();
-                        Toast.makeText(PathEntryActivity.this, "End point reset.", Toast.LENGTH_LONG).show();
-
-                    }
-                } else {
-                    Toast.makeText(PathEntryActivity.this, "You do not have a valid point.", Toast.LENGTH_LONG).show();
-                }
-
-            }
-
-        });
 
     }
 
@@ -250,11 +242,8 @@ public class PathEntryActivity extends BaseActivity {
         Long _beginTime = getIntent().getLongExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_TIME, 0);
         String _teamMember = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_TEAM_MEMBER);
 
-        System.out.println(_teamMember);
-        System.out.println(Long.toString(_beginTime));
-
         // If null, it means nothing was passed
-        if (_beginTime.equals(0) || _teamMember == null) {
+        if (_beginTime.equals(0L) || _teamMember == null) {
 
             return false;
 
@@ -263,19 +252,22 @@ public class PathEntryActivity extends BaseActivity {
         // If those are passed in, we know this isn't a new path
         newPath = false;
         startPointSet = true;
-
         beginTime = _beginTime;
+        teamMember = _teamMember;
 
         double _beginLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_LATITUDE, Double.MIN_VALUE);
         double _beginLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_LONGITUDE, Double.MIN_VALUE);
         double _beginAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_ALTITUDE, Double.MIN_VALUE);
-        setStartPoint(_beginLatitude, _beginLongitude, _beginAltitude, getString(R.string.blank_assignment));
+        String _beginStatus = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_STATUS);
+        double _beginARRatio = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_AR_RATIO, Double.MIN_VALUE);
+        setStartPoint(_beginLatitude, _beginLongitude, _beginAltitude, _beginStatus, _beginARRatio);
 
-        // TODO: Add delete button below submit button
+        // Add delete button below submit button
+        View deleteButton = findViewById(R.id.path_entry_delete_button);
+        deleteButton.setVisibility(View.VISIBLE);
 
         // Populate the selected team member
         // Search the dropdown for a matching teamMember, and set to that if found
-        // TODO: DO THIS
         for (int i = 0; i < teamMembersDropdown.getCount(); i++) {
 
             if (teamMembersDropdown.getItemAtPosition(i).toString().equalsIgnoreCase(_teamMember)) {
@@ -288,31 +280,38 @@ public class PathEntryActivity extends BaseActivity {
 
         // Check to see if the end point has been set before
         Long _endTime = getIntent().getLongExtra(ConstantsAndHelpers.PARAM_KEY_END_TIME, 0);
-        if (!_endTime.equals(0)) {
+        if (!_endTime.equals(0L)) {
+
             endPointSet = true;
+            endTime = _endTime;
 
             double _endLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LATITUDE, Double.MIN_VALUE);
             double _endLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LONGITUDE, Double.MIN_VALUE);
             double _endAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_ALTITUDE, Double.MIN_VALUE);
-            setEndPoint(_endLatitude, _endLongitude, _endAltitude, getString(R.string.blank_assignment));
-            // TODO: setEndPoint();
+            String _endStatus = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_END_STATUS);
+            double _endARRatio = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_AR_RATIO, Double.MIN_VALUE);
+            setEndPoint(_endLatitude, _endLongitude, _endAltitude, _endStatus, _endARRatio);
+
         }
 
         return true;
 
     }
 
-    private void setStartPoint(double _latitude, double _longitude, double _altitude, String status) {
+    private void setStartPoint(double _latitude, double _longitude, double _altitude, String _status, Double _ARRatio) {
 
         // Change "Start path" button to "End path", populate starting point coords and begin time
         beginLongitude = _longitude;
         beginLatitude = _latitude;
         beginAltitude = _altitude;
+        beginStatus = _status;
+        beginARRatio = _ARRatio;
 
         // Update the text views for coordinates
         beginLatitudeTextView.setText(String.format(getResources().getString(R.string.latitude), beginLatitude));
         beginLongitudeTextView.setText(String.format(getResources().getString(R.string.longitude), beginLongitude));
         beginAltitudeTextView.setText(String.format(getResources().getString(R.string.altitude), beginAltitude));
+        beginStatusTextView.setText(String.format(getResources().getString(R.string.status), beginStatus));
 
         // Update UTM positions
         Angle lat = Angle.fromDegrees(beginLatitude);
@@ -323,8 +322,8 @@ public class PathEntryActivity extends BaseActivity {
 
         beginZone = UTMposition.getZone();
         beginHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-        beginNorthing = new Integer((int) Math.floor(UTMposition.getNorthing()));
-        beginEasting = new Integer((int) Math.floor(UTMposition.getEasting()));
+        beginNorthing = (int) Math.floor(UTMposition.getNorthing());
+        beginEasting = (int) Math.floor(UTMposition.getEasting());
 
         beginGridTextView.setText(String.format(getResources().getString(R.string.grid), beginZone + beginHemisphere));
         beginNorthingTextView.setText(String.format(getResources().getString(R.string.northing), beginNorthing));
@@ -338,17 +337,20 @@ public class PathEntryActivity extends BaseActivity {
         beginTimeTextView.setText(sdf.format(new Date(beginTime)));
     }
 
-    private void setEndPoint(double _latitude, double _longitude, double _altitude, String status) {
+    private void setEndPoint(double _latitude, double _longitude, double _altitude, String _status, Double _ARRatio) {
 
         // Change "Start path" button to "End path", populate starting point coords and begin time
         endLongitude = _longitude;
         endLatitude = _latitude;
         endAltitude = _altitude;
+        endStatus = _status;
+        endARRatio = _ARRatio;
 
         // Update the text views for coordinates
         endLatitudeTextView.setText(String.format(getResources().getString(R.string.latitude), endLatitude));
         endLongitudeTextView.setText(String.format(getResources().getString(R.string.longitude), endLongitude));
         endAltitudeTextView.setText(String.format(getResources().getString(R.string.altitude), endAltitude));
+        endStatusTextView.setText(String.format(getResources().getString(R.string.status), endStatus));
 
         // Update UTM positions
         Angle lat = Angle.fromDegrees(endLatitude);
@@ -359,8 +361,8 @@ public class PathEntryActivity extends BaseActivity {
 
         endZone = UTMposition.getZone();
         endHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-        endNorthing = new Integer((int) Math.floor(UTMposition.getNorthing()));
-        endEasting = new Integer((int) Math.floor(UTMposition.getEasting()));
+        endNorthing = (int) Math.floor(UTMposition.getNorthing());
+        endEasting = (int) Math.floor(UTMposition.getEasting());
 
         endGridTextView.setText(String.format(getResources().getString(R.string.grid), endZone + endHemisphere));
         endNorthingTextView.setText(String.format(getResources().getString(R.string.northing), endNorthing));
@@ -371,7 +373,7 @@ public class PathEntryActivity extends BaseActivity {
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-        endTimeTextView.setText(sdf.format(new Date(beginTime)));
+        endTimeTextView.setText(sdf.format(new Date(endTime)));
     }
 
     private void resetStartPoint() {
@@ -379,6 +381,7 @@ public class PathEntryActivity extends BaseActivity {
         beginLatitudeTextView.setText(R.string.blank_assignment);
         beginLongitudeTextView.setText(R.string.blank_assignment);
         beginAltitudeTextView.setText(R.string.blank_assignment);
+        beginStatusTextView.setText(R.string.blank_assignment);
 
         beginGridTextView.setText(R.string.blank_assignment);
         beginNorthingTextView.setText(R.string.blank_assignment);
@@ -394,6 +397,7 @@ public class PathEntryActivity extends BaseActivity {
         endLatitudeTextView.setText(R.string.blank_assignment);
         endLongitudeTextView.setText(R.string.blank_assignment);
         endAltitudeTextView.setText(R.string.blank_assignment);
+        endStatusTextView.setText(R.string.blank_assignment);
 
         endGridTextView.setText(R.string.blank_assignment);
         endNorthingTextView.setText(R.string.blank_assignment);
@@ -558,6 +562,7 @@ public class PathEntryActivity extends BaseActivity {
             beginLatitudeTextView.setText(String.format(getResources().getString(R.string.latitude), liveLatitude));
             beginLongitudeTextView.setText(String.format(getResources().getString(R.string.longitude), liveLongitude));
             beginAltitudeTextView.setText(String.format(getResources().getString(R.string.altitude), liveAltitude));
+            beginStatusTextView.setText(String.format(getResources().getString(R.string.status), liveStatus));
 
             // Update UTM positions
             Angle lat = Angle.fromDegrees(liveLatitude);
@@ -568,8 +573,8 @@ public class PathEntryActivity extends BaseActivity {
 
             Integer liveZone = UTMposition.getZone();
             String liveHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-            Integer liveNorthing = new Integer((int) Math.floor(UTMposition.getNorthing()));
-            Integer liveEasting = new Integer((int) Math.floor(UTMposition.getEasting()));
+            Integer liveNorthing = (int) Math.floor(UTMposition.getNorthing());
+            Integer liveEasting = (int) Math.floor(UTMposition.getEasting());
 
             beginGridTextView.setText(String.format(getResources().getString(R.string.grid), liveZone + liveHemisphere));
             beginNorthingTextView.setText(String.format(getResources().getString(R.string.northing), liveNorthing));
@@ -577,9 +582,10 @@ public class PathEntryActivity extends BaseActivity {
 
             beginTimeTextView.setText(R.string.blank_assignment);
         } else if (!endPointSet) {
-            endLatitudeTextView.setText(Double.toString(liveLatitude));
-            endLongitudeTextView.setText(Double.toString(liveLongitude));
-            endAltitudeTextView.setText(Double.toString(liveAltitude));
+            endLatitudeTextView.setText(String.format(getResources().getString(R.string.latitude), liveLatitude));
+            endLongitudeTextView.setText(String.format(getResources().getString(R.string.longitude), liveLongitude));
+            endAltitudeTextView.setText(String.format(getResources().getString(R.string.altitude), liveAltitude));
+            endStatusTextView.setText(String.format(getResources().getString(R.string.status), liveStatus));
 
             // Update UTM positions
             Angle lat = Angle.fromDegrees(liveLatitude);
@@ -590,8 +596,8 @@ public class PathEntryActivity extends BaseActivity {
 
             Integer liveZone = UTMposition.getZone();
             String liveHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-            Integer liveNorthing = new Integer((int) Math.floor(UTMposition.getNorthing()));
-            Integer liveEasting = new Integer((int) Math.floor(UTMposition.getEasting()));
+            Integer liveNorthing = (int) Math.floor(UTMposition.getNorthing());
+            Integer liveEasting = (int) Math.floor(UTMposition.getEasting());
 
             endGridTextView.setText(String.format(getResources().getString(R.string.grid), liveZone + liveHemisphere));
             endNorthingTextView.setText(String.format(getResources().getString(R.string.northing), liveNorthing));
@@ -615,11 +621,56 @@ public class PathEntryActivity extends BaseActivity {
 
         super.onBackPressed();
 
-        // Save data when back button on action bar is pressed
-        saveData();
-
         // Disconnect from GPS
         locationCollector.pause();
+
+    }
+
+    public void submitButtonPressed(View v) {
+
+        Button submitButton = (Button) v;
+        if (liveLatitude != null && !liveLatitude.equals(0)) {
+            if (!startPointSet) {
+
+                setStartPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus, liveARRatio);
+                startPointSet = true;
+                submitButton.setText(R.string.stop_path_button);
+                saveData();
+
+            } else if (!endPointSet) {
+
+                setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus, liveARRatio);
+                endPointSet = true;
+                submitButton.setText(R.string.reset_stop_path_button);
+                saveData();
+                onBackPressed();
+
+            } else {
+
+                setEndPoint(liveLatitude, liveLongitude, liveAltitude, liveStatus, liveARRatio);
+                saveData();
+                onBackPressed();
+                Toast.makeText(PathEntryActivity.this, "End point reset.", Toast.LENGTH_LONG).show();
+
+            }
+        } else {
+            Toast.makeText(PathEntryActivity.this, "You do not have a valid point.", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
+    public void deleteButtonPressed(View v) {
+
+        // Set this path as synced
+        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
+        dataBaseHandler.setPathSynced(getElement());
+        onBackPressed();
+
+    }
+
+    private PathElement getElement() {
+
+        return new PathElement(teamMember, beginLatitude, beginLongitude, beginAltitude, endLatitude, endLongitude, endAltitude, beginHemisphere, beginZone, beginEasting, beginNorthing, endEasting, endNorthing, beginTime, endTime, beginStatus, endStatus, beginARRatio, endARRatio, false);
 
     }
 
@@ -640,7 +691,7 @@ public class PathEntryActivity extends BaseActivity {
         // Todo: Create a data entry element
         PathElement list[] = new PathElement[1];
 
-        list[0] = new PathElement(teamMember, beginLatitude, beginLongitude, beginAltitude, endLatitude, endLongitude, endAltitude, beginHemisphere, beginZone, beginEasting, beginNorthing, endEasting, endNorthing, beginTime, endTime);
+        list[0] = getElement();
 
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);

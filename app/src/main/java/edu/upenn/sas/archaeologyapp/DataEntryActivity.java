@@ -1,4 +1,5 @@
 package edu.upenn.sas.archaeologyapp;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
@@ -26,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -36,6 +38,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,8 +46,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
+
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
+
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_HOST;
 import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_PORT;
@@ -72,7 +77,7 @@ public class DataEntryActivity extends BaseActivity {
     /**
      * Variables to store the users location data obtained from the Reach
      */
-    private Double latitude, longitude, altitude;
+    private Double latitude, longitude, altitude, ARRatio;
 
     private String status;
 
@@ -164,9 +169,9 @@ public class DataEntryActivity extends BaseActivity {
         // Initialize the locationCollector
         locationCollector = new LocationCollector(DataEntryActivity.this, reachHost, reachPort, positionUpdateInterval) {
             @Override
-            public void broadcastLocation(double _latitude, double _longitude, double _altitude, String _status) {
+            public void broadcastLocation(double _latitude, double _longitude, double _altitude, String _status, Double _ARRatio) {
                 if (liveUpdatePosition) {
-                    setLocationDetails(_latitude, _longitude, _altitude, _status);
+                    setLocationDetails(_latitude, _longitude, _altitude, _status, _ARRatio);
                 }
             }
 
@@ -375,9 +380,14 @@ public class DataEntryActivity extends BaseActivity {
         /**
          * Configure the materials dropdown menu
          */
+        // Load the team member API response from saved preferences
+        SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+        String materialGeneralAPIResponse = settings.getString("materialGeneralAPIResponse", getString(R.string.default_material_general));
+        String materialGeneralOptions[] = materialGeneralAPIResponse.split("\\r?\\n");
+
         materialsDropdown = (Spinner) findViewById(R.id.data_entry_materials_drop_down);
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> materialsAdapter = ArrayAdapter.createFromResource(this, R.array.materials_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> materialsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, materialGeneralOptions);
         // Specify the layout to use when the list of choices appears
         materialsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -423,9 +433,10 @@ public class DataEntryActivity extends BaseActivity {
         double _longitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, Double.MIN_VALUE);
         double _altitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, Double.MIN_VALUE);
         String _status = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_STATUS);
+        double _ARRatio = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_AR_RATIO, Double.MIN_VALUE);
         if (!(_latitude == Double.MIN_VALUE || _longitude == Double.MIN_VALUE || _altitude == Double.MIN_VALUE || _status == null)) {
 
-            setLocationDetails(_latitude, _longitude, _altitude, _status);
+            setLocationDetails(_latitude, _longitude, _altitude, _status, _ARRatio);
 
         }
 
@@ -472,6 +483,13 @@ public class DataEntryActivity extends BaseActivity {
             commentsEditText.setText(_comments);
 
         }
+
+        // Add delete button below submit button, change submit button text
+        View deleteButton = findViewById(R.id.data_entry_delete_button);
+        deleteButton.setVisibility(View.VISIBLE);
+
+        Button submitButton = (Button) findViewById(R.id.data_entry_submit_button);
+        submitButton.setText(getString(R.string.confirm_changes));
 
         return true;
 
@@ -800,13 +818,14 @@ public class DataEntryActivity extends BaseActivity {
      * @param _longitude The longitude to be set
      * @param _altitude The altitude to be set
      */
-    private void setLocationDetails(double _latitude, double _longitude, double _altitude, String _status) {
+    private void setLocationDetails(double _latitude, double _longitude, double _altitude, String _status, Double _ARRatio) {
 
         // Get the latitude, longitutde, altitude, and save it in the respective variables
         longitude = _longitude;
         latitude = _latitude;
         altitude = _altitude;
         status = _status;
+        ARRatio = _ARRatio;
 
         // Update the text views
         latitudeTextView.setText(String.format(getResources().getString(R.string.latitude), latitude));
@@ -967,16 +986,23 @@ public class DataEntryActivity extends BaseActivity {
 
     public void submitButtonPressed(View v) {
 
+        saveData();
         onBackPressed();
+
+    }
+
+    public void deleteButtonPressed(View v) {
+
+        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
+        dataBaseHandler.setFindSynced(getElement());
+        onBackPressed();
+
     }
 
     @Override
     public void onBackPressed() {
 
         super.onBackPressed();
-
-        // Save data when back button on action bar is pressed
-        saveData();
 
         // Disconnect from GPS
         locationCollector.pause();
@@ -1038,10 +1064,7 @@ public class DataEntryActivity extends BaseActivity {
         dialog.show();
     }
 
-    /**
-     * Save all the data entered in the form
-     */
-    private void saveData() {
+    private DataEntryElement getElement() {
 
         // Get uuid from intent extras if this activity was opened for existing bucket entry
         String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
@@ -1052,6 +1075,19 @@ public class DataEntryActivity extends BaseActivity {
             id = UUID.randomUUID().toString();
 
         }
+
+        // Get the material and the comment
+        String material = materialsDropdown.getSelectedItem().toString();
+        String comment = commentsEditText.getText().toString();
+
+        return new DataEntryElement(id, latitude, longitude, altitude, status, ARRatio, photoPaths, material, comment, (new Date()).getTime(), (new Date()).getTime(), zone, hemisphere, northing, easting, sample, false);
+
+    }
+
+    /**
+     * Save all the data entered in the form
+     */
+    private void saveData() {
 
         // We only save changes if location info and image are present
         // Check if location info is set
@@ -1070,13 +1106,9 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
-        // Get the material and the comment
-        String material = materialsDropdown.getSelectedItem().toString();
-        String comment = commentsEditText.getText().toString();
-
         // Todo: Create a data entry element
         DataEntryElement list[] = new DataEntryElement[1];
-        list[0] = new DataEntryElement(id, latitude, longitude, altitude, status, photoPaths, material, comment, (new Date()).getTime(), (new Date()).getTime(), zone, hemisphere, northing, easting, sample, false);
+        list[0] = getElement();
 
         // Save the dataEntryElement to DB
         DataBaseHandler dataBaseHandler = new DataBaseHandler(this);

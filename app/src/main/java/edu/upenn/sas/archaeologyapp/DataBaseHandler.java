@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 13;
 
     private static final String DATABASE_NAME = "BUCKETDB";
 
@@ -30,6 +30,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_ALTITUDE = "altitude";
     private static final String KEY_STATUS = "status";
+    private static final String KEY_AR_RATIO = "AR_ratio";
     private static final String KEY_MATERIAL = "material";
     private static final String KEY_COMMENT = "comment";
     private static final String KEY_CREATED_TIMESTAMP = "created_timestamp";
@@ -54,6 +55,10 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     private static final String KEY_END_NORTHING = "end_northing";
     private static final String KEY_BEGIN_TIME = "start_time";
     private static final String KEY_END_TIME = "stop_time";
+    private static final String KEY_BEGIN_STATUS = "begin_status";
+    private static final String KEY_END_STATUS = "end_status";
+    private static final String KEY_BEGIN_AR_RATIO = "begin_AR_ratio";
+    private static final String KEY_END_AR_RATIO = "end_AR_ratio";
 
     private static final String KEY_IMAGE_ID = "image_name";
     private static final String KEY_IMAGE_BUCKET = "image_bucket";
@@ -77,6 +82,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 + KEY_LONGITUDE + " FLOAT,"
                 + KEY_ALTITUDE + " FLOAT,"
                 + KEY_STATUS + " TEXT,"
+                + KEY_AR_RATIO + " FLOAT,"
                 + KEY_MATERIAL + " TEXT,"
                 + KEY_COMMENT + " TEXT,"
                 + KEY_UPDATED_TIMESTAMP + " INTEGER,"
@@ -110,6 +116,11 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 + KEY_END_NORTHING + " INTEGER,"
                 + KEY_BEGIN_TIME + " FLOAT,"
                 + KEY_END_TIME + " FLOAT,"
+                + KEY_BEGIN_STATUS + " TEXT,"
+                + KEY_END_STATUS + " TEXT,"
+                + KEY_BEGIN_AR_RATIO + " FLOAT,"
+                + KEY_END_AR_RATIO + " FLOAT,"
+                + KEY_BEEN_SYNCED + " INTEGER,"
                 + "PRIMARY KEY ("+ KEY_TEAM_MEMBER +", "+ KEY_BEGIN_TIME +"));"
                 ;
 
@@ -248,6 +259,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 values.put(KEY_LONGITUDE, entry[i].getLongitude());
                 values.put(KEY_ALTITUDE, entry[i].getAltitude());
                 values.put(KEY_STATUS, entry[i].getStatus());
+                values.put(KEY_AR_RATIO, entry[i].getARRatio());
                 values.put(KEY_MATERIAL, entry[i].getMaterial());
                 values.put(KEY_COMMENT, entry[i].getComments());
                 values.put(KEY_UPDATED_TIMESTAMP, entry[i].getUpdateTimestamp());
@@ -319,6 +331,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
             values.put(KEY_LONGITUDE, entry.getLongitude());
             values.put(KEY_ALTITUDE, entry.getAltitude());
             values.put(KEY_STATUS, entry.getStatus());
+            values.put(KEY_AR_RATIO, entry.getARRatio());
             values.put(KEY_MATERIAL, entry.getMaterial());
             values.put(KEY_COMMENT, entry.getComments());
             values.put(KEY_UPDATED_TIMESTAMP, entry.getUpdateTimestamp());
@@ -378,9 +391,13 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 values.put(KEY_BEGIN_LATITUDE, entry[i].getBeginLatitude());
                 values.put(KEY_BEGIN_LONGITUDE, entry[i].getBeginLongitude());
                 values.put(KEY_BEGIN_ALTITUDE, entry[i].getBeginAltitude());
+                values.put(KEY_BEGIN_STATUS, entry[i].getBeginStatus());
+                values.put(KEY_BEGIN_AR_RATIO, entry[i].getBeginARRatio());
                 values.put(KEY_END_LATITUDE, entry[i].getEndLatitude());
                 values.put(KEY_END_LONGITUDE, entry[i].getEndLongitude());
                 values.put(KEY_END_ALTITUDE, entry[i].getEndAltitude());
+                values.put(KEY_END_STATUS, entry[i].getEndStatus());
+                values.put(KEY_END_AR_RATIO, entry[i].getEndARRatio());
                 values.put(KEY_HEMISPHERE, entry[i].getHemisphere());
                 values.put(KEY_ZONE, entry[i].getZone());
                 values.put(KEY_BEGIN_NORTHING, entry[i].getBeginNorthing());
@@ -388,6 +405,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 values.put(KEY_END_NORTHING, entry[i].getEndNorthing());
                 values.put(KEY_END_EASTING, entry[i].getEndEasting());
                 values.put(KEY_END_TIME, entry[i].getEndTime());
+                values.put(KEY_BEEN_SYNCED, entry[i].getBeenSynced() ? 1 : 0);
 
                 // Try to make an update call
                 int rowsAffected = db.update(PATHS_TABLE_NAME, values, KEY_TEAM_MEMBER + " ='" + entry[i].getTeamMember() +"' AND " + KEY_BEGIN_TIME + "='" + entry[i].getBeginTime() + "'", null);
@@ -402,6 +420,68 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                     db.insert(PATHS_TABLE_NAME, null, values);
 
                 }
+
+            }
+
+            db.setTransactionSuccessful();
+            db.endTransaction();
+
+        }
+        catch(Exception e){
+
+            e.printStackTrace();
+
+        }
+        finally{
+
+            db.close();
+
+        }
+    }
+
+    /**
+     * Helper function to set a path to synced
+     * @param entry
+     */
+    public void setPathSynced(PathElement entry) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try {
+
+            db.beginTransaction();
+
+            // The values to be written in a row
+            ContentValues values = new ContentValues();
+
+            values.put(KEY_BEGIN_LATITUDE, entry.getBeginLatitude());
+            values.put(KEY_BEGIN_LONGITUDE, entry.getBeginLongitude());
+            values.put(KEY_BEGIN_ALTITUDE, entry.getBeginAltitude());
+            values.put(KEY_BEGIN_STATUS, entry.getBeginStatus());
+            values.put(KEY_BEGIN_AR_RATIO, entry.getBeginARRatio());
+            values.put(KEY_END_LATITUDE, entry.getEndLatitude());
+            values.put(KEY_END_LONGITUDE, entry.getEndLongitude());
+            values.put(KEY_END_ALTITUDE, entry.getEndAltitude());
+            values.put(KEY_END_STATUS, entry.getEndStatus());
+            values.put(KEY_END_AR_RATIO, entry.getEndARRatio());
+            values.put(KEY_HEMISPHERE, entry.getHemisphere());
+            values.put(KEY_ZONE, entry.getZone());
+            values.put(KEY_BEGIN_NORTHING, entry.getBeginNorthing());
+            values.put(KEY_BEGIN_EASTING, entry.getBeginEasting());
+            values.put(KEY_END_NORTHING, entry.getEndNorthing());
+            values.put(KEY_END_EASTING, entry.getEndEasting());
+            values.put(KEY_END_TIME, entry.getEndTime());
+
+            // Set beenSynced to true
+            values.put(KEY_BEEN_SYNCED, 1);
+
+            // Try to make an update call
+            int rowsAffected = db.update(PATHS_TABLE_NAME, values, KEY_TEAM_MEMBER + " ='" + entry.getTeamMember() +"' AND " + KEY_BEGIN_TIME + "='" + entry.getBeginTime() + "'", null);
+
+            // If update call fails, rowsAffected will be 0. If not, it means the row was updated
+            if (rowsAffected == 1) {
+
+                // Success
 
             }
 
@@ -446,6 +526,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_STATUS)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_AR_RATIO)),
                             getImages(cursor.getString(cursor.getColumnIndex(KEY_ID))),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
                             cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
@@ -519,7 +600,12 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getInt(cursor.getColumnIndex(KEY_END_EASTING)),
                             cursor.getInt(cursor.getColumnIndex(KEY_END_NORTHING)),
                             cursor.getLong(cursor.getColumnIndex(KEY_BEGIN_TIME)),
-                            cursor.getLong(cursor.getColumnIndex(KEY_END_TIME)));
+                            cursor.getLong(cursor.getColumnIndex(KEY_END_TIME)),
+                            cursor.getString(cursor.getColumnIndex(KEY_BEGIN_STATUS)),
+                            cursor.getString(cursor.getColumnIndex(KEY_END_STATUS)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_BEGIN_AR_RATIO)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_END_AR_RATIO)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_BEEN_SYNCED))>0);
 
                     pathElements.add(entry);
 
@@ -573,6 +659,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_STATUS)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_AR_RATIO)),
                             getImages(cursor.getString(cursor.getColumnIndex(KEY_ID))),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
                             cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
@@ -613,6 +700,75 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     }
 
     /**
+     * Helper function to get all unsynced paths from the database
+     * @return An array list of all rows fetched
+     */
+    public ArrayList<PathElement> getUnsyncedPathsRows() {
+
+        ArrayList<PathElement> pathElements = new ArrayList<PathElement>();
+
+        String selectQuery = "SELECT  * FROM " + PATHS_TABLE_NAME + " WHERE "+ KEY_BEEN_SYNCED + "=0 ORDER BY " + KEY_BEGIN_TIME;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = null;
+
+        try{
+
+            cursor = db.rawQuery(selectQuery, null);
+
+            if (cursor.moveToFirst()) {
+
+                do {
+
+                    PathElement entry = new PathElement(cursor.getString(cursor.getColumnIndex(KEY_TEAM_MEMBER)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_BEGIN_LATITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_BEGIN_LONGITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_BEGIN_ALTITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_END_LATITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_END_LONGITUDE)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_END_ALTITUDE)),
+                            cursor.getString(cursor.getColumnIndex(KEY_HEMISPHERE)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_ZONE)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_BEGIN_EASTING)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_BEGIN_NORTHING)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_END_EASTING)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_END_NORTHING)),
+                            cursor.getLong(cursor.getColumnIndex(KEY_BEGIN_TIME)),
+                            cursor.getLong(cursor.getColumnIndex(KEY_END_TIME)),
+                            cursor.getString(cursor.getColumnIndex(KEY_BEGIN_STATUS)),
+                            cursor.getString(cursor.getColumnIndex(KEY_END_STATUS)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_BEGIN_AR_RATIO)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_END_AR_RATIO)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_BEEN_SYNCED))>0);
+
+                    pathElements.add(entry);
+
+                } while (cursor.moveToNext());
+
+            }
+
+        }
+        catch(Exception e) {
+
+            e.printStackTrace();
+
+        }
+        finally {
+
+            if(cursor!=null){
+
+                cursor.close();
+
+            }
+
+            db.close();
+
+        }
+
+        return pathElements;
+    }
+
+    /**
      * Helper function to fetch a single row from table
      * @param id The id of the row to be fetched
      * @return
@@ -638,6 +794,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getDouble(cursor.getColumnIndex(KEY_LONGITUDE)),
                             cursor.getDouble(cursor.getColumnIndex(KEY_ALTITUDE)),
                             cursor.getString(cursor.getColumnIndex(KEY_STATUS)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_AR_RATIO)),
                             getImages(cursor.getString(cursor.getColumnIndex(KEY_ID))),
                             cursor.getString(cursor.getColumnIndex(KEY_MATERIAL)),
                             cursor.getString(cursor.getColumnIndex(KEY_COMMENT)),
@@ -713,7 +870,12 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                             cursor.getInt(cursor.getColumnIndex(KEY_END_EASTING)),
                             cursor.getInt(cursor.getColumnIndex(KEY_END_NORTHING)),
                             cursor.getLong(cursor.getColumnIndex(KEY_BEGIN_TIME)),
-                            cursor.getLong(cursor.getColumnIndex(KEY_END_TIME)));
+                            cursor.getLong(cursor.getColumnIndex(KEY_END_TIME)),
+                            cursor.getString(cursor.getColumnIndex(KEY_BEGIN_STATUS)),
+                            cursor.getString(cursor.getColumnIndex(KEY_END_STATUS)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_BEGIN_AR_RATIO)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_END_AR_RATIO)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_BEEN_SYNCED))>0);
 
                 } while (cursor.moveToNext());
 

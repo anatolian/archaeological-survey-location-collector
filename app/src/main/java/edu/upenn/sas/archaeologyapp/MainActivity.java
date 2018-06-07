@@ -2,28 +2,29 @@ package edu.upenn.sas.archaeologyapp;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.MotionEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.graphics.Color;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -41,10 +42,8 @@ import java.util.TimerTask;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
 
-import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
 import static edu.upenn.sas.archaeologyapp.R.id.map;
-import static edu.upenn.sas.archaeologyapp.R.string.latitude;
-import static edu.upenn.sas.archaeologyapp.R.string.longitude;
+import static edu.upenn.sas.archaeologyapp.util.StateStatic.globalWebServerURL;
 
 /**
  * This activity shows the user the list of items presently in his bucket
@@ -52,6 +51,11 @@ import static edu.upenn.sas.archaeologyapp.R.string.longitude;
  */
 
 public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener{
+
+    /**
+     * The shared preferences file name where we will store persistent app data
+     */
+    public static final String PREFERENCES = "archaeological-survey-location-collector-preferences";
 
     private static int FINDS_MODE = 0;
     private static int PATHS_MODE = 1;
@@ -137,11 +141,18 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private Integer northing;
     private Integer easting;
 
+    /**
+     * A request queue to handle python requests
+     */
+    RequestQueue queue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        queue = Volley.newRequestQueue(this);
 
         initialiseViews();
         initiateGPS();
@@ -160,15 +171,14 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap m) {
+
                 googleMap = m;
                 findsListEntryAdapter.setMap(m);
                 pathsListEntryAdapter.setMap(m);
-                try
-                {
+
+                try {
                     m.setMyLocationEnabled(true);
-                }
-                catch (SecurityException e)
-                {
+                } catch (SecurityException e) {
                     Toast.makeText(getApplicationContext(), "Location must be enabled", Toast.LENGTH_LONG).show();
                 }
                 m.getUiSettings().setMyLocationButtonEnabled(true);
@@ -188,6 +198,8 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 populateDataFromLocalStore();
             }
         });
+
+        cacheOptionsFromDatabase();
 
     }
 
@@ -290,6 +302,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
                     paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, dataEntryElement.getAltitude());
                     paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_STATUS, dataEntryElement.getStatus());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_AR_RATIO, dataEntryElement.getARRatio());
                     paramsToPass.putStringArrayList(ConstantsAndHelpers.PARAM_KEY_IMAGES, dataEntryElement.getImagePaths());
                     paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_MATERIAL, dataEntryElement.getMaterial());
                     paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_COMMENTS, dataEntryElement.getComments());
@@ -317,6 +330,10 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_NORTHING, pathElement.getEndNorthing());
                     paramsToPass.putLong(ConstantsAndHelpers.PARAM_KEY_BEGIN_TIME, pathElement.getBeginTime());
                     paramsToPass.putLong(ConstantsAndHelpers.PARAM_KEY_END_TIME, pathElement.getEndTime());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_BEGIN_STATUS, pathElement.getBeginStatus());
+                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_END_STATUS, pathElement.getEndStatus());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_AR_RATIO, pathElement.getBeginARRatio());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_AR_RATIO, pathElement.getEndARRatio());
 
                     startActivityUsingIntent(PathEntryActivity.class, false, paramsToPass);
 
@@ -413,19 +430,19 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         if (displayMode == FINDS_MODE) {
 
             // Get data from DB
-            int numrows = dataBaseHandler.getFindsRows().size();
+            int numrows = dataBaseHandler.getUnsyncedFindsRows().size();
 
             // Populate map markers
             if (googleMap != null) {
                 googleMap.clear();
-                for (DataEntryElement elem : dataBaseHandler.getFindsRows()) {
+                for (DataEntryElement elem : dataBaseHandler.getUnsyncedFindsRows()) {
                     String id = elem.getZone()+"."+elem.getHemisphere()+"."+elem.getNorthing()+"."+elem.getEasting()+"."+elem.getSample();
                     googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getLatitude(), elem.getLongitude())).title(id));
                 }
 
                 // Set map center to last placed marker
                 if (numrows > 0) {
-                    DataEntryElement lastElem = dataBaseHandler.getFindsRows().get(numrows - 1);
+                    DataEntryElement lastElem = dataBaseHandler.getUnsyncedFindsRows().get(numrows - 1);
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastElem.getLatitude(), lastElem.getLongitude()), 14));
                 }
             }
@@ -438,20 +455,22 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
         } else if (displayMode == PATHS_MODE) {
 
             // Get data from DB
-            int numrows = dataBaseHandler.getPathsRows().size();
+            int numrows = dataBaseHandler.getUnsyncedPathsRows().size();
 
             // Populate map markers and lines
             if (googleMap != null) {
                 googleMap.clear();
-                for (PathElement elem : dataBaseHandler.getPathsRows()) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-                    String id = elem.getTeamMember()+"'s path, "+sdf.format(new Date(elem.getBeginTime()));
-
-                    // Add the starting point
-                    googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude())).title(id));
-
-                    // Add the end point and line if it exists
+                for (PathElement elem : dataBaseHandler.getUnsyncedPathsRows()) {
+                    // Add the path only if it's been completed
                     if (elem.getEndTime() != 0) {
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+                        String id = elem.getTeamMember()+"'s path, "+sdf.format(new Date(elem.getBeginTime()));
+
+                        // Add the starting point
+                        googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude())).title(id));
+
+                        // Add the end point and line
                         googleMap.addMarker(new MarkerOptions().position(new LatLng(elem.getEndLatitude(), elem.getEndLongitude())).title(id));
                         Polyline line = googleMap.addPolyline(new PolylineOptions()
                                 .add(new LatLng(elem.getBeginLatitude(), elem.getBeginLongitude()), new LatLng(elem.getEndLatitude(), elem.getEndLongitude()))
@@ -463,13 +482,13 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
 
                 // Set map center to last placed path marker
                 if (numrows > 0) {
-                    PathElement lastElem = dataBaseHandler.getPathsRows().get(numrows - 1);
+                    PathElement lastElem = dataBaseHandler.getUnsyncedPathsRows().get(numrows - 1);
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastElem.getBeginLatitude(), lastElem.getBeginLongitude()), 17));
                 }
             }
 
             pathsListEntryAdapter.clear();
-            pathsListEntryAdapter.addAll(dataBaseHandler.getPathsRows());
+            pathsListEntryAdapter.addAll(dataBaseHandler.getUnsyncedPathsRows());
             pathsListEntryAdapter.notifyDataSetChanged();
 
         }
@@ -590,6 +609,73 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             }
 
         }
+
+    }
+
+    private void cacheOptionsFromDatabase() {
+
+        // Check to see what options are already saved on this device
+        SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+        final boolean teamMemberResponsePreviouslyLoaded = settings.contains("teamMemberAPIResponse");
+        final boolean materialGeneralResponsePreviouslyLoaded = settings.contains("materialGeneralAPIResponse");
+
+        edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/get_team_members", queue,
+                new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
+                    @Override
+                    public void responseMethod(String response) {
+                        System.out.println(response);
+                        if (!response.contains("Error")) {
+
+                            // Save this team member as the default
+                            SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putString("teamMemberAPIResponse", response);
+                            editor.commit();
+
+                        } else if (!teamMemberResponsePreviouslyLoaded) {
+
+                            Toast.makeText(getApplicationContext(), "Could not load team members: "+response, Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    @Override
+                    public void errorMethod(VolleyError error) {
+                        if (!teamMemberResponsePreviouslyLoaded) {
+                            Toast.makeText(getApplicationContext(), "Could not load team members (Communication error): " + error, Toast.LENGTH_SHORT).show();
+                            error.printStackTrace();
+                        }
+                    }
+                });
+
+        edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/get_material_generals", queue,
+                new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
+                    @Override
+                    public void responseMethod(String response) {
+                        System.out.println(response);
+                        if (!response.contains("Error")) {
+
+                            // Save this team member as the default
+                            SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
+                            SharedPreferences.Editor editor = settings.edit();
+                            editor.putString("materialGeneralAPIResponse", response);
+                            editor.commit();
+
+                        } else if (!materialGeneralResponsePreviouslyLoaded) {
+
+                            Toast.makeText(getApplicationContext(), "Could not load general materials: "+response, Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+
+                    @Override
+                    public void errorMethod(VolleyError error) {
+                        if (!materialGeneralResponsePreviouslyLoaded) {
+                            Toast.makeText(getApplicationContext(), "Could not load general materials (Communication error): " + error, Toast.LENGTH_SHORT).show();
+                            error.printStackTrace();
+                        }
+                    }
+                });
 
     }
 

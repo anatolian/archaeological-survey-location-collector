@@ -270,6 +270,36 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/beginStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:text="@string/status"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/endStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:text="@string/status"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
                     android:id="@+id/beginTime"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -330,6 +360,22 @@
             android:onClick="submitButtonPressed"
             android:text="@string/start_path_button"
             android:textColor="@color/dataEntryButtonTextColor" />
+
+        <Button
+            android:id="@+id/path_entry_delete_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:background="@color/deleteButtonBackgroundColor"
+            android:onClick="deleteButtonPressed"
+            android:visibility="gone"
+            android:text="@string/delete_path_button"
+            android:textColor="@color/dataEntryButtonTextColor" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />
 
     </LinearLayout>
 
