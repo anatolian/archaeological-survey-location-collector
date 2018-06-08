@@ -1068,6 +1068,7 @@ public class DataEntryActivity extends BaseActivity {
 
         // Get uuid from intent extras if this activity was opened for existing bucket entry
         String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
+        Long createdTimestamp;
 
         // If this is a new entry, check and generate a new uuid
         if (id == null) {
@@ -1075,7 +1076,6 @@ public class DataEntryActivity extends BaseActivity {
             id = UUID.randomUUID().toString();
 
         }
-
         // Get the material and the comment
         String material = materialsDropdown.getSelectedItem().toString();
         String comment = commentsEditText.getText().toString();

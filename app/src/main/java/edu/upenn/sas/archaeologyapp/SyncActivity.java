@@ -197,12 +197,12 @@ public class SyncActivity extends AppCompatActivity {
             String status = find.getStatus();
             String material = find.getMaterial();
             String ARratio = Double.toString(find.getARRatio());
-            String locationTimestamp = "0";
+            String locationTimestamp = Double.toString(find.getCreatedTimestamp());
             String comments = find.getComments();
             edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?zone=" + zone
                             + "&hemisphere=" + hemisphere + "&easting=" + easting + "&northing=" + northing
                             + "&contextEasting=" + contextEasting + "&contextNorthing=" + contextNorthing
-                            + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude + "&altitude=" + altitude + "&status=" + status + "&material=" + material + "&comments=" + comments + "&ARratio=" + ARratio, queue,
+                            + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude + "&altitude=" + altitude + "&status=" + status + "&material=" + material + "&comments=" + comments + "&ARratio=" + ARratio + "&timestamp=" + locationTimestamp, queue,
                     new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
                         /**
                          * Response received
