@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -39,9 +40,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -329,7 +334,7 @@ public class DataEntryActivity extends BaseActivity {
 
                     // Image file to be passed to camera app.
                     // The camera app saves captured image in this file
-                    outputFromCamera = createImageFile(true);
+                    outputFromCamera = createImageFile();
                     Log.v("Camera", outputFromCamera.getAbsolutePath());
                     // Android handles saving data in intents to the camera poorly, so we save the URI of the future image in this variable for future use
                     lastCameraPictureURI = outputFromCamera.getAbsolutePath();
@@ -534,41 +539,20 @@ public class DataEntryActivity extends BaseActivity {
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                             bitmapArray.add(bitmap);
                             // Try saving this bitmap
-                            if(!saveToFile(bitmap)) {
+                            if(!saveToFile(bitmap))
+                            {
                                 throw new Exception(getString(R.string.save_failed_exception));
                             }
                         }
                     }
-
-                    /*
-                    // Get the path of the image selected by the user
-                    Uri selectedImageUri = data.getData();
-
-                    // Read it into a BITMAP
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-
-                    // Try saving the image
-                    if(!saveToFile(bitmap)) {
-                        throw new Exception(getString(R.string.save_failed_exception));
-                    }
-
-                    // Display the image selected
-                    imageView.setImageURI(Uri.fromFile(new File(photoPath)));
-                    */
-
                     // Display the selected images
                     populateImagesWithPhotoPaths();
-
                 }
                 // If user captured image with camera
                 else if (requestCode == CAMERA_REQUEST) {
                     // Read the captured image into BITMAP
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), photoURI);
                     Log.v("Camera", bitmap.toString());
-                    // Try saving the image
-                    if(!saveToFile(bitmap)) {
-                        throw new Exception(getString(R.string.save_failed_exception));
-                    }
 
                     // Display the image captured (and don't clear the current photos)
                     //imageView.setImageURI(Uri.fromFile(new File(photoPath)));
@@ -587,24 +571,36 @@ public class DataEntryActivity extends BaseActivity {
 
     }
 
-    private void populateImagesWithPhotoPaths() {
+    private void populateImagesWithPhotoPaths()
+    {
         // Empty the current photos
         imageContainer.removeAllViews();
-
         // Populate the appropriate photos
-        for(int i=0; i < photoPaths.size(); i++) {
+        for (int i = 0; i < photoPaths.size(); i++)
+        {
             final ImageView image = new ImageView(this);
-
             final String img = photoPaths.get(i);
             image.setLayoutParams(new GridView.LayoutParams(185, 185));
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
             image.setPadding(5, 5, 5, 5);
             image.setScaleType(ImageView.ScaleType.MATRIX);
-            image.setImageURI(Uri.fromFile(new File(photoPaths.get(i))));
+            // Get the dimensions of the View
+            // Get the dimensions of the bitmap
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(img, bmOptions);
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW / 185, photoH / 185);
+            // Decode the image file into a Bitmap sized to fill the View
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+            image.setImageBitmap(BitmapFactory.decodeFile(img, bmOptions));
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Do you want to delete this picture?")
-                    .setCancelable(true)
-                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    .setCancelable(true).setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
                         public void onClick(final DialogInterface dialog, final int id) {
                             imageContainer.removeView(image);
@@ -635,122 +631,13 @@ public class DataEntryActivity extends BaseActivity {
     }
 
     /**
-     * Function to save bitmap to a file and store the path in photoPath
-     * @param bmp The BITMAP to be saved
-     * @return true if saved, false otherwise
-     */
-    boolean saveToFile(Bitmap bmp) {
-
-        FileOutputStream out = null;
-
-        try {
-
-            // Create an image file where the BITMAP will be saved
-            File outputImageFile = createImageFile(false);
-
-            // Resize and write the image to the file using JPEG compression
-            out = new FileOutputStream(outputImageFile, false);
-            bmp = resize(bmp, 1800, 1200);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 50, out);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return false;
-
-        } finally {
-
-            try {
-
-                // Close the output stream to the file, if opened
-                if (out != null) {
-
-                    out.close();
-
-                }
-
-            } catch (IOException e) {
-
-                e.printStackTrace();
-                return false;
-
-            }
-
-        }
-
-        return true;
-
-    }
-
-    /**
-     * Reduce the size of image if it is greater than maxWidth and maxHeight
-     * @param image The image to be resized
-     * @param maxWidth Max allowed width of image
-     * @param maxHeight Max allowed height of image
-     * @return Resized image
-     */
-    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
-
-        // Check if image is at least 1x1 px
-        if (maxHeight > 0 && maxWidth > 0) {
-
-            float actualWidth = image.getWidth();
-            float actualHeight = image.getHeight();
-            float imgRatio = (float) actualWidth / (float) actualHeight;
-            float maxRatio = (float) maxWidth / (float) maxHeight;
-
-            // Resize only if image is bigger than maxHeight or maxWidth
-            if (actualHeight > maxHeight || actualWidth > maxWidth) {
-
-                // Calculate dimensions of resized image
-                if(imgRatio < maxRatio) {
-
-                    //adjust width according to maxHeight
-                    imgRatio = maxHeight / actualHeight;
-                    actualWidth = imgRatio * actualWidth;
-                    actualHeight = maxHeight;
-
-                } else if(imgRatio > maxRatio) {
-
-                    //adjust height according to maxWidth
-                    imgRatio = maxWidth / actualWidth;
-                    actualHeight = imgRatio * actualHeight;
-                    actualWidth = maxWidth;
-
-                } else {
-
-                    actualHeight = maxHeight;
-                    actualWidth = maxWidth;
-
-                }
-
-                // Create the resized image
-                image = Bitmap.createScaledBitmap(image, (int)actualWidth, (int)actualHeight, true);
-
-            }
-
-            return image;
-
-        } else {
-
-            return image;
-
-        }
-
-    }
-
-    /**
      * Create an image file using the current timestamp
-     * @param forCamera True if this file is being created to be passed to camera activity
      * @return
      * @throws IOException
      */
-    private File createImageFile(boolean forCamera) {
-
-        // Create an image file name using timestamp
+    private File createImageFile() {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        Log.v("Camera", imageFileName);
         // Use the apps storage
         File storageDir = new File(Environment.getExternalStorageDirectory().toString() + "/Archaeology");
         if (!storageDir.exists())
@@ -773,10 +660,7 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
-        // Save the path if we are saving this from the gallery (and not the camera)
-        if (!forCamera) {
-            photoPaths.add(image.getAbsolutePath());
-        }
+        photoPaths.add(image.getAbsolutePath());
 
         return image;
 
@@ -1068,6 +952,7 @@ public class DataEntryActivity extends BaseActivity {
 
         // Get uuid from intent extras if this activity was opened for existing bucket entry
         String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
+        Long createdTimeStamp;
 
         // If this is a new entry, check and generate a new uuid
         if (id == null) {
@@ -1106,7 +991,6 @@ public class DataEntryActivity extends BaseActivity {
 
         }
 
-        // Todo: Create a data entry element
         DataEntryElement list[] = new DataEntryElement[1];
         list[0] = getElement();
 
@@ -1117,23 +1001,107 @@ public class DataEntryActivity extends BaseActivity {
     }
 
     /**
-     * This method creates a tag with which we will name photos (plus a unique ID appended to the end)
-     * based on the bucket's coordinates
-     * @param latitude the latitude of the entry in this bucket
-     * @param longitude the longitude of the entry in this bucket
+     * Reduce the size of image if it is greater than maxWidth and maxHeight
+     * @param image The image to be resized
+     * @param maxWidth Max allowed width of image
+     * @param maxHeight Max allowed height of image
+     * @return Resized image
      */
-    /*
-    private String createImageTag(Double latitude, Double longitude) {
+    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight) {
 
-        // Create ~meter level precise coordinates (so each entry has format bucket.uniqueID)
-        // Reducing lat and long to 5 decimal places creates ~1.1132 meter blocks for each bucket at the equator, which gets smaller the further from the equator you go
-        Double bucketLat = BigDecimal.valueOf(latitude).setScale(5, RoundingMode.HALF_UP).doubleValue();
-        Double bucketLon = BigDecimal.valueOf(longitude).setScale(5, RoundingMode.HALF_UP).doubleValue();
+        // Check if image is at least 1x1 px
+        if (maxHeight > 0 && maxWidth > 0) {
 
-        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
+            float actualWidth = image.getWidth();
+            float actualHeight = image.getHeight();
+            float imgRatio = (float) actualWidth / (float) actualHeight;
+            float maxRatio = (float) maxWidth / (float) maxHeight;
 
-        return;
+            // Resize only if image is bigger than maxHeight or maxWidth
+            if (actualHeight > maxHeight || actualWidth > maxWidth) {
+
+                // Calculate dimensions of resized image
+                if(imgRatio < maxRatio) {
+
+                    //adjust width according to maxHeight
+                    imgRatio = maxHeight / actualHeight;
+                    actualWidth = imgRatio * actualWidth;
+                    actualHeight = maxHeight;
+
+                } else if(imgRatio > maxRatio) {
+
+                    //adjust height according to maxWidth
+                    imgRatio = maxWidth / actualWidth;
+                    actualHeight = imgRatio * actualHeight;
+                    actualWidth = maxWidth;
+
+                } else {
+
+                    actualHeight = maxHeight;
+                    actualWidth = maxWidth;
+
+                }
+
+                // Create the resized image
+                image = Bitmap.createScaledBitmap(image, (int)actualWidth, (int)actualHeight, true);
+
+            }
+
+            return image;
+
+        } else {
+
+            return image;
+
+        }
+
     }
-    */
 
+    /**
+     * Function to save bitmap to a file and store the path in photoPath
+     * @param bmp The BITMAP to be saved
+     * @return true if saved, false otherwise
+     */
+    boolean saveToFile(Bitmap bmp) {
+
+        FileOutputStream out = null;
+
+        try {
+
+            // Create an image file where the BITMAP will be saved
+            File outputImageFile = createImageFile();
+
+            // Resize and write the image to the file using JPEG compression
+            out = new FileOutputStream(outputImageFile, false);
+            bmp = resize(bmp, 1800, 1200);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 50, out);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return false;
+
+        } finally {
+
+            try {
+
+                // Close the output stream to the file, if opened
+                if (out != null) {
+
+                    out.close();
+
+                }
+
+            } catch (IOException e) {
+
+                e.printStackTrace();
+                return false;
+
+            }
+
+        }
+
+        return true;
+
+    }
 }

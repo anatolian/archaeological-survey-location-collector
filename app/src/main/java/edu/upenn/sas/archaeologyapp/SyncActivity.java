@@ -197,12 +197,14 @@ public class SyncActivity extends AppCompatActivity {
             String status = find.getStatus();
             String material = find.getMaterial();
             String ARratio = Double.toString(find.getARRatio());
-            String locationTimestamp = "0";
+            String locationTimestamp = Double.toString(find.getCreatedTimestamp());
             String comments = find.getComments();
             edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?zone=" + zone
                             + "&hemisphere=" + hemisphere + "&easting=" + easting + "&northing=" + northing
                             + "&contextEasting=" + contextEasting + "&contextNorthing=" + contextNorthing
-                            + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude + "&altitude=" + altitude + "&status=" + status + "&material=" + material + "&comments=" + comments + "&ARratio=" + ARratio, queue,
+                            + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude
+                            + "&altitude=" + altitude + "&status=" + status + "&material=" + material
+                            + "&comments=" + comments + "&ARratio=" + ARratio + "&timestamp=" + locationTimestamp, queue,
                     new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
                         /**
                          * Response received
@@ -220,20 +222,21 @@ public class SyncActivity extends AppCompatActivity {
                                 {
                                     imageNumbers.put(key, 0);
                                 }
-                                for (String path: paths)
-                                {
-                                    imageNumbers.put(key, imageNumbers.get(key) + 1);
-                                    try
-                                    {
-                                        uploadToDrive(hemisphere, find.getZone(), find.getEasting(),
-                                                find.getNorthing(), find.getSample(), imageNumbers.get(key),
-                                                MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(path))));
-                                    }
-                                    catch (IOException e)
-                                    {
-                                        Log.e("Drive", "could not open file");
-                                    }
-                                }
+                                // TODO: Get working?
+//                                for (String path: paths)
+//                                {
+//                                    imageNumbers.put(key, imageNumbers.get(key) + 1);
+//                                    try
+//                                    {
+//                                        uploadToDrive(hemisphere, find.getZone(), find.getEasting(),
+//                                                find.getNorthing(), find.getSample(), imageNumbers.get(key),
+//                                                MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(path))));
+//                                    }
+//                                    catch (IOException e)
+//                                    {
+//                                        Log.e("Drive", "could not open file");
+//                                    }
+//                                }
                                 // Upload the next find
                                 uploadIndex++;
                                 uploadFind();
@@ -289,7 +292,6 @@ public class SyncActivity extends AppCompatActivity {
             String endEasting = Double.toString(path.getEndEasting());
             String beginTime = Double.toString(path.getBeginTime());
             String endTime = Double.toString(path.getEndTime());
-
             edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest(globalWebServerURL + "/insert_path?teamMember=" + teamMember
                             + "&hemisphere=" + hemisphere + "&zone=" + zone + "&beginEasting=" + beginEasting + "&beginNorthing=" + beginNorthing
                             + "&endEasting=" + endEasting + "&endNorthing=" + endNorthing + "&beginLatitude=" + beginLatitude + "&beginLongitude=" + beginLongitude
@@ -364,10 +366,6 @@ public class SyncActivity extends AppCompatActivity {
      */
     private synchronized void uploadToDrive(String hemisphere, int zone, int easting, int northing, int find, int imageNumber, Bitmap bmp)
     {
-//        String key = hemisphere + "." + zone;
-//        String key2 = key + "." + easting;
-//        String key3 = key2 + "." + northing;
-//        String key4 = key3 + "." + find;
         // This blows tho
         mDriveResourceClient.getRootFolder().continueWithTask(task -> {
             DriveFolder rootFolder = task.getResult();
@@ -376,7 +374,6 @@ public class SyncActivity extends AppCompatActivity {
             return mDriveResourceClient.queryChildren(rootFolder, query);
         }).addOnSuccessListener(this, hemisphereBuffer -> {
             DriveFolder hemisphereFolder = hemisphereBuffer.get(0).getDriveId().asDriveFolder();
-            Log.v("Hemisphere", hemisphereFolder.getDriveId().toString());
             Query query = new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "" + zone),
                     Filters.eq(SearchableField.TRASHED, false))).build();
             mDriveResourceClient.queryChildren(hemisphereFolder, query).addOnSuccessListener(this, zoneBuffer -> {
@@ -413,10 +410,10 @@ public class SyncActivity extends AppCompatActivity {
                                             createContentsTask.continueWithTask(task -> {
                                                 DriveContents contents = task.getResult();
                                                 OutputStream outputStream = contents.getOutputStream();
-                                                bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                                                bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
                                                 MetadataChangeSet changeSet = new MetadataChangeSet
-                                                        .Builder().setTitle(imageNumber + ".png")
-                                                        .setMimeType("image/png").setStarred(false).build();
+                                                        .Builder().setTitle(imageNumber + ".jpg")
+                                                        .setMimeType("image/jpg").setStarred(false).build();
                                                 CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
                                                         .setInitialDriveContents(contents).setInitialMetadata(changeSet)
                                                         .setActivityStartFolder(findFolder.getDriveId()).build();
@@ -447,9 +444,9 @@ public class SyncActivity extends AppCompatActivity {
                                             createContentsTask.continueWithTask(task -> {
                                                 DriveContents contents = task.getResult();
                                                 OutputStream outputStream = contents.getOutputStream();
-                                                bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                                                MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("1.png")
-                                                        .setMimeType("image/png").setStarred(false).build();
+                                                bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                                                MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(imageNumber + ".jpg")
+                                                        .setMimeType("image/jpg").setStarred(false).build();
                                                 CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
                                                         .setInitialDriveContents(contents).setInitialMetadata(changeSet)
                                                         .setActivityStartFolder(findFolder.getDriveId()).build();
@@ -486,9 +483,9 @@ public class SyncActivity extends AppCompatActivity {
                                         createContentsTask.continueWithTask(task -> {
                                             DriveContents contents = task.getResult();
                                             OutputStream outputStream = contents.getOutputStream();
-                                            bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                                            MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("1.png")
-                                                    .setMimeType("image/png").setStarred(false).build();
+                                            bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                                            MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(imageNumber + ".jpg")
+                                                    .setMimeType("image/jpg").setStarred(false).build();
                                             CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
                                                     .setInitialDriveContents(contents).setInitialMetadata(changeSet)
                                                     .setActivityStartFolder(findFolder.getDriveId()).build();
@@ -530,9 +527,9 @@ public class SyncActivity extends AppCompatActivity {
                                     createContentsTask.continueWithTask(task -> {
                                         DriveContents contents = task.getResult();
                                         OutputStream outputStream = contents.getOutputStream();
-                                        bmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
-                                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("1.png")
-                                                .setMimeType("image/png").setStarred(false).build();
+                                        bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle(imageNumber + ".jpg")
+                                                .setMimeType("image/jpg").setStarred(false).build();
                                         CreateFileActivityOptions createOptions = new CreateFileActivityOptions.Builder()
                                                 .setInitialDriveContents(contents).setInitialMetadata(changeSet)
                                                 .setActivityStartFolder(findFolder.getDriveId()).build();
