@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -556,7 +557,7 @@ public class DataEntryActivity extends BaseActivity
     private File createImageFile()
     {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_.jpg";
+        String imageFileName = "JPEG_" + timeStamp + "_.JPG";
         // Use the apps storage
         File storageDir = new File(Environment.getExternalStorageDirectory().toString() + "/Archaeology");
         if (!storageDir.exists())

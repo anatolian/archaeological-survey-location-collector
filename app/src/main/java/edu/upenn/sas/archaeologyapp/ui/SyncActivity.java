@@ -138,7 +138,7 @@ public class SyncActivity extends AppCompatActivity
                             {
                                 dir.mkdirs();
                             }
-                            String newPath = newLocation + "/" + imageNumbers.get(key) + ".jpg";
+                            String newPath = newLocation + "/" + imageNumbers.get(key) + ".JPG";
                             File oldImage = new File(path);
                             File newImage = new File(newPath);
                             oldImage.renameTo(newImage);

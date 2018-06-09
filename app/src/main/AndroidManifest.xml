@@ -43,6 +43,7 @@
             android:name=".ui.DataEntryActivity"
             android:label="@string/title_activity_data_entry"
             android:parentActivityName=".ui.MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
