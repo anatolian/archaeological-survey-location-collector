@@ -67,4 +67,19 @@
     <string name="connected">Connected</string>
     <string name="default_team_member">Other</string>
     <string name="default_material_general">Other</string>
+    <string name = "path_by_frmt">Path by %s</string>
+    <string name = "start_point">Start Point</string>
+    <string name = "end_point">End Point</string>
+    <string name = "whose_path">Whose path is this?</string>
+    <string name = "grid_2">Grid</string>
+    <string name = "northing_2">Northing</string>
+    <string name = "easting_2">Easting</string>
+    <string name = "sample">Sample</string>
+    <string name = "fixed">Fixed</string>
+    <string name = "updating">Updating</string>
+    <string name = "select_material">Please select a material</string>
+    <string name = "reach_host">Reach Host:</string>
+    <string name = "reach_port">Reach Port:</string>
+    <string name = "update_interval">Update Interval: (seconds) </string>
+    <string name = "string_frmt">%s</string>
 </resources>

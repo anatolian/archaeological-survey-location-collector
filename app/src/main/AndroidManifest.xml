@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.upenn.sas.archaeologyapp">
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-
     <uses-feature android:name="android.hardware.location.gps" />
-
     <application
         android:allowBackup="true"
         android:hardwareAccelerated="false"
@@ -28,7 +25,7 @@
                 android:resource="@xml/provider_paths"/>
         </provider>
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -38,45 +35,43 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".DataEntryActivity"
+            android:name=".ui.DataEntryActivity"
             android:label="@string/title_activity_data_entry"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
+                android:value="edu.upenn.sas.archaeologyapp.ui.MainActivity" />
         </activity>
         <activity
-            android:name=".SyncActivity"
+            android:name=".ui.SyncActivity"
             android:label="@string/title_activity_sync"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
+                android:value="edu.upenn.sas.archaeologyapp.ui.MainActivity" />
         </activity>
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBOrcno5jbXenfkX5q6QLynutngpw4shVo" />
-
         <activity
-            android:name=".PathEntryActivity"
+            android:name=".ui.PathEntryActivity"
             android:label="@string/title_activity_path_entry"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".ui.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.upenn.sas.archaeologyapp.MainActivity" />
+                android:value="edu.upenn.sas.archaeologyapp.ui.MainActivity" />
         </activity>
+        <activity android:name=".ui.BaseActivity"/>
     </application>
-
 </manifest>

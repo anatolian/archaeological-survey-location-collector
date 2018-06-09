@@ -1,176 +1,89 @@
-package edu.upenn.sas.archaeologyapp;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.graphics.Bitmap;
+package edu.upenn.sas.archaeologyapp.ui;
 import android.os.Bundle;
 import android.os.Environment;
-import android.renderscript.ScriptGroup;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.drive.CreateFileActivityOptions;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveClient;
-import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveResourceClient;
-import com.google.android.gms.drive.MetadataChangeSet;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
-import com.google.android.gms.tasks.Task;
 import java.io.File;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import edu.upenn.sas.archaeologyapp.R;
+import edu.upenn.sas.archaeologyapp.models.PathElement;
 import edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper;
-
+import edu.upenn.sas.archaeologyapp.models.DataEntryElement;
+import edu.upenn.sas.archaeologyapp.services.DatabaseHandler;
 import static edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest;
-import static edu.upenn.sas.archaeologyapp.util.StateStatic.GOOGLE_PLAY_SIGN_IN;
-import static edu.upenn.sas.archaeologyapp.util.StateStatic.REQUEST_CODE_CREATE_FILE;
-import static edu.upenn.sas.archaeologyapp.util.StateStatic.globalWebServerURL;
+import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.globalWebServerURL;
 /**
  * This activity is responsible for uploading all the records from the local database onto a server.
- * Created by eanvith on 27/02/17.
+ * @author eanvith, Colin Roberts, Christopher Besser.
  */
-
-public class SyncActivity extends AppCompatActivity {
-
-    /**
-     * The button the user clicks to initiate the sync process
-     */
+public class SyncActivity extends AppCompatActivity
+{
+    // The button the user clicks to initiate the sync process
     Button syncButton;
     private HashMap<String, Integer> imageNumbers = new HashMap<>();
-
-    /**
-     * A list of records populated from the local database, that need to be uploaded onto the server
-     */
+    // A list of records populated from the local database, that need to be uploaded onto the server
     ArrayList<DataEntryElement> elementsToUpload;
-
-    /**
-     * The index of the find currently being uploaded
-     */
-    int uploadIndex;
-
-    /**
-     * Total number of finds to upload
-     */
-    int totalItems;
-
-    /**
-     * A list of paths populated from the local database, that need to be uploaded onto the server
-     */
+    // The index of the find currently being uploaded
+    int uploadIndex, totalItems, pathUploadIndex, totalPaths;
+    // A list of paths populated from the local database, that need to be uploaded onto the server
     ArrayList<PathElement> pathsToUpload;
-
-    /**
-     * The index of the path currently being uploaded
-     */
-    int pathUploadIndex;
-
-    /**
-     * Total number of paths to upload
-     */
-    int totalPaths;
-
-    /**
-     * A database helper class object that enables fetching of records from the local database
-     */
-    DataBaseHandler dataBaseHandler;
-
-    /**
-     * A request queue to handle python requests
-     */
+    // A database helper class object that enables fetching of records from the local database
+    DatabaseHandler databaseHandler;
+    // A request queue to handle python requests
     RequestQueue queue;
-    private DriveClient mDriveClient = null;
-    private DriveResourceClient mDriveResourceClient = null;
-    private boolean lock = false;
-    HashMap<String, DriveFolder> folderCache = new HashMap<>();
-
+    /**
+     * Activity is launched
+     * @param savedInstanceState - saved state from memory
+     */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sync);
         queue = Volley.newRequestQueue(this);
-        // Initialise the database helper class object, and read in the records from the local database
-        dataBaseHandler = new DataBaseHandler(this);
-
-        elementsToUpload = dataBaseHandler.getUnsyncedFindsRows();
-        pathsToUpload = dataBaseHandler.getUnsyncedPathsRows();
-
+        // Initialize the database helper class object, and read in the records from the local database
+        databaseHandler = new DatabaseHandler(this);
+        elementsToUpload = databaseHandler.getUnsyncedFindsRows();
+        pathsToUpload = databaseHandler.getUnsyncedPathsRows();
         totalItems = elementsToUpload.size();
         uploadIndex = 0;
-
         totalPaths = pathsToUpload.size();
         pathUploadIndex = 0;
-
-
         // Attach a click listener to the sync button, and trigger the sync process on click of the button
-        syncButton = (Button) findViewById(R.id.sync_button_sync_activity);
+        syncButton = findViewById(R.id.sync_button_sync_activity);
         syncButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Sync records
+             * @param v - sync button
+             */
             @Override
-            public void onClick(View v) {
-
+            public void onClick(View v)
+            {
                 // totalItems is 0, so nothing to sync
-                if (uploadIndex >= totalItems && pathUploadIndex >= totalPaths) {
-
+                if (uploadIndex >= totalItems && pathUploadIndex >= totalPaths)
+                {
                     Toast.makeText(SyncActivity.this, "There are no records to sync.", Toast.LENGTH_SHORT).show();
-
                 }
-
                 // Disable the sync button while the sync is in progress
                 syncButton.setEnabled(false);
-
                 // Start uploading unsynced items
-                uploadFind();
-
+                uploadFinds();
                 // Start uploading unsynced paths
-                uploadPath();
-
+                uploadPaths();
             }
         });
-
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GOOGLE_PLAY_SIGN_IN)
-        {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask)
-    {
-        try
-        {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            mDriveClient = Drive.getDriveClient(getApplicationContext(), account);
-            mDriveResourceClient = Drive.getDriveResourceClient(getApplicationContext(), account);
-        }
-        catch (ApiException e)
-        {
-            Log.w("Drive", "signInResult:failed code=" + e.getStatusCode());
-        }
     }
 
     /**
      * Upload a find to the database
      */
-    private synchronized void uploadFind()
+    private synchronized void uploadFinds()
     {
         if (uploadIndex < totalItems)
         {
@@ -195,7 +108,8 @@ public class SyncActivity extends AppCompatActivity {
                             + "&contextEasting=" + contextEasting + "&contextNorthing=" + contextNorthing
                             + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude
                             + "&altitude=" + altitude + "&status=" + status + "&material=" + material
-                            + "&comments=" + comments + "&ARratio=" + ARratio + "&timestamp=" + locationTimestamp, queue, new StringObjectResponseWrapper() {
+                            + "&comments=" + comments + "&ARratio=" + ARratio + "&timestamp=" + locationTimestamp,
+                    queue, new StringObjectResponseWrapper() {
                 /**
                  * Response received
                  * @param response - database response
@@ -205,14 +119,14 @@ public class SyncActivity extends AppCompatActivity {
                 {
                     if (!response.contains("Error"))
                     {
-                        dataBaseHandler.setFindSynced(find);
+                        databaseHandler.setFindSynced(find);
                         ArrayList<String> paths = elementsToUpload.get(uploadIndex).getImagePaths();
                         String key = hemisphere + "." + zone + "." + easting + "." + northing + "." + find;
                         if (imageNumbers.get(key) == null)
                         {
                             imageNumbers.put(key, 0);
                         }
-                        for (String path : paths)
+                        for (String path: paths)
                         {
                             imageNumbers.put(key, imageNumbers.get(key) + 1);
                             String newLocation = Environment.getExternalStorageDirectory().toString()
@@ -229,7 +143,7 @@ public class SyncActivity extends AppCompatActivity {
                             oldImage.renameTo(newImage);
                             // Upload the next find
                             uploadIndex++;
-                            uploadFind();
+                            uploadFinds();
                         }
                     }
                     else
@@ -260,7 +174,7 @@ public class SyncActivity extends AppCompatActivity {
     /**
      * Upload a path to the database
      */
-    private void uploadPath()
+    private void uploadPaths()
     {
         if (pathUploadIndex < totalPaths)
         {
@@ -303,9 +217,9 @@ public class SyncActivity extends AppCompatActivity {
                     System.out.println(response);
                     if (!response.contains("Error"))
                     {
-                        dataBaseHandler.setPathSynced(path);
+                        databaseHandler.setPathSynced(path);
                         pathUploadIndex++;
-                        uploadPath();
+                        uploadPaths();
                     }
                     else
                     {
@@ -328,7 +242,7 @@ public class SyncActivity extends AppCompatActivity {
         }
         else
         {
-            Toast.makeText(SyncActivity.this, "Done syncing finds", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SyncActivity.this, "Done syncing paths", Toast.LENGTH_SHORT).show();
         }
     }
 }
