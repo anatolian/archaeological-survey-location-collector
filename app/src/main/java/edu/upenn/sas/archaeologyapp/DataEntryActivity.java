@@ -335,8 +335,8 @@ public class DataEntryActivity extends BaseActivity {
                     // Image file to be passed to camera app.
                     // The camera app saves captured image in this file
                     outputFromCamera = createImageFile();
-                    Log.v("Camera", outputFromCamera.getAbsolutePath());
-                    // Android handles saving data in intents to the camera poorly, so we save the URI of the future image in this variable for future use
+                    // Android handles saving data in intents to the camera poorly, so we save the
+                    // URI of the future image in this variable for future use
                     lastCameraPictureURI = outputFromCamera.getAbsolutePath();
 
                 } catch (Exception e) {
@@ -637,7 +637,7 @@ public class DataEntryActivity extends BaseActivity {
      */
     private File createImageFile() {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "JPEG_" + timeStamp + "_.jpg";
         // Use the apps storage
         File storageDir = new File(Environment.getExternalStorageDirectory().toString() + "/Archaeology");
         if (!storageDir.exists())
