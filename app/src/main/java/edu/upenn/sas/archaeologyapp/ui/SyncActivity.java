@@ -2,6 +2,7 @@ package edu.upenn.sas.archaeologyapp.ui;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -130,8 +131,8 @@ public class SyncActivity extends AppCompatActivity
                         {
                             imageNumbers.put(key, imageNumbers.get(key) + 1);
                             String newLocation = Environment.getExternalStorageDirectory().toString()
-                                    + "/Archaeology/" + hemisphere + "/" + zone + "/" + easting
-                                    + "/" + northing + "/" + sample;
+                                    + "/Archaeology/" + hemisphere + "/" + zone + "/" + easting + "/"
+                                    + northing + "/" + sample;
                             File dir = new File(newLocation);
                             if (!dir.exists())
                             {

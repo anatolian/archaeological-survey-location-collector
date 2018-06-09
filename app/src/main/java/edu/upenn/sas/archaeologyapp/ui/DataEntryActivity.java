@@ -60,8 +60,7 @@ import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_REAC
  */
 public class DataEntryActivity extends BaseActivity
 {
-    // A boolean acting as a toggle for whether or not the app should update
-    private boolean liveUpdatePosition = true;
+    private boolean liveUpdatePosition = true, deleteImages = false;
     // Variables to store the users location data obtained from the Reach
     private Double latitude, longitude, altitude, ARRatio;
     private String status, hemisphere;
@@ -191,9 +190,9 @@ public class DataEntryActivity extends BaseActivity
         // Get reference to the comments edit text
         commentsEditText = findViewById(R.id.data_entry_comment_text_view);
         // Configure switch handler for update gps switch
-        ToggleButton updateGpsButton = findViewById(R.id.data_entry_update_gps);
-        updateGpsButton.setChecked(true);
-        updateGpsButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ToggleButton updateGPSButton = findViewById(R.id.data_entry_update_gps);
+        updateGPSButton.setChecked(true);
+        updateGPSButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             /**
              * Button checked
              * @param buttonView - pressed button
@@ -344,6 +343,7 @@ public class DataEntryActivity extends BaseActivity
         // If null, it means nothing was passed
         if (id == null)
         {
+            deleteImages = true;
             return;
         }
         // Populate the UTM position details, if present
@@ -428,7 +428,7 @@ public class DataEntryActivity extends BaseActivity
                 // If user selected image from gallery
                 if (requestCode == SELECT_IMAGE)
                 {
-                    // Get the multiples images returned within a ClipData object
+                    // The user's photo app does not support multi-select
                     ClipData imageData = data.getClipData();
                     if (imageData == null)
                     {
@@ -441,13 +441,13 @@ public class DataEntryActivity extends BaseActivity
                             throw new Exception(getString(R.string.save_failed_exception));
                         }
                     }
-                    if (imageData != null)
+                    // Get the multiple images returned within a ClipData object
+                    else
                     {
                         for (int i = 0; i < imageData.getItemCount(); i++)
                         {
                             ClipData.Item image = imageData.getItemAt(i);
                             Uri uri = image.getUri();
-                            // Add this image to the bitmap arraylist
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                             // Try saving this bitmap
                             if (!saveToFile(bitmap))
@@ -516,6 +516,7 @@ public class DataEntryActivity extends BaseActivity
                     imageContainer.removeView(image);
                     photoPaths.remove(img);
                     dialog.cancel();
+                    new File(img).delete();
                 }
             }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 /**
@@ -774,6 +775,7 @@ public class DataEntryActivity extends BaseActivity
     public void submitButtonPressed(View v)
     {
         saveData();
+        deleteImages = false;
         onBackPressed();
     }
 
@@ -785,6 +787,10 @@ public class DataEntryActivity extends BaseActivity
     {
         DatabaseHandler databaseHandler = new DatabaseHandler(this);
         databaseHandler.setFindSynced(getElement());
+        for (String path: photoPaths)
+        {
+            new File(path).delete();
+        }
         onBackPressed();
     }
 
@@ -795,6 +801,14 @@ public class DataEntryActivity extends BaseActivity
     public void onBackPressed()
     {
         super.onBackPressed();
+        // True if the state was not passed from the calling activity
+        if (deleteImages)
+        {
+            for (String path: photoPaths)
+            {
+                new File(path).delete();
+            }
+        }
         // Disconnect from GPS
         locationCollector.pause();
     }
@@ -890,13 +904,16 @@ public class DataEntryActivity extends BaseActivity
      */
     private void saveData()
     {
-        // We only save changes if location info and image are present
-        // Check if location info is set
+        // We only save changes if location info and image are present. Check if location info is set
         if (zone == null || hemisphere == null || northing == null || sample == null || easting == null
                 || latitude == null || longitude == null)
         {
             Toast.makeText(DataEntryActivity.this, "You did not establish a fixed location. Please try again.",
                     Toast.LENGTH_LONG).show();
+            for (String path: photoPaths)
+            {
+                new File(path).delete();
+            }
             return;
         }
         // Check if at least one image is set
@@ -951,7 +968,7 @@ public class DataEntryActivity extends BaseActivity
                 actualWidth = maxWidth;
             }
             // Create the resized image
-            image = Bitmap.createScaledBitmap(image, (int)actualWidth, (int)actualHeight, true);
+            image = Bitmap.createScaledBitmap(image, (int) actualWidth, (int) actualHeight, true);
         }
         return image;
     }
