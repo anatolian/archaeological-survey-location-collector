@@ -10,6 +10,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import edu.upenn.sas.archaeologyapp.R;
@@ -84,7 +87,7 @@ public class SyncActivity extends AppCompatActivity
     /**
      * Upload a find to the database
      */
-    private synchronized void uploadFinds()
+    private void uploadFinds()
     {
         if (uploadIndex < totalItems)
         {
@@ -104,12 +107,21 @@ public class SyncActivity extends AppCompatActivity
             String ARratio = Double.toString(find.getARRatio());
             String locationTimestamp = Double.toString(find.getCreatedTimestamp());
             String comments = find.getComments();
+            String encoding = "";
+            try
+            {
+                encoding = URLEncoder.encode(comments, "UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                e.printStackTrace();
+            }
             makeVolleyStringObjectRequest(globalWebServerURL + "/insert_find?zone=" + zone
                             + "&hemisphere=" + hemisphere + "&easting=" + easting + "&northing=" + northing
                             + "&contextEasting=" + contextEasting + "&contextNorthing=" + contextNorthing
                             + "&find=" + sample + "&latitude=" + latitude + "&longitude=" + longitude
                             + "&altitude=" + altitude + "&status=" + status + "&material=" + material
-                            + "&comments=" + comments + "&ARratio=" + ARratio + "&timestamp=" + locationTimestamp,
+                            + "&comments=" + encoding + "&ARratio=" + ARratio + "&timestamp=" + locationTimestamp,
                     queue, new StringObjectResponseWrapper() {
                 /**
                  * Response received
@@ -118,6 +130,7 @@ public class SyncActivity extends AppCompatActivity
                 @Override
                 public void responseMethod(String response)
                 {
+                    Log.v("Sync", response);
                     if (!response.contains("Error"))
                     {
                         databaseHandler.setFindSynced(find);
@@ -130,27 +143,27 @@ public class SyncActivity extends AppCompatActivity
                         for (String path: paths)
                         {
                             imageNumbers.put(key, imageNumbers.get(key) + 1);
-                            String newLocation = Environment.getExternalStorageDirectory().toString()
+                            String newDir = Environment.getExternalStorageDirectory().toString()
                                     + "/Archaeology/" + hemisphere + "/" + zone + "/" + easting + "/"
-                                    + northing + "/" + sample;
-                            File dir = new File(newLocation);
+                                    + northing + "/" + sample + "/photos/field/";
+                            File dir = new File(newDir);
                             if (!dir.exists())
                             {
                                 dir.mkdirs();
                             }
-                            String newPath = newLocation + "/" + imageNumbers.get(key) + ".JPG";
+                            String newPath = newDir + "/" + imageNumbers.get(key) + ".JPG";
                             File oldImage = new File(path);
                             File newImage = new File(newPath);
                             oldImage.renameTo(newImage);
-                            // Upload the next find
-                            uploadIndex++;
-                            uploadFinds();
                         }
                     }
                     else
                     {
                         Toast.makeText(getApplicationContext(), "Upload failed: " + response, Toast.LENGTH_SHORT).show();
                     }
+                    // Upload the next find
+                    uploadIndex++;
+                    uploadFinds();
                 }
 
                 /**
@@ -219,13 +232,13 @@ public class SyncActivity extends AppCompatActivity
                     if (!response.contains("Error"))
                     {
                         databaseHandler.setPathSynced(path);
-                        pathUploadIndex++;
-                        uploadPaths();
                     }
                     else
                     {
                         Toast.makeText(getApplicationContext(), "Upload failed: " + response, Toast.LENGTH_SHORT).show();
                     }
+                    pathUploadIndex++;
+                    uploadPaths();
                 }
 
                 /**
