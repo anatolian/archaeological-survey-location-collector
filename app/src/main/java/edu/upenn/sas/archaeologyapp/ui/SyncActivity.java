@@ -10,7 +10,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -155,6 +154,7 @@ public class SyncActivity extends AppCompatActivity
                             File oldImage = new File(path);
                             File newImage = new File(newPath);
                             oldImage.renameTo(newImage);
+                            Log.v("Moving Files", oldImage.getAbsolutePath() + " renamed to " + newImage.getAbsolutePath());
                         }
                     }
                     else
