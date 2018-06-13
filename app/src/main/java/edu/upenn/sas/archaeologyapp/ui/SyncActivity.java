@@ -153,7 +153,11 @@ public class SyncActivity extends AppCompatActivity
                             String newPath = newDir + "/" + imageNumbers.get(key) + ".JPG";
                             File oldImage = new File(path);
                             File newImage = new File(newPath);
-                            oldImage.renameTo(newImage);
+                            if (!oldImage.renameTo(newImage))
+                            {
+                                Log.v("Moving Files", "Failed to move " + oldImage.getAbsolutePath()
+                                        + " to " + newImage.getAbsolutePath());
+                            }
                             Log.v("Moving Files", oldImage.getAbsolutePath() + " renamed to " + newImage.getAbsolutePath());
                         }
                     }
