@@ -8,7 +8,7 @@ public class DataEntryElement
 {
     // The ID for this entry
     private final String ID, status, material, comments, hemisphere;
-    private final double latitude, longitude, altitude;
+    private final double latitude, longitude, altitude, preciseNorthing, preciseEasting;
     // The status of the position fetch
     private final Double AR_ratio;
     // The paths of the images linked to the entry
@@ -34,14 +34,17 @@ public class DataEntryElement
      * @param zone - item zone
      * @param hemisphere - item hemisphere
      * @param northing - item northing
+     * @param preciseNorthing - precise northing
      * @param easting - item easting
+     * @param preciseEasting - precise easting
      * @param sample - find number
      * @param beenSynced - whether the find is synced
      */
     public DataEntryElement(String ID, double latitude, double longitude, double altitude, String status,
-                     Double AR_ratio, ArrayList<String> imagePaths, String material, String comments,
-                     long createdTimestamp, long updateTimestamp, Integer zone, String hemisphere,
-                     Integer northing, Integer easting, Integer sample, boolean beenSynced)
+                            Double AR_ratio, ArrayList<String> imagePaths, String material, String comments,
+                            long createdTimestamp, long updateTimestamp, Integer zone, String hemisphere,
+                            Integer northing, Double preciseNorthing, Integer easting, Double preciseEasting,
+                            Integer sample, boolean beenSynced)
     {
         this.ID = ID;
         this.latitude = latitude;
@@ -60,6 +63,8 @@ public class DataEntryElement
         this.easting = easting;
         this.sample = sample;
         this.beenSynced = beenSynced;
+        this.preciseEasting = preciseEasting;
+        this.preciseNorthing = preciseNorthing;
     }
 
     /**
@@ -189,12 +194,30 @@ public class DataEntryElement
     }
 
     /**
+     * Get precise northing
+     * @return Returns northing
+     */
+    public Double getPreciseNorthing()
+    {
+        return preciseNorthing;
+    }
+
+    /**
      * Get easting
      * @return Returns easting
      */
     public Integer getEasting()
     {
         return easting;
+    }
+
+    /**
+     * Get precise easting
+     * @return Returns easting
+     */
+    public Double getPreciseEasting()
+    {
+        return preciseEasting;
     }
 
     /**

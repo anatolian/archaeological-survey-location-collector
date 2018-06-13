@@ -55,8 +55,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     // The shared preferences file name where we will store persistent app data
     public static final String PREFERENCES = "archaeological-survey-location-collector-preferences";
     private static int FINDS_MODE = 0, PATHS_MODE = 1;
-    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 100;
-    private static final int MY_PERMISSION_ACCESS_EXTERNAL_STORAGE = 200;
+    private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 100, MY_PERMISSION_ACCESS_EXTERNAL_STORAGE = 200;
     // This int represents what we want to display (paths or finds). We start with finds.
     int displayMode = FINDS_MODE;
     // Reference to the list view
@@ -78,8 +77,6 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
     private LocationListener locationListener;
     // Variables to store the users location data obtained from GPS, as a backup to the Reach data
     private Double GPSlatitude, GPSlongitude;
-    // The global variable used for the position update interval
-    private int positionUpdateInterval = ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
     // The timer used to periodically update the position
     private Timer positionUpdateTimer;
     // The text views for displaying latitude, longitude, altitude, and status values
@@ -204,12 +201,12 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                 if (displayMode == FINDS_MODE)
                 {
                     // Open DataEntryActivity to create a new find entry
-                    MainActivity.super.startActivityUsingIntent(DataEntryActivity.class, false);
+                    startActivityUsingIntent(DataEntryActivity.class, false);
                 }
                 else if (displayMode == PATHS_MODE)
                 {
                     // Open PathEntryActivity to create a new path entry
-                    MainActivity.super.startActivityUsingIntent(PathEntryActivity.class, false);
+                    startActivityUsingIntent(PathEntryActivity.class, false);
                 }
             }
         });
@@ -222,14 +219,14 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
             @Override
             public void onClick(View view)
             {
-                MainActivity.this.startActivityUsingIntent(SyncActivity.class, false);
+                startActivityUsingIntent(SyncActivity.class, false);
             }
         });
         // Store references to the list and list entry
         listView = findViewById(R.id.main_activity_list_view);
         findsListEntryAdapter = new BucketListEntryAdapter(this, R.layout.bucket_list_entry);
         pathsListEntryAdapter = new PathEntryAdapter(this, R.layout.paths_list_entry);
-        // Default to lisitng the finds first
+        // Default to listing the finds first
         listView.setAdapter(findsListEntryAdapter);
         // Configure the list items to handle clicks
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -252,7 +249,9 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_ZONE, dataEntryElement.getZone());
                     paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE, dataEntryElement.getHemisphere());
                     paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_NORTHING, dataEntryElement.getNorthing());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_PRECISE_NORTHING, dataEntryElement.getPreciseNorthing());
                     paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_EASTING, dataEntryElement.getEasting());
+                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_PRECISE_EASTING, dataEntryElement.getPreciseEasting());
                     paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_SAMPLE, dataEntryElement.getSample());
                     paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LATITUDE, dataEntryElement.getLatitude());
                     paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
@@ -539,7 +538,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     }
                 });
             }
-        }, 0, positionUpdateInterval * 1000);
+        }, 0, ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL * 1000);
     }
 
     /**

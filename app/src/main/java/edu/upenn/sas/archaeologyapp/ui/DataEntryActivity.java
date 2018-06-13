@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -63,7 +62,7 @@ public class DataEntryActivity extends BaseActivity
 {
     private boolean liveUpdatePosition = true, deleteImages = false;
     // Variables to store the users location data obtained from the Reach
-    private Double latitude, longitude, altitude, ARRatio;
+    private Double latitude, longitude, altitude, ARRatio, preciseEasting, preciseNorthing;
     private String status, hemisphere;
     // Int constant used to determine if GPS permission was granted or denied
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 100;
@@ -351,10 +350,12 @@ public class DataEntryActivity extends BaseActivity
         zone = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_ZONE, Integer.MIN_VALUE);
         hemisphere = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE);
         northing = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_NORTHING, Integer.MIN_VALUE);
+        preciseNorthing = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_PRECISE_NORTHING, Double.NEGATIVE_INFINITY);
         easting = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_EASTING, Integer.MIN_VALUE);
+        preciseEasting = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_PRECISE_EASTING, Double.NEGATIVE_INFINITY);
         sample = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_SAMPLE, Integer.MIN_VALUE);
-        if (!(zone == Integer.MIN_VALUE || hemisphere == null || northing == Integer.MIN_VALUE
-                || easting == Integer.MIN_VALUE || sample == Integer.MIN_VALUE))
+        if (zone != Integer.MIN_VALUE && hemisphere != null && northing != Integer.MIN_VALUE
+                && easting != Integer.MIN_VALUE && sample != Integer.MIN_VALUE)
         {
             gridTextView.setText(getString(R.string.string_frmt, zone + hemisphere));
             northingTextView.setText(String.valueOf(northing));
@@ -594,8 +595,10 @@ public class DataEntryActivity extends BaseActivity
             UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
             zone = UTMposition.getZone();
             hemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-            northing = (int) Math.floor(UTMposition.getNorthing());
-            easting = (int) Math.floor(UTMposition.getEasting());
+            preciseNorthing = UTMposition.getNorthing();
+            northing = (int) Math.floor(preciseNorthing);
+            preciseEasting = UTMposition.getEasting();
+            easting = (int) Math.floor(preciseEasting);
             sample = databaseHandler.getLastSampleFromBucket(zone, hemisphere, northing, easting) + 1;
             gridTextView.setText(getString(R.string.string_frmt, zone + hemisphere));
             northingTextView.setText(String.valueOf(northing));
@@ -897,7 +900,7 @@ public class DataEntryActivity extends BaseActivity
         String comment = commentsEditText.getText().toString();
         return new DataEntryElement(id, latitude, longitude, altitude, status, ARRatio, photoPaths,
                 material, comment, (new Date()).getTime(), (new Date()).getTime(), zone, hemisphere,
-                northing, easting, sample, false);
+                northing, preciseNorthing, easting, preciseEasting, sample, false);
     }
 
     /**
@@ -906,8 +909,8 @@ public class DataEntryActivity extends BaseActivity
     private void saveData()
     {
         // We only save changes if location info and image are present. Check if location info is set
-        if (zone == null || hemisphere == null || northing == null || sample == null || easting == null
-                || latitude == null || longitude == null)
+        if (zone == null || hemisphere == null || northing == null || preciseNorthing == null ||
+                sample == null || easting == null || preciseEasting == null || latitude == null || longitude == null)
         {
             Toast.makeText(DataEntryActivity.this, "You did not establish a fixed location. Please try again.",
                     Toast.LENGTH_LONG).show();

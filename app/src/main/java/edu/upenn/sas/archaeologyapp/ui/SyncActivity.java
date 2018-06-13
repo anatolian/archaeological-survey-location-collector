@@ -93,8 +93,8 @@ public class SyncActivity extends AppCompatActivity
             final DataEntryElement find = elementsToUpload.get(uploadIndex);
             String zone = Integer.toString(find.getZone());
             String hemisphere = find.getHemisphere();
-            String easting = Integer.toString(find.getEasting());
-            String northing = Integer.toString(find.getNorthing());
+            String easting = Double.toString(find.getPreciseEasting());
+            String northing = Double.toString(find.getPreciseNorthing());
             String sample = Integer.toString(find.getSample());
             String contextEasting = Integer.toString(find.getEasting());
             String contextNorthing = Integer.toString(find.getNorthing());

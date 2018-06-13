@@ -13,48 +13,28 @@ import edu.upenn.sas.archaeologyapp.models.PathElement;
  */
 public class DatabaseHandler extends SQLiteOpenHelper
 {
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "BUCKETDB";
     // Table names
-    private static final String FINDS_TABLE_NAME = "bucket";
-    private static final String IMAGE_TABLE_NAME = "images";
+    private static final String FINDS_TABLE_NAME = "bucket", IMAGE_TABLE_NAME = "images";
     private static final String PATHS_TABLE_NAME = "paths";
     // Table Columns names
-    private static final String KEY_ID = "bucket_id";
-    private static final String KEY_LATITUDE = "latitude";
-    private static final String KEY_LONGITUDE = "longitude";
-    private static final String KEY_ALTITUDE = "altitude";
-    private static final String KEY_STATUS = "status";
-    private static final String KEY_AR_RATIO = "AR_ratio";
-    private static final String KEY_MATERIAL = "material";
-    private static final String KEY_COMMENT = "comment";
-    private static final String KEY_CREATED_TIMESTAMP = "created_timestamp";
-    private static final String KEY_UPDATED_TIMESTAMP = "updated_timestamp";
-    private static final String KEY_ZONE = "zone";
-    private static final String KEY_HEMISPHERE = "hemisphere";
-    private static final String KEY_NORTHING = "northing";
-    private static final String KEY_EASTING = "easting";
-    private static final String KEY_SAMPLE = "sample";
-    private static final String KEY_BEEN_SYNCED = "been_synced";
-    private static final String KEY_TEAM_MEMBER = "team_member";
-    private static final String KEY_BEGIN_LATITUDE = "begin_latitude";
-    private static final String KEY_BEGIN_LONGITUDE = "begin_longitude";
-    private static final String KEY_BEGIN_ALTITUDE = "begin_altitude";
-    private static final String KEY_END_LATITUDE = "end_latitude";
-    private static final String KEY_END_LONGITUDE = "end_longitude";
-    private static final String KEY_END_ALTITUDE = "end_altitude";
-    private static final String KEY_BEGIN_EASTING = "begin_easting";
-    private static final String KEY_BEGIN_NORTHING = "begin_northing";
-    private static final String KEY_END_EASTING = "end_easting";
-    private static final String KEY_END_NORTHING = "end_northing";
-    private static final String KEY_BEGIN_TIME = "start_time";
-    private static final String KEY_END_TIME = "stop_time";
-    private static final String KEY_BEGIN_STATUS = "begin_status";
-    private static final String KEY_END_STATUS = "end_status";
-    private static final String KEY_BEGIN_AR_RATIO = "begin_AR_ratio";
-    private static final String KEY_END_AR_RATIO = "end_AR_ratio";
-    private static final String KEY_IMAGE_ID = "image_name";
-    private static final String KEY_IMAGE_BUCKET = "image_bucket";
+    private static final String KEY_ID = "bucket_id", KEY_LATITUDE = "latitude", KEY_LONGITUDE = "longitude";
+    private static final String KEY_ALTITUDE = "altitude", KEY_STATUS = "status", KEY_AR_RATIO = "AR_ratio";
+    private static final String KEY_MATERIAL = "material", KEY_COMMENT = "comment";
+    private static final String KEY_CREATED_TIMESTAMP = "created_timestamp", KEY_UPDATED_TIMESTAMP = "updated_timestamp";
+    private static final String KEY_ZONE = "zone", KEY_HEMISPHERE = "hemisphere";
+    private static final String KEY_NORTHING = "northing", KEY_PRECISE_NORTHING = "precise_northing";
+    private static final String KEY_EASTING = "easting", KEY_PRECISE_EASTING = "precise_easting", KEY_SAMPLE = "sample";
+    private static final String KEY_BEEN_SYNCED = "been_synced", KEY_TEAM_MEMBER = "team_member";
+    private static final String KEY_BEGIN_LATITUDE = "begin_latitude", KEY_BEGIN_LONGITUDE = "begin_longitude";
+    private static final String KEY_BEGIN_ALTITUDE = "begin_altitude", KEY_END_LATITUDE = "end_latitude";
+    private static final String KEY_END_LONGITUDE = "end_longitude", KEY_END_ALTITUDE = "end_altitude";
+    private static final String KEY_BEGIN_EASTING = "begin_easting", KEY_BEGIN_NORTHING = "begin_northing";
+    private static final String KEY_END_EASTING = "end_easting", KEY_END_NORTHING = "end_northing";
+    private static final String KEY_BEGIN_TIME = "start_time", KEY_END_TIME = "stop_time", KEY_BEGIN_STATUS = "begin_status";
+    private static final String KEY_END_STATUS = "end_status", KEY_BEGIN_AR_RATIO = "begin_AR_ratio";
+    private static final String KEY_END_AR_RATIO = "end_AR_ratio", KEY_IMAGE_ID = "image_name", KEY_IMAGE_BUCKET = "image_bucket";
     /**
      * Constructor
      * @param context The current app context
@@ -76,7 +56,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 + KEY_STATUS + " TEXT," + KEY_AR_RATIO + " FLOAT," + KEY_MATERIAL + " TEXT,"
                 + KEY_COMMENT + " TEXT," + KEY_UPDATED_TIMESTAMP + " INTEGER," + KEY_CREATED_TIMESTAMP + " INTEGER,"
                 + KEY_ZONE + " INTEGER," + KEY_HEMISPHERE + " TEXT," + KEY_NORTHING + " INTEGER,"
-                + KEY_EASTING + " INTEGER," + KEY_SAMPLE + " INTEGER," + KEY_BEEN_SYNCED + " INTEGER)";
+                + KEY_PRECISE_NORTHING + " FLOAT," + KEY_EASTING + " INTEGER," + KEY_PRECISE_EASTING + " FLOAT,"
+                + KEY_SAMPLE + " INTEGER," + KEY_BEEN_SYNCED + " INTEGER)";
         String CREATE_IMAGE_TABLE = "CREATE TABLE " + IMAGE_TABLE_NAME + "(" + KEY_IMAGE_ID + " TEXT PRIMARY KEY,"
                 + KEY_IMAGE_BUCKET + " TEXT)";
         String CREATE_PATHS_TABLE = "CREATE TABLE " + PATHS_TABLE_NAME + "(" + KEY_TEAM_MEMBER + " TEXT,"
@@ -134,7 +115,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 values.put(KEY_ZONE, e.getZone());
                 values.put(KEY_HEMISPHERE, e.getHemisphere());
                 values.put(KEY_NORTHING, e.getNorthing());
+                values.put(KEY_PRECISE_NORTHING, e.getPreciseNorthing());
                 values.put(KEY_EASTING, e.getEasting());
+                values.put(KEY_PRECISE_EASTING, e.getPreciseEasting());
                 values.put(KEY_SAMPLE, e.getSample());
                 values.put(KEY_BEEN_SYNCED, e.getBeenSynced() ? 1 : 0);
                 // Try to make an update call
@@ -193,7 +176,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
             values.put(KEY_ZONE, entry.getZone());
             values.put(KEY_HEMISPHERE, entry.getHemisphere());
             values.put(KEY_NORTHING, entry.getNorthing());
+            values.put(KEY_PRECISE_NORTHING, entry.getPreciseNorthing());
             values.put(KEY_EASTING, entry.getEasting());
+            values.put(KEY_PRECISE_EASTING, entry.getPreciseEasting());
             values.put(KEY_SAMPLE, entry.getSample());
             // Set beenSynced to true
             values.put(KEY_BEEN_SYNCED, 1);
@@ -350,7 +335,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
                             cursor.getInt(cursor.getColumnIndex(KEY_ZONE)),
                             cursor.getString(cursor.getColumnIndex(KEY_HEMISPHERE)),
                             cursor.getInt(cursor.getColumnIndex(KEY_NORTHING)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_PRECISE_NORTHING)),
                             cursor.getInt(cursor.getColumnIndex(KEY_EASTING)),
+                            cursor.getDouble(cursor.getColumnIndex(KEY_PRECISE_EASTING)),
                             cursor.getInt(cursor.getColumnIndex(KEY_SAMPLE)),
                             cursor.getInt(cursor.getColumnIndex(KEY_BEEN_SYNCED))>0);
                     dataEntryElements.add(entry);
