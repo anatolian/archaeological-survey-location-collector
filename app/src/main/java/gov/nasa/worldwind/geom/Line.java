@@ -4,24 +4,19 @@
  * All Rights Reserved.
  */
 package gov.nasa.worldwind.geom;
-
 /**
+ * Instances are immutable
  * @author Tom Gaskins
  * @version $Id$
  */
-public final class Line// Instances are immutable
+public final class Line
 {
-    private final Vec4 origin;
-    private final Vec4 direction;
-
+    private final Vec4 origin, direction;
     /**
      * Create the line containing a line segement between two points.
-     *
-     * @param pa the first point of the line segment.
-     * @param pb the second point of the line segment.
-     *
+     * @param pa - the first point of the line segment.
+     * @param pb - the second point of the line segment.
      * @return The line containing the two points.
-     *
      * @throws IllegalArgumentException if either point is null or they are coincident.
      */
     public static Line fromSegment(Vec4 pa, Vec4 pb)
@@ -30,150 +25,134 @@ public final class Line// Instances are immutable
     }
 
     /**
-     * @param origin    the origin of the line being constructed
-     * @param direction the direction of the line being constructed
-     *
-     * @throws IllegalArgumentException if <code>origin</code> is null, or <code>direction</code> is null or has zero
-     *                                  length
+     * Constructor
+     * @param origin - the origin of the line being constructed
+     * @param direction - the direction of the line being constructed
+     * @throws IllegalArgumentException if <code>origin</code> is null, or <code>direction</code> is
+     *     null or has zero length
      */
-    public Line(Vec4 origin, Vec4 direction)
+    private Line(Vec4 origin, Vec4 direction)
     {
         String message = null;
         if (origin == null)
+        {
             message = "Origin Is Null";
+        }
         else if (direction == null)
+        {
             message = "Direction Is Null";
+        }
         else if (direction.getLength3() <= 0)
+        {
             message = "Direction Is Zero Vector";
+        }
         if (message != null)
         {
             throw new IllegalArgumentException(message);
         }
-
         this.origin = origin;
         this.direction = direction;
     }
 
+    /**
+     * Get the direction
+     * @return Returns the direction
+     */
     public final Vec4 getDirection()
     {
         return direction;
     }
 
+    /**
+     * Get the origin
+     * @return Returns the origin
+     */
     public final Vec4 getOrigin()
     {
         return origin;
     }
 
+    /**
+     * Get a point
+     * @param t - location of point
+     * @return Returns the point
+     */
     public final Vec4 getPointAt(double t)
     {
         return Vec4.fromLine3(this.origin, t, this.direction);
-    }
-
-    public final double selfDot()
-    {
-        return this.origin.dot3(this.direction);
     }
 
     /**
      * Performs a comparison to test whether this Object is internally identical to the other Object <code>o</code>.
      * This method takes into account both direction and origin, so two lines which may be equivalent may not be
      * considered equal.
-     *
-     * @param o the object to be compared against.
-     *
+     * @param o - the object to be compared against.
      * @return true if these two objects are equal, false otherwise
      */
     @Override
     public final boolean equals(Object o)
     {
         if (this == o)
+        {
             return true;
+        }
         if (o == null || getClass() != o.getClass())
+        {
             return false;
-
+        }
         final gov.nasa.worldwind.geom.Line line = (gov.nasa.worldwind.geom.Line) o;
-
         if (!direction.equals(line.direction))
+        {
             return false;
-        //noinspection RedundantIfStatement
+        }
+        // noinspection RedundantIfStatement
         if (!line.origin.equals(origin))
+        {
             return false;
-
+        }
         return true;
     }
 
+    /**
+     * Hash the line
+     * @return Returns the hash code
+     */
     @Override
     public final int hashCode()
     {
-        int result;
-        result = origin.hashCode();
-        result = 29 * result + direction.hashCode();
-        return result;
+        return 29 * origin.hashCode() + direction.hashCode();
     }
 
+    /**
+     * Convert to string
+     * @return Returns a string representation of the line
+     */
     public String toString()
     {
         return "Origin: " + this.origin + ", Direction: " + this.direction;
     }
-//
-//    public final double distanceToOld(Vec4 p)
-//    {
-//        if (p == null)
-//        {
-//            String message = Logging.getMessage("nullValue.PointIsNull");
-//            Logging.logger().severe(message);
-//            throw new IllegalArgumentException(message);
-//        }
-//
-//        Vec4 origin = this.origin;
-//        Vec4 sideB = origin.subtract3(p); // really a vector
-//
-//        double distanceToOrigin = sideB.dot3(this.direction);
-//        double divisor = distanceToOrigin / this.direction.getLengthSquared3();
-//
-//        Vec4 sideA = this.direction.multiply3(divisor);
-//
-//        double aSquared = sideA.getLengthSquared3();
-//        double bSquared = sideB.getLengthSquared3();
-//
-//        return Math.sqrt(bSquared - aSquared);
-//    }
 
-    public final Vec4 nearestPointTo(Vec4 p)
+    /**
+     * Find the closest point
+     * @param p - a point
+     * @return Returns the closest point to p
+     */
+    private final Vec4 nearestPointTo(Vec4 p)
     {
         Vec4 w = p.subtract3(this.origin);
-
         double c1 = w.dot3(this.direction);
         double c2 = this.direction.dot3(this.direction);
-
         return this.origin.add3(this.direction.multiply3(c1 / c2));
     }
 
     /**
-     * Calculate the shortests distance between this line and a specified <code>Vec4</code>. This method returns a
-     * positive distance.
-     *
-     * @param p the <code>Vec4</code> whose distance from this <code>Line</code> will be calculated
-     *
-     * @return the distance between this <code>Line</code> and the specified <code>Vec4</code>
-     *
-     * @throws IllegalArgumentException if <code>p</code> is null
-     */
-    public final double distanceTo(Vec4 p)
-    {
-        return p.distanceTo3(this.nearestPointTo(p));
-    }
-
-    /**
      * Finds the closest point to a third point of a segment defined by two points.
-     *
-     * @param p0 The first endpoint of the segment.
-     * @param p1 The second endpoint of the segment.
-     * @param p  The point outside the segment whose closest point on the segment is desired.
-     *
+     * @param p0 - The first endpoint of the segment.
+     * @param p1 - The second endpoint of the segment.
+     * @param p - The point outside the segment whose closest point on the segment is desired.
      * @return The closest point on (p0, p1) to p. Note that this will be p0 or p1 themselves whenever the closest
-     *         point on the <em>line</em> defined by p0 and p1 is outside the segment (i.e., the results are bounded by
-     *         the segment endpoints).
+     *     point on the <em>line</em> defined by p0 and p1 is outside the segment (i.e., the results are bounded by
+     *     the segment endpoints).
      */
     public static Vec4 nearestPointOnSegment(Vec4 p0, Vec4 p1, Vec4 p)
     {

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import edu.upenn.sas.archaeologyapp.models.DataEntryElement;
 import edu.upenn.sas.archaeologyapp.models.PathElement;
 /**
- * Data base helper class to create, read and write data
+ * Database helper class to create, read and write data
  * Created by eanvith on 16/01/17.
  */
 public class DatabaseHandler extends SQLiteOpenHelper

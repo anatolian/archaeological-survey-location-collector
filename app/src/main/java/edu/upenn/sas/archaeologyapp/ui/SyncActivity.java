@@ -134,7 +134,7 @@ public class SyncActivity extends AppCompatActivity
                     {
                         databaseHandler.setFindSynced(find);
                         ArrayList<String> paths = elementsToUpload.get(uploadIndex).getImagePaths();
-                        String key = hemisphere + "." + zone + "." + easting + "." + northing + "." + find;
+                        String key = hemisphere + "." + zone + "." + contextEasting + "." + contextNorthing + "." + find;
                         if (imageNumbers.get(key) == null)
                         {
                             imageNumbers.put(key, 0);
@@ -143,8 +143,8 @@ public class SyncActivity extends AppCompatActivity
                         {
                             imageNumbers.put(key, imageNumbers.get(key) + 1);
                             String newDir = Environment.getExternalStorageDirectory().toString()
-                                    + "/Archaeology/" + hemisphere + "/" + zone + "/" + easting + "/"
-                                    + northing + "/" + sample + "/photos/field/";
+                                    + "/Archaeology/" + hemisphere + "/" + zone + "/" + contextEasting
+                                    + "/" + contextNorthing + "/" + sample + "/photos/field/";
                             File dir = new File(newDir);
                             if (!dir.exists())
                             {
@@ -158,12 +158,14 @@ public class SyncActivity extends AppCompatActivity
                                 Log.v("Moving Files", "Failed to move " + oldImage.getAbsolutePath()
                                         + " to " + newImage.getAbsolutePath());
                             }
-                            Log.v("Moving Files", oldImage.getAbsolutePath() + " renamed to " + newImage.getAbsolutePath());
+                            Log.v("Moving Files", oldImage.getAbsolutePath() + " renamed to "
+                                    + newImage.getAbsolutePath());
                         }
                     }
                     else
                     {
-                        Toast.makeText(getApplicationContext(), "Upload failed: " + response, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Upload failed: " + response,
+                                Toast.LENGTH_SHORT).show();
                     }
                     // Upload the next find
                     uploadIndex++;
