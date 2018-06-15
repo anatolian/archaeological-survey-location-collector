@@ -12,8 +12,8 @@
     <string name="altitude">Alt: %f</string>
     <string name="status">Status: %s</string>
     <string name="grid">Grid: %s</string>
-    <string name="easting">Easting: %d</string>
-    <string name="northing">Northing: %d</string>
+    <string name="easting">Easting: %f</string>
+    <string name="northing">Northing: %f</string>
     <string name="timestamp">Time: %f</string>
     <string name="GPSConnection">GPS: %s</string>
     <string name="reachConnection">Reach: %s</string>

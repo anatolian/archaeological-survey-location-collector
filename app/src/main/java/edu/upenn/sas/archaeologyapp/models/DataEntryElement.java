@@ -7,17 +7,17 @@ import java.util.ArrayList;
 public class DataEntryElement
 {
     // The ID for this entry
-    private final String ID, status, material, comments, hemisphere;
-    private final double latitude, longitude, altitude, preciseNorthing, preciseEasting;
+    private final String ID, STATUS, MATERIAL, COMMENTS, HEMISPHERE;
+    private final double LATITUDE, LONGITUDE, ALTITUDE, PRECISE_NORTHING, PRECISE_EASTING;
     // The status of the position fetch
-    private final Double AR_ratio;
+    private final Double AR_RATIO;
     // The paths of the images linked to the entry
-    private final ArrayList<String> imagePaths;
+    private final ArrayList<String> IMAGE_PATHS;
     // Timestamp when the entry was first created
-    private final long createdTimestamp, updateTimestamp;
+    private final long CREATED_TIME_STAMP, UPDATE_TIME_STAMP;
     // A boolean for whether or not this item has been uploaded/synced
-    private final boolean beenSynced;
-    private final Integer northing, easting, zone, sample;
+    private final boolean BEEN_SYNCED;
+    private final Integer NORTHING, EASTING, ZONE, SAMPLE;
     /**
      * Constructor
      * @param ID - item id
@@ -25,7 +25,7 @@ public class DataEntryElement
      * @param longitude - item longitude
      * @param altitude - item altitude
      * @param status - recorded status
-     * @param AR_ratio - AR ratio
+     * @param ARRatio - AR ratio
      * @param imagePaths - image URIs
      * @param material - item material
      * @param comments - recorded comments
@@ -41,30 +41,30 @@ public class DataEntryElement
      * @param beenSynced - whether the find is synced
      */
     public DataEntryElement(String ID, double latitude, double longitude, double altitude, String status,
-                            Double AR_ratio, ArrayList<String> imagePaths, String material, String comments,
+                            Double ARRatio, ArrayList<String> imagePaths, String material, String comments,
                             long createdTimestamp, long updateTimestamp, Integer zone, String hemisphere,
                             Integer northing, Double preciseNorthing, Integer easting, Double preciseEasting,
                             Integer sample, boolean beenSynced)
     {
         this.ID = ID;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.altitude = altitude;
-        this.status = status;
-        this.AR_ratio = AR_ratio;
-        this.imagePaths = imagePaths;
-        this.material = material;
-        this.comments = comments;
-        this.createdTimestamp = createdTimestamp;
-        this.updateTimestamp = updateTimestamp;
-        this.zone = zone;
-        this.hemisphere = hemisphere;
-        this.northing = northing;
-        this.easting = easting;
-        this.sample = sample;
-        this.beenSynced = beenSynced;
-        this.preciseEasting = preciseEasting;
-        this.preciseNorthing = preciseNorthing;
+        this.LATITUDE = latitude;
+        this.LONGITUDE = longitude;
+        this.ALTITUDE = altitude;
+        this.STATUS = status;
+        this.AR_RATIO = ARRatio;
+        this.IMAGE_PATHS = imagePaths;
+        this.MATERIAL = material;
+        this.COMMENTS = comments;
+        this.CREATED_TIME_STAMP = createdTimestamp;
+        this.UPDATE_TIME_STAMP = updateTimestamp;
+        this.ZONE = zone;
+        this.HEMISPHERE = hemisphere;
+        this.NORTHING = northing;
+        this.EASTING = easting;
+        this.SAMPLE = sample;
+        this.BEEN_SYNCED = beenSynced;
+        this.PRECISE_EASTING = preciseEasting;
+        this.PRECISE_NORTHING = preciseNorthing;
     }
 
     /**
@@ -82,7 +82,7 @@ public class DataEntryElement
      */
     public double getLatitude()
     {
-        return latitude;
+        return LATITUDE;
     }
 
     /**
@@ -91,7 +91,7 @@ public class DataEntryElement
      */
     public double getLongitude()
     {
-        return longitude;
+        return LONGITUDE;
     }
 
     /**
@@ -100,7 +100,7 @@ public class DataEntryElement
      */
     public double getAltitude()
     {
-        return altitude;
+        return ALTITUDE;
     }
 
     /**
@@ -109,7 +109,7 @@ public class DataEntryElement
      */
     public String getStatus()
     {
-        return status;
+        return STATUS;
     }
 
     /**
@@ -118,7 +118,7 @@ public class DataEntryElement
      */
     public Double getARRatio()
     {
-        return AR_ratio;
+        return AR_RATIO;
     }
 
     /**
@@ -127,7 +127,7 @@ public class DataEntryElement
      */
     public ArrayList<String> getImagePaths()
     {
-        return imagePaths;
+        return IMAGE_PATHS;
     }
 
     /**
@@ -136,7 +136,7 @@ public class DataEntryElement
      */
     public String getMaterial()
     {
-        return material;
+        return MATERIAL;
     }
 
     /**
@@ -145,7 +145,7 @@ public class DataEntryElement
      */
     public String getComments()
     {
-        return comments;
+        return COMMENTS;
     }
 
     /**
@@ -154,7 +154,7 @@ public class DataEntryElement
      */
     public long getCreatedTimestamp()
     {
-        return createdTimestamp;
+        return CREATED_TIME_STAMP;
     }
 
     /**
@@ -163,7 +163,7 @@ public class DataEntryElement
      */
     public long getUpdateTimestamp()
     {
-        return updateTimestamp;
+        return UPDATE_TIME_STAMP;
     }
 
     /**
@@ -172,7 +172,7 @@ public class DataEntryElement
      */
     public Integer getZone()
     {
-        return zone;
+        return ZONE;
     }
 
     /**
@@ -181,7 +181,7 @@ public class DataEntryElement
      */
     public String getHemisphere()
     {
-        return hemisphere;
+        return HEMISPHERE;
     }
 
     /**
@@ -190,7 +190,7 @@ public class DataEntryElement
      */
     public Integer getNorthing()
     {
-        return northing;
+        return NORTHING;
     }
 
     /**
@@ -199,7 +199,7 @@ public class DataEntryElement
      */
     public Double getPreciseNorthing()
     {
-        return preciseNorthing;
+        return PRECISE_NORTHING;
     }
 
     /**
@@ -208,7 +208,7 @@ public class DataEntryElement
      */
     public Integer getEasting()
     {
-        return easting;
+        return EASTING;
     }
 
     /**
@@ -217,7 +217,7 @@ public class DataEntryElement
      */
     public Double getPreciseEasting()
     {
-        return preciseEasting;
+        return PRECISE_EASTING;
     }
 
     /**
@@ -226,7 +226,7 @@ public class DataEntryElement
      */
     public Integer getSample()
     {
-        return sample;
+        return SAMPLE;
     }
 
     /**
@@ -235,6 +235,6 @@ public class DataEntryElement
      */
     public boolean getBeenSynced()
     {
-        return beenSynced;
+        return BEEN_SYNCED;
     }
 }

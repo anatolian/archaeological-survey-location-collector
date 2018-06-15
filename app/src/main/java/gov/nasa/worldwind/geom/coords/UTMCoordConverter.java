@@ -23,9 +23,9 @@ class UTMCoordConverter
     // 86 degrees in radians
     private final static double MAX_LAT = ((86 * PI) / 180.0);
     private final static int MAX_NORTHING = 10000000;
-    private double Easting, Northing;
-    private String Hemisphere;
-    private int Zone;
+    private double easting, northing;
+    private String hemisphere;
+    private int zone;
     /**
      * Constructor
      */
@@ -38,114 +38,114 @@ class UTMCoordConverter
      * (zone, hemisphere, easting and northing) coordinates according to the current ellipsoid and UTM zone override
      * parameters.  If any errors occur, the error code(s) are returned by the function, otherwise UTM_NO_ERROR is
      * returned.
-     * @param Latitude - Latitude in radians
-     * @param Longitude - Longitude in radians
+     * @param latitude - Latitude in radians
+     * @param longitude - Longitude in radians
      * @return error code
      */
-    public long convertGeodeticToUTM(double Latitude, double Longitude)
+    public long convertGeodeticToUTM(double latitude, double longitude)
     {
-        long Lat_Degrees, Long_Degrees, temp_zone, Error_Code = UTM_NO_ERROR;
-        double Origin_Latitude = 0, False_Easting = 500000, False_Northing = 0, Scale = 0.9996;
+        long latDegrees, longDegrees, tempZone, errorCode = UTM_NO_ERROR;
+        double originLatitude = 0, falseEasting = 500000, falseNorthing = 0, scale = 0.9996;
         // Latitude out of range
-        if ((Latitude < MIN_LAT) || (Latitude > MAX_LAT))
+        if ((latitude < MIN_LAT) || (latitude > MAX_LAT))
         {
-            Error_Code |= UTM_LAT_ERROR;
+            errorCode |= UTM_LAT_ERROR;
         }
         // Longitude out of range
-        if ((Longitude < -PI) || (Longitude > (2 * PI)))
+        if ((longitude < -PI) || (longitude > (2 * PI)))
         {
-            Error_Code |= UTM_LON_ERROR;
+            errorCode |= UTM_LON_ERROR;
         }
         // no errors
-        if (Error_Code == UTM_NO_ERROR)
+        if (errorCode == UTM_NO_ERROR)
         {
-            if (Longitude < 0)
+            if (longitude < 0)
             {
-                Longitude += (2 * PI) + 1.0e-10;
+                longitude += (2 * PI) + 1.0e-10;
             }
-            Lat_Degrees = (long) (Latitude * 180.0 / PI);
-            Long_Degrees = (long) (Longitude * 180.0 / PI);
-            if (Longitude < PI)
+            latDegrees = (long) (latitude * 180.0 / PI);
+            longDegrees = (long) (longitude * 180.0 / PI);
+            if (longitude < PI)
             {
-                temp_zone = (long) (31 + ((Longitude * 180.0 / PI) / 6.0));
+                tempZone = (long) (31 + ((longitude * 180.0 / PI) / 6.0));
             }
             else
             {
-                temp_zone = (long) (((Longitude * 180.0 / PI) / 6.0) - 29);
+                tempZone = (long) (((longitude * 180.0 / PI) / 6.0) - 29);
             }
-            if (temp_zone > 60)
+            if (tempZone > 60)
             {
-                temp_zone = 1;
+                tempZone = 1;
             }
             // UTM special cases
-            if ((Lat_Degrees > 55) && (Lat_Degrees < 64) && (Long_Degrees > -1) && (Long_Degrees < 3))
+            if ((latDegrees > 55) && (latDegrees < 64) && (longDegrees > -1) && (longDegrees < 3))
             {
-                temp_zone = 31;
+                tempZone = 31;
             }
-            if ((Lat_Degrees > 55) && (Lat_Degrees < 64) && (Long_Degrees > 2) && (Long_Degrees < 12))
+            if ((latDegrees > 55) && (latDegrees < 64) && (longDegrees > 2) && (longDegrees < 12))
             {
-                temp_zone = 32;
+                tempZone = 32;
             }
-            if ((Lat_Degrees > 71) && (Long_Degrees > -1) && (Long_Degrees < 9))
+            if ((latDegrees > 71) && (longDegrees > -1) && (longDegrees < 9))
             {
-                temp_zone = 31;
+                tempZone = 31;
             }
-            if ((Lat_Degrees > 71) && (Long_Degrees > 8) && (Long_Degrees < 21))
+            if ((latDegrees > 71) && (longDegrees > 8) && (longDegrees < 21))
             {
-                temp_zone = 33;
+                tempZone = 33;
             }
-            if ((Lat_Degrees > 71) && (Long_Degrees > 20) && (Long_Degrees < 33))
+            if ((latDegrees > 71) && (longDegrees > 20) && (longDegrees < 33))
             {
-                temp_zone = 35;
+                tempZone = 35;
             }
-            if ((Lat_Degrees > 71) && (Long_Degrees > 32) && (Long_Degrees < 42))
+            if ((latDegrees > 71) && (longDegrees > 32) && (longDegrees < 42))
             {
-                temp_zone = 37;
+                tempZone = 37;
             }
-            if (Error_Code == UTM_NO_ERROR)
+            if (errorCode == UTM_NO_ERROR)
             {
-                double Central_Meridian;
-                if (temp_zone >= 31)
+                double centralMeridian;
+                if (tempZone >= 31)
                 {
-                    Central_Meridian = (6 * temp_zone - 183) * PI / 180.0;
+                    centralMeridian = (6 * tempZone - 183) * PI / 180.0;
                 }
                 else
                 {
-                    Central_Meridian = (6 * temp_zone + 177) * PI / 180.0;
+                    centralMeridian = (6 * tempZone + 177) * PI / 180.0;
                 }
-                Zone = (int) temp_zone;
-                if (Latitude < 0)
+                zone = (int) tempZone;
+                if (latitude < 0)
                 {
-                    False_Northing = 10000000;
-                    Hemisphere = AVKey.SOUTH;
+                    falseNorthing = 10000000;
+                    hemisphere = AVKey.SOUTH;
                 }
                 else
                 {
-                    Hemisphere = AVKey.NORTH;
+                    hemisphere = AVKey.NORTH;
                 }
                 try
                 {
-                    TMCoord TM = TMCoord.fromLatLon(Angle.fromRadians(Latitude), Angle.fromRadians(Longitude),
-                            6378137.0, 1 / 298.257223563, Angle.fromRadians(Origin_Latitude),
-                            Angle.fromRadians(Central_Meridian), False_Easting, False_Northing, Scale);
-                    Easting = TM.getEasting();
-                    Northing = TM.getNorthing();
-                    if ((Easting < MIN_EASTING) || (Easting > MAX_EASTING))
+                    TMCoord TM = TMCoord.fromLatLon(Angle.fromRadians(latitude), Angle.fromRadians(longitude),
+                            6378137.0, 1 / 298.257223563, Angle.fromRadians(originLatitude),
+                            Angle.fromRadians(centralMeridian), falseEasting, falseNorthing, scale);
+                    easting = TM.getEasting();
+                    northing = TM.getNorthing();
+                    if ((easting < MIN_EASTING) || (easting > MAX_EASTING))
                     {
-                        Error_Code = UTM_EASTING_ERROR;
+                        errorCode = UTM_EASTING_ERROR;
                     }
-                    if ((Northing < MIN_NORTHING) || (Northing > MAX_NORTHING))
+                    if ((northing < MIN_NORTHING) || (northing > MAX_NORTHING))
                     {
-                        Error_Code |= UTM_NORTHING_ERROR;
+                        errorCode |= UTM_NORTHING_ERROR;
                     }
                 }
                 catch (Exception e)
                 {
-                    Error_Code = UTM_TM_ERROR;
+                    errorCode = UTM_TM_ERROR;
                 }
             }
         }
-        return (Error_Code);
+        return errorCode;
     }
 
     /**
@@ -154,7 +154,7 @@ class UTMCoordConverter
      */
     public double getEasting()
     {
-        return Easting;
+        return easting;
     }
 
     /**
@@ -163,7 +163,7 @@ class UTMCoordConverter
      */
     public double getNorthing()
     {
-        return Northing;
+        return northing;
     }
 
     /**
@@ -173,7 +173,7 @@ class UTMCoordConverter
      */
     public String getHemisphere()
     {
-        return Hemisphere;
+        return hemisphere;
     }
 
     /**
@@ -182,6 +182,6 @@ class UTMCoordConverter
      */
     public int getZone()
     {
-        return Zone;
+        return zone;
     }
 }

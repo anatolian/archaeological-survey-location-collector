@@ -6,66 +6,67 @@ package edu.upenn.sas.archaeologyapp.models;
 public class PathElement
 {
     // The ID for this path
-    private final String team_member, UTM_hemisphere, begin_status, end_status;
+    private final String TEAM_MEMBER, UTM_HEMISPHERE, BEGIN_STATUS, END_STATUS;
     // The beginning latitude of the entry
-    private final Double begin_latitude, begin_longitude, begin_altitude;
+    private final Double BEGIN_LATITUDE, BEGIN_LONGITUDE, BEGIN_ALTITUDE, BEGIN_AR_RATIO;
     // The ending latitude of the entry
-    private final Double end_latitude, end_longitude, end_altitude, begin_AR_ratio, end_AR_ratio;
+    private final Double END_LATITUDE, END_LONGITUDE, END_ALTITUDE, END_AR_RATIO;
     // The UTM zone of the entry
-    private final Integer UTM_zone, begin_UTM_northing, begin_UTM_easting, end_UTM_northing, end_UTM_easting;
+    private final Integer UTM_ZONE;
+    private final Double BEGIN_UTM_NORTHING, BEGIN_UTM_EASTING, END_UTM_NORTHING, END_UTM_EASTING;
     // The start time of the paths run
-    private final Long begin_time, end_time;
+    private final Long BEGIN_TIME, END_TIME;
     // A boolean for whether or not this item has been uploaded/synced
-    private final boolean beenSynced;
+    private final boolean BEEN_SYNCED;
     /**
      * Constructor
-     * @param team_member - user submitting the path
-     * @param begin_latitude - starting latitude
-     * @param begin_longitude - starting longitude
-     * @param begin_altitude - starting altitude
-     * @param end_latitude - ending latitude
-     * @param end_longitude - ending longitude
-     * @param end_altitude - ending altitude
-     * @param UTM_hemisphere - hemisphere
-     * @param UTM_zone - zone
-     * @param begin_UTM_easting - starting easting
-     * @param begin_UTM_northing - starting northing
-     * @param end_UTM_easting - ending easting
-     * @param end_UTM_northing - ending northing
-     * @param begin_time - starting time
-     * @param end_time - ending time
-     * @param begin_status - starting statud
-     * @param end_status - ending status
-     * @param begin_AR_ratio - starting AR ratio
-     * @param end_AR_ratio - ending AR ratio
+     * @param teamMember - user submitting the path
+     * @param beginLatitude - starting latitude
+     * @param beginLongitude - starting longitude
+     * @param beginAltitude - starting altitude
+     * @param endLatitude - ending latitude
+     * @param endLongitude - ending longitude
+     * @param endAltitude - ending altitude
+     * @param UTMHemisphere - hemisphere
+     * @param UTMZone - zone
+     * @param beginUTMEasting - starting easting
+     * @param beginUTMNorthing - starting northing
+     * @param endUTMEasting - ending easting
+     * @param endUTMNorthing - ending northing
+     * @param beginTime - starting time
+     * @param endTime - ending time
+     * @param beginStatus - starting statud
+     * @param endStatus - ending status
+     * @param beginARRatio - starting AR ratio
+     * @param endARRatio - ending AR ratio
      * @param beenSynced - whether the path is synced
      */
-    public PathElement(String team_member, Double begin_latitude, Double begin_longitude, Double begin_altitude,
-                Double end_latitude, Double end_longitude, Double end_altitude, String UTM_hemisphere,
-                Integer UTM_zone, Integer begin_UTM_easting, Integer begin_UTM_northing, Integer end_UTM_easting,
-                Integer end_UTM_northing, Long begin_time, Long end_time, String begin_status, String end_status,
-                Double begin_AR_ratio, Double end_AR_ratio, boolean beenSynced)
+    public PathElement(String teamMember, Double beginLatitude, Double beginLongitude, Double beginAltitude,
+                Double endLatitude, Double endLongitude, Double endAltitude, String UTMHemisphere,
+                Integer UTMZone, Double beginUTMEasting, Double beginUTMNorthing, Double endUTMEasting,
+                Double endUTMNorthing, Long beginTime, Long endTime, String beginStatus, String endStatus,
+                Double beginARRatio, Double endARRatio, boolean beenSynced)
     {
-        this.team_member = team_member;
-        this.begin_latitude = begin_latitude;
-        this.begin_longitude = begin_longitude;
-        this.begin_altitude = begin_altitude;
-        this.end_latitude = end_latitude;
-        this.end_longitude = end_longitude;
-        this.end_altitude = end_altitude;
-        this.UTM_hemisphere = UTM_hemisphere;
-        this.UTM_zone = UTM_zone;
-        this.begin_UTM_northing = begin_UTM_northing;
-        this.begin_UTM_easting = begin_UTM_easting;
-        this.end_UTM_northing = end_UTM_northing;
-        this.end_UTM_easting = end_UTM_easting;
-        this.begin_time = begin_time;
-        this.end_time = end_time;
-        this.begin_status = begin_status;
-        this.end_status = end_status;
-        this.begin_AR_ratio = begin_AR_ratio;
-        this.end_AR_ratio = end_AR_ratio;
-        this.beenSynced = beenSynced;
+        this.TEAM_MEMBER = teamMember;
+        this.BEGIN_LATITUDE = beginLatitude;
+        this.BEGIN_LONGITUDE = beginLongitude;
+        this.BEGIN_ALTITUDE = beginAltitude;
+        this.END_LATITUDE = endLatitude;
+        this.END_LONGITUDE = endLongitude;
+        this.END_ALTITUDE = endAltitude;
+        this.UTM_HEMISPHERE = UTMHemisphere;
+        this.UTM_ZONE = UTMZone;
+        this.BEGIN_UTM_NORTHING = beginUTMNorthing;
+        this.BEGIN_UTM_EASTING = beginUTMEasting;
+        this.END_UTM_NORTHING = endUTMNorthing;
+        this.END_UTM_EASTING = endUTMEasting;
+        this.BEGIN_TIME = beginTime;
+        this.END_TIME = endTime;
+        this.BEGIN_STATUS = beginStatus;
+        this.END_STATUS = endStatus;
+        this.BEGIN_AR_RATIO = beginARRatio;
+        this.END_AR_RATIO = endARRatio;
+        this.BEEN_SYNCED = beenSynced;
     }
 
     /**
@@ -74,7 +75,7 @@ public class PathElement
      */
     public String getTeamMember()
     {
-        return team_member;
+        return TEAM_MEMBER;
     }
 
     /**
@@ -83,7 +84,7 @@ public class PathElement
      */
     public Double getBeginLatitude()
     {
-        return begin_latitude;
+        return BEGIN_LATITUDE;
     }
 
     /**
@@ -92,7 +93,7 @@ public class PathElement
      */
     public Double getBeginLongitude()
     {
-        return begin_longitude;
+        return BEGIN_LONGITUDE;
     }
 
     /**
@@ -101,7 +102,7 @@ public class PathElement
      */
     public Double getBeginAltitude()
     {
-        return begin_altitude;
+        return BEGIN_ALTITUDE;
     }
 
     /**
@@ -110,7 +111,7 @@ public class PathElement
      */
     public Double getEndLatitude()
     {
-        return end_latitude;
+        return END_LATITUDE;
     }
 
     /**
@@ -119,7 +120,7 @@ public class PathElement
      */
     public Double getEndLongitude()
     {
-        return end_longitude;
+        return END_LONGITUDE;
     }
 
     /**
@@ -128,7 +129,7 @@ public class PathElement
      */
     public Double getEndAltitude()
     {
-        return end_altitude;
+        return END_ALTITUDE;
     }
 
     /**
@@ -137,7 +138,7 @@ public class PathElement
      */
     public String getHemisphere()
     {
-        return UTM_hemisphere;
+        return UTM_HEMISPHERE;
     }
 
     /**
@@ -146,43 +147,43 @@ public class PathElement
      */
     public Integer getZone()
     {
-        return UTM_zone;
+        return UTM_ZONE;
     }
 
     /**
      * Get starting easting
      * @return Returns starting easting
      */
-    public Integer getBeginEasting()
+    public Double getBeginEasting()
     {
-        return begin_UTM_easting;
+        return BEGIN_UTM_EASTING;
     }
 
     /**
      * Get starting northing
      * @return Returns starting northing
      */
-    public Integer getBeginNorthing()
+    public Double getBeginNorthing()
     {
-        return begin_UTM_northing;
+        return BEGIN_UTM_NORTHING;
     }
 
     /**
      * Get ending easting
      * @return Returns ending easting
      */
-    public Integer getEndEasting()
+    public Double getEndEasting()
     {
-        return end_UTM_easting;
+        return END_UTM_EASTING;
     }
 
     /**
      * Get ending northing
      * @return Returns ending northing
      */
-    public Integer getEndNorthing()
+    public Double getEndNorthing()
     {
-        return end_UTM_northing;
+        return END_UTM_NORTHING;
     }
 
     /**
@@ -191,7 +192,7 @@ public class PathElement
      */
     public Long getBeginTime()
     {
-        return begin_time;
+        return BEGIN_TIME;
     }
 
     /**
@@ -200,7 +201,7 @@ public class PathElement
      */
     public Long getEndTime()
     {
-        return end_time;
+        return END_TIME;
     }
 
     /**
@@ -209,7 +210,7 @@ public class PathElement
      */
     public String getBeginStatus()
     {
-        return begin_status;
+        return BEGIN_STATUS;
     }
 
     /**
@@ -218,7 +219,7 @@ public class PathElement
      */
     public String getEndStatus()
     {
-        return end_status;
+        return END_STATUS;
     }
 
     /**
@@ -227,7 +228,7 @@ public class PathElement
      */
     public Double getBeginARRatio()
     {
-        return begin_AR_ratio;
+        return BEGIN_AR_RATIO;
     }
 
     /**
@@ -236,7 +237,7 @@ public class PathElement
      */
     public Double getEndARRatio()
     {
-        return end_AR_ratio;
+        return END_AR_RATIO;
     }
 
     /**
@@ -245,6 +246,6 @@ public class PathElement
      */
     public boolean getBeenSynced()
     {
-        return beenSynced;
+        return BEEN_SYNCED;
     }
 }

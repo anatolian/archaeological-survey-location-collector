@@ -218,7 +218,16 @@ public class SyncActivity extends AppCompatActivity
             String endEasting = Double.toString(path.getEndEasting());
             String beginTime = Double.toString(path.getBeginTime());
             String endTime = Double.toString(path.getEndTime());
-            makeVolleyStringObjectRequest(globalWebServerURL + "/insert_path?teamMember=" + teamMember
+            String encoding = "";
+            try
+            {
+                encoding = URLEncoder.encode(teamMember, "UTF-8");
+            }
+            catch (UnsupportedEncodingException e)
+            {
+                e.printStackTrace();
+            }
+            makeVolleyStringObjectRequest(globalWebServerURL + "/insert_path?teamMember=" + encoding
                             + "&hemisphere=" + hemisphere + "&zone=" + zone + "&beginEasting=" + beginEasting
                             + "&beginNorthing=" + beginNorthing + "&endEasting=" + endEasting + "&endNorthing="
                             + endNorthing + "&beginLatitude=" + beginLatitude + "&beginLongitude=" + beginLongitude
@@ -226,7 +235,7 @@ public class SyncActivity extends AppCompatActivity
                             + beginARRatio + "&endLatitude=" + endLatitude + "&endLongitude=" + endLongitude
                             + "&endAltitude=" + endAltitude + "&endStatus=" + endStatus + "&endARRatio="
                             + endARRatio + "&beginTime=" + beginTime + "&endTime=" + endTime, queue,
-                    new edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper() {
+                    new StringObjectResponseWrapper() {
                 /**
                  * Response received
                  * @param response - database response

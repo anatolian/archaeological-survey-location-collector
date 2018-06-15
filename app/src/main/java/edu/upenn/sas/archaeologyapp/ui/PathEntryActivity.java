@@ -44,11 +44,11 @@ public class PathEntryActivity extends BaseActivity
     // The spinner for displaying the dropdown of materials
     Spinner teamMembersDropdown;
     private LocationCollector locationCollector;
-    private Double liveLatitude, liveLongitude, liveAltitude, liveARRatio;
+    private Double liveLatitude, liveLongitude, liveAltitude, liveARRatio, beginNorthing, beginEasting;
     private String liveStatus, beginHemisphere, beginStatus, endStatus, teamMember;
-    private Integer beginZone, beginNorthing, beginEasting, endNorthing, endEasting;
-    // Variables to store the users location data obtained from the Reach
-    private Double beginLatitude, beginLongitude, beginAltitude, endLatitude, endLongitude, endAltitude, beginARRatio, endARRatio;
+    private Integer beginZone;
+    private Double endNorthing, endEasting, beginLatitude, beginLongitude, beginAltitude, endLatitude;
+    private Double endLongitude, endAltitude, beginARRatio, endARRatio;
     long beginTime, endTime;
     boolean startPointSet = false, endPointSet = false;
     /**
@@ -166,7 +166,7 @@ public class PathEntryActivity extends BaseActivity
         SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
         String teamMemberAPIResponse = settings.getString("teamMemberAPIResponse", getString(R.string.default_team_member));
         String teamMemberOptions[] = teamMemberAPIResponse.split("\\r?\\n");
-        teamMembersDropdown = (Spinner) findViewById(R.id.path_entry_team_members_drop_down);
+        teamMembersDropdown = findViewById(R.id.path_entry_team_members_drop_down);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<String> teamMemberAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, teamMemberOptions);
         // Specify the layout to use when the list of choices appears
@@ -308,8 +308,8 @@ public class PathEntryActivity extends BaseActivity
         UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
         beginZone = UTMposition.getZone();
         beginHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-        beginNorthing = (int) Math.floor(UTMposition.getNorthing());
-        beginEasting = (int) Math.floor(UTMposition.getEasting());
+        beginNorthing = UTMposition.getNorthing();
+        beginEasting = UTMposition.getEasting();
         beginGridTextView.setText(String.format(getResources().getString(R.string.grid), beginZone + beginHemisphere));
         beginNorthingTextView.setText(String.format(getResources().getString(R.string.northing), beginNorthing));
         beginEastingTextView.setText(String.format(getResources().getString(R.string.easting), beginEasting));
@@ -348,8 +348,8 @@ public class PathEntryActivity extends BaseActivity
         UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
         int endZone = UTMposition.getZone();
         String endHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-        endNorthing = (int) Math.floor(UTMposition.getNorthing());
-        endEasting = (int) Math.floor(UTMposition.getEasting());
+        endNorthing = UTMposition.getNorthing();
+        endEasting = UTMposition.getEasting();
         endGridTextView.setText(String.format(getResources().getString(R.string.grid), endZone + endHemisphere));
         endNorthingTextView.setText(String.format(getResources().getString(R.string.northing), endNorthing));
         endEastingTextView.setText(String.format(getResources().getString(R.string.easting), endEasting));
@@ -501,8 +501,8 @@ public class PathEntryActivity extends BaseActivity
             UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
             Integer liveZone = UTMposition.getZone();
             String liveHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-            Integer liveNorthing = (int) Math.floor(UTMposition.getNorthing());
-            Integer liveEasting = (int) Math.floor(UTMposition.getEasting());
+            Double liveNorthing = UTMposition.getNorthing();
+            Double liveEasting = UTMposition.getEasting();
             beginGridTextView.setText(String.format(getResources().getString(R.string.grid), liveZone + liveHemisphere));
             beginNorthingTextView.setText(String.format(getResources().getString(R.string.northing), liveNorthing));
             beginEastingTextView.setText(String.format(getResources().getString(R.string.easting), liveEasting));
@@ -520,8 +520,8 @@ public class PathEntryActivity extends BaseActivity
             UTMCoord UTMposition = UTMCoord.fromLatLon(lat, lon);
             Integer liveZone = UTMposition.getZone();
             String liveHemisphere = UTMposition.getHemisphere().contains("North") ? "N" : "S";
-            Integer liveNorthing = (int) Math.floor(UTMposition.getNorthing());
-            Integer liveEasting = (int) Math.floor(UTMposition.getEasting());
+            Double liveNorthing = UTMposition.getNorthing();
+            Double liveEasting = UTMposition.getEasting();
             endGridTextView.setText(String.format(getResources().getString(R.string.grid), liveZone + liveHemisphere));
             endNorthingTextView.setText(String.format(getResources().getString(R.string.northing), liveNorthing));
             endEastingTextView.setText(String.format(getResources().getString(R.string.easting), liveEasting));
@@ -614,7 +614,6 @@ public class PathEntryActivity extends BaseActivity
      */
     private PathElement getElement()
     {
-
         return new PathElement(teamMember, beginLatitude, beginLongitude, beginAltitude, endLatitude,
                 endLongitude, endAltitude, beginHemisphere, beginZone, beginEasting, beginNorthing,
                 endEasting, endNorthing, beginTime, endTime, beginStatus, endStatus, beginARRatio,
@@ -629,7 +628,8 @@ public class PathEntryActivity extends BaseActivity
         // We only save changes if teamMember and begin time are present
         if (teamMember == null || beginTime == 0)
         {
-            Toast.makeText(PathEntryActivity.this, "You did not start a path or select a team member. Try again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(PathEntryActivity.this, "You did not start a path or select a team member. Try again.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
         PathElement list[] = new PathElement[1];

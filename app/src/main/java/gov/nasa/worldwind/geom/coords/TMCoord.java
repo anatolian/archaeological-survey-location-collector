@@ -13,8 +13,8 @@ import gov.nasa.worldwind.geom.Angle;
  */
 public class TMCoord
 {
-    private final Angle latitude, longitude;
-    private final double easting, northing;
+    private final Angle LATITUDE, LONGITUDE;
+    private final double EASTING, NORTHING;
     /**
      * Create a set of Transverse Mercator coordinates from a pair of latitude and longitude,
      * for the given <code>Globe</code> and projection parameters.
@@ -50,11 +50,11 @@ public class TMCoord
             a = converter.getA();
             f = converter.getF();
         }
-        long err = converter.setTransverseMercatorParameters(a, f, originLatitude.radians,
-                centralMeridian.radians, falseEasting, falseNorthing, scale);
+        long err = converter.setTransverseMercatorParameters(a, f, originLatitude.RADIANS,
+                centralMeridian.RADIANS, falseEasting, falseNorthing, scale);
         if (err == TMCoordConverter.TRANMERC_NO_ERROR)
         {
-            err = converter.convertGeodeticToTransverseMercator(latitude.radians, longitude.radians);
+            err = converter.convertGeodeticToTransverseMercator(latitude.RADIANS, longitude.RADIANS);
         }
         if (err != TMCoordConverter.TRANMERC_NO_ERROR && err != TMCoordConverter.TRANMERC_LON_WARNING)
         {
@@ -86,10 +86,10 @@ public class TMCoord
         {
             throw new IllegalArgumentException("Angle Is Null");
         }
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.easting = easting;
-        this.northing = northing;
+        this.LATITUDE = latitude;
+        this.LONGITUDE = longitude;
+        this.EASTING = easting;
+        this.NORTHING = northing;
     }
 
     /**
@@ -98,7 +98,7 @@ public class TMCoord
      */
     public Angle getLatitude()
     {
-        return this.latitude;
+        return this.LATITUDE;
     }
 
     /**
@@ -107,7 +107,7 @@ public class TMCoord
      */
     public Angle getLongitude()
     {
-        return this.longitude;
+        return this.LONGITUDE;
     }
 
     /**
@@ -116,7 +116,7 @@ public class TMCoord
      */
     public double getEasting()
     {
-        return this.easting;
+        return this.EASTING;
     }
 
     /**
@@ -125,6 +125,6 @@ public class TMCoord
      */
     public double getNorthing()
     {
-        return this.northing;
+        return this.NORTHING;
     }
 }

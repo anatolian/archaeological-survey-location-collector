@@ -13,10 +13,10 @@ import gov.nasa.worldwind.geom.*;
  */
 public class UTMCoord
 {
-    private final Angle latitude, longitude;
-    private final String hemisphere;
-    private final int zone;
-    private final double easting, northing;
+    private final Angle LATITUDE, LONGITUDE;
+    private final String HEMISPHERE;
+    private final int ZONE;
+    private final double EASTING, NORTHING;
     /**
      * Create a set of UTM coordinates from a pair of latitude and longitude for the given <code>Globe</code>.
      * @param latitude - the latitude <code>Angle</code>.
@@ -32,13 +32,13 @@ public class UTMCoord
             throw new IllegalArgumentException("Latitude Or Longitude Is Null");
         }
         final UTMCoordConverter converter = new UTMCoordConverter();
-        long err = converter.convertGeodeticToUTM(latitude.radians, longitude.radians);
+        long err = converter.convertGeodeticToUTM(latitude.RADIANS, longitude.RADIANS);
         if (err != UTMCoordConverter.UTM_NO_ERROR)
         {
             throw new IllegalArgumentException("UTM Conversion Error");
         }
         return new UTMCoord(latitude, longitude, converter.getZone(), converter.getHemisphere(),
-            converter.getEasting(), converter.getNorthing());
+                converter.getEasting(), converter.getNorthing());
     }
 
     /**
@@ -59,12 +59,12 @@ public class UTMCoord
         {
             throw new IllegalArgumentException("Latitude Or Longitude Is Null");
         }
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.hemisphere = hemisphere;
-        this.zone = zone;
-        this.easting = easting;
-        this.northing = northing;
+        this.LATITUDE = latitude;
+        this.LONGITUDE = longitude;
+        this.HEMISPHERE = hemisphere;
+        this.ZONE = zone;
+        this.EASTING = easting;
+        this.NORTHING = northing;
     }
 
     /**
@@ -73,7 +73,7 @@ public class UTMCoord
      */
     public Angle getLatitude()
     {
-        return this.latitude;
+        return this.LATITUDE;
     }
 
     /**
@@ -82,7 +82,7 @@ public class UTMCoord
      */
     public Angle getLongitude()
     {
-        return this.longitude;
+        return this.LONGITUDE;
     }
 
     /**
@@ -91,7 +91,7 @@ public class UTMCoord
      */
     public int getZone()
     {
-        return this.zone;
+        return this.ZONE;
     }
 
     /**
@@ -100,7 +100,7 @@ public class UTMCoord
      */
     public String getHemisphere()
     {
-        return this.hemisphere;
+        return this.HEMISPHERE;
     }
 
     /**
@@ -109,7 +109,7 @@ public class UTMCoord
      */
     public double getEasting()
     {
-        return this.easting;
+        return this.EASTING;
     }
 
     /**
@@ -118,7 +118,7 @@ public class UTMCoord
      */
     public double getNorthing()
     {
-        return this.northing;
+        return this.NORTHING;
     }
 
     /**
@@ -127,6 +127,6 @@ public class UTMCoord
      */
     public String toString()
     {
-        return zone + " " + (AVKey.NORTH.equals(hemisphere) ? "N" : "S") + " " + easting + "E " + northing + "N";
+        return ZONE + " " + (AVKey.NORTH.equals(HEMISPHERE) ? "N" : "S") + " " + EASTING + "E " + NORTHING + "N";
     }
 }
