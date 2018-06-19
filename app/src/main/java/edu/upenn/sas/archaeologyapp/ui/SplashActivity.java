@@ -2,7 +2,7 @@ package edu.upenn.sas.archaeologyapp.ui;
 import android.os.Handler;
 import android.os.Bundle;
 import edu.upenn.sas.archaeologyapp.R;
-import edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers;
+import edu.upenn.sas.archaeologyapp.util.Constants;
 /**
  * The splash activity
  * @author Created by eanvith on 24/12/16.
@@ -32,7 +32,7 @@ public class SplashActivity extends BaseActivity
                 // The activity to start once the splash activity is complete
                 SplashActivity.super.startActivityUsingIntent(MainActivity.class);
             }
-        }, ConstantsAndHelpers.SPLASH_TIME_OUT);
+        }, Constants.SPLASH_TIME_OUT);
     }
 
     /**

@@ -3,7 +3,7 @@ package edu.upenn.sas.archaeologyapp.util;
  * Class containing any constants and helpers required throughout the app
  * Created by eanvith on 24/12/16.
  */
-public class ConstantsAndHelpers
+public class Constants
 {
     // Time for which the splash activity must pause before proceeding to the main activity
     public static int SPLASH_TIME_OUT = 2000;
@@ -21,13 +21,9 @@ public class ConstantsAndHelpers
     public static final String PARAM_KEY_END_NORTHING = "end_northing", PARAM_KEY_BEGIN_TIME = "begin_time";
     public static final String PARAM_KEY_END_TIME = "end_time", PARAM_KEY_BEGIN_STATUS = "begin_status";
     public static final String PARAM_KEY_END_STATUS = "end_status", PARAM_KEY_BEGIN_AR_RATIO = "begin_AR_ratio";
-    public static final String PARAM_KEY_END_AR_RATIO = "end_AR_ratio";
-    // Default time interval for updating the position
-    public static final int DEFAULT_POSITION_UPDATE_INTERVAL = 2;
-    // Default host and port for an Emlid Reach position output server
-    public static final String DEFAULT_REACH_HOST = "192.168.43.162", DEFAULT_REACH_PORT = "9001";
+    public static final String PARAM_KEY_END_AR_RATIO = "end_AR_ratio", DEFAULT_REACH_HOST = "192.168.43.162";
+    public static final int DEFAULT_POSITION_UPDATE_INTERVAL = 2, DEFAULT_VOLLEY_TIMEOUT = 15000;
+    public static final String DEFAULT_REACH_PORT = "9001";
     private static final String DEFAULT_WEB_SERVER_URL = "https://object-data-collector-service.herokuapp.com";
-    public static final int DEFAULT_VOLLEY_TIMEOUT = 7000;
     public static String globalWebServerURL = DEFAULT_WEB_SERVER_URL;
-
 }

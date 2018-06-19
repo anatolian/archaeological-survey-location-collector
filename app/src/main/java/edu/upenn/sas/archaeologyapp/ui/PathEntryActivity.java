@@ -21,12 +21,12 @@ import edu.upenn.sas.archaeologyapp.R;
 import edu.upenn.sas.archaeologyapp.models.PathElement;
 import edu.upenn.sas.archaeologyapp.services.DatabaseHandler;
 import edu.upenn.sas.archaeologyapp.services.LocationCollector;
-import edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers;
+import edu.upenn.sas.archaeologyapp.util.Constants;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_REACH_HOST;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_REACH_PORT;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_POSITION_UPDATE_INTERVAL;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_REACH_HOST;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_REACH_PORT;
 /**
  * The Activity where the user enters all the data
  * @author Colin Roberts
@@ -237,8 +237,8 @@ public class PathEntryActivity extends BaseActivity
         // Reset the starting and end points
         resetStartPoint();
         resetEndPoint();
-        Long _beginTime = getIntent().getLongExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_TIME, 0);
-        String _teamMember = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_TEAM_MEMBER);
+        Long _beginTime = getIntent().getLongExtra(Constants.PARAM_KEY_BEGIN_TIME, 0);
+        String _teamMember = getIntent().getStringExtra(Constants.PARAM_KEY_TEAM_MEMBER);
         // If null, it means nothing was passed
         if (_beginTime.equals(0L) || _teamMember == null)
         {
@@ -248,11 +248,11 @@ public class PathEntryActivity extends BaseActivity
         startPointSet = true;
         beginTime = _beginTime;
         teamMember = _teamMember;
-        double _beginLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_LATITUDE, Double.MIN_VALUE);
-        double _beginLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_LONGITUDE, Double.MIN_VALUE);
-        double _beginAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_ALTITUDE, Double.MIN_VALUE);
-        String _beginStatus = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_STATUS);
-        double _beginARRatio = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_BEGIN_AR_RATIO, Double.MIN_VALUE);
+        double _beginLatitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_BEGIN_LATITUDE, Double.MIN_VALUE);
+        double _beginLongitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_BEGIN_LONGITUDE, Double.MIN_VALUE);
+        double _beginAltitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_BEGIN_ALTITUDE, Double.MIN_VALUE);
+        String _beginStatus = getIntent().getStringExtra(Constants.PARAM_KEY_BEGIN_STATUS);
+        double _beginARRatio = getIntent().getDoubleExtra(Constants.PARAM_KEY_BEGIN_AR_RATIO, Double.MIN_VALUE);
         setStartPoint(_beginLatitude, _beginLongitude, _beginAltitude, _beginStatus, _beginARRatio);
         // Add delete button below submit button
         View deleteButton = findViewById(R.id.path_entry_delete_button);
@@ -267,16 +267,16 @@ public class PathEntryActivity extends BaseActivity
             }
         }
         // Check to see if the end point has been set before
-        Long _endTime = getIntent().getLongExtra(ConstantsAndHelpers.PARAM_KEY_END_TIME, 0);
+        Long _endTime = getIntent().getLongExtra(Constants.PARAM_KEY_END_TIME, 0);
         if (!_endTime.equals(0L))
         {
             endPointSet = true;
             endTime = _endTime;
-            double _endLatitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LATITUDE, Double.MIN_VALUE);
-            double _endLongitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_LONGITUDE, Double.MIN_VALUE);
-            double _endAltitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_ALTITUDE, Double.MIN_VALUE);
-            String _endStatus = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_END_STATUS);
-            double _endARRatio = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_END_AR_RATIO, Double.MIN_VALUE);
+            double _endLatitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_END_LATITUDE, Double.MIN_VALUE);
+            double _endLongitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_END_LONGITUDE, Double.MIN_VALUE);
+            double _endAltitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_END_ALTITUDE, Double.MIN_VALUE);
+            String _endStatus = getIntent().getStringExtra(Constants.PARAM_KEY_END_STATUS);
+            double _endARRatio = getIntent().getDoubleExtra(Constants.PARAM_KEY_END_AR_RATIO, Double.MIN_VALUE);
             setEndPoint(_endLatitude, _endLongitude, _endAltitude, _endStatus, _endARRatio);
         }
     }

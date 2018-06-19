@@ -40,12 +40,12 @@ import edu.upenn.sas.archaeologyapp.models.PathElement;
 import edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper;
 import edu.upenn.sas.archaeologyapp.models.DataEntryElement;
 import edu.upenn.sas.archaeologyapp.services.DatabaseHandler;
-import edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers;
+import edu.upenn.sas.archaeologyapp.util.Constants;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
 import static edu.upenn.sas.archaeologyapp.R.id.map;
 import static edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.globalWebServerURL;
+import static edu.upenn.sas.archaeologyapp.util.Constants.globalWebServerURL;
 /**
  * This activity shows the user the list of items presently in his bucket
  * @author Created by eanvith on 30/12/16.
@@ -245,22 +245,22 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     // Open the data entry activity with fields pre-populated
                     DataEntryElement dataEntryElement = findsListEntryAdapter.getItem(position);
                     Bundle paramsToPass = new Bundle();
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_ID, dataEntryElement.getID());
-                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_ZONE, dataEntryElement.getZone());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE, dataEntryElement.getHemisphere());
-                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_NORTHING, dataEntryElement.getNorthing());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_PRECISE_NORTHING, dataEntryElement.getPreciseNorthing());
-                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_EASTING, dataEntryElement.getEasting());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_PRECISE_EASTING, dataEntryElement.getPreciseEasting());
-                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_SAMPLE, dataEntryElement.getSample());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LATITUDE, dataEntryElement.getLatitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, dataEntryElement.getAltitude());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_STATUS, dataEntryElement.getStatus());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_AR_RATIO, dataEntryElement.getARRatio());
-                    paramsToPass.putStringArrayList(ConstantsAndHelpers.PARAM_KEY_IMAGES, dataEntryElement.getImagePaths());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_MATERIAL, dataEntryElement.getMaterial());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_COMMENTS, dataEntryElement.getComments());
+                    paramsToPass.putString(Constants.PARAM_KEY_ID, dataEntryElement.getID());
+                    paramsToPass.putInt(Constants.PARAM_KEY_ZONE, dataEntryElement.getZone());
+                    paramsToPass.putString(Constants.PARAM_KEY_HEMISPHERE, dataEntryElement.getHemisphere());
+                    paramsToPass.putInt(Constants.PARAM_KEY_NORTHING, dataEntryElement.getNorthing());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_PRECISE_NORTHING, dataEntryElement.getPreciseNorthing());
+                    paramsToPass.putInt(Constants.PARAM_KEY_EASTING, dataEntryElement.getEasting());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_PRECISE_EASTING, dataEntryElement.getPreciseEasting());
+                    paramsToPass.putInt(Constants.PARAM_KEY_SAMPLE, dataEntryElement.getSample());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_LATITUDE, dataEntryElement.getLatitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_LONGITUDE, dataEntryElement.getLongitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_ALTITUDE, dataEntryElement.getAltitude());
+                    paramsToPass.putString(Constants.PARAM_KEY_STATUS, dataEntryElement.getStatus());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_AR_RATIO, dataEntryElement.getARRatio());
+                    paramsToPass.putStringArrayList(Constants.PARAM_KEY_IMAGES, dataEntryElement.getImagePaths());
+                    paramsToPass.putString(Constants.PARAM_KEY_MATERIAL, dataEntryElement.getMaterial());
+                    paramsToPass.putString(Constants.PARAM_KEY_COMMENTS, dataEntryElement.getComments());
                     startActivityUsingIntent(DataEntryActivity.class, false, paramsToPass);
                 }
                 else if (displayMode == PATHS_MODE)
@@ -268,25 +268,25 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     // Open the paths entry activity with fields pre-populated
                     PathElement pathElement = pathsListEntryAdapter.getItem(position);
                     Bundle paramsToPass = new Bundle();
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_TEAM_MEMBER, pathElement.getTeamMember());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_LATITUDE, pathElement.getBeginLatitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_LONGITUDE, pathElement.getBeginLongitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_ALTITUDE, pathElement.getBeginAltitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_LATITUDE, pathElement.getEndLatitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_LONGITUDE, pathElement.getEndLongitude());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_ALTITUDE, pathElement.getEndAltitude());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE, pathElement.getHemisphere());
-                    paramsToPass.putInt(ConstantsAndHelpers.PARAM_KEY_ZONE, pathElement.getZone());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_EASTING, pathElement.getBeginEasting());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_NORTHING, pathElement.getBeginNorthing());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_EASTING, pathElement.getEndEasting());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_NORTHING, pathElement.getEndNorthing());
-                    paramsToPass.putLong(ConstantsAndHelpers.PARAM_KEY_BEGIN_TIME, pathElement.getBeginTime());
-                    paramsToPass.putLong(ConstantsAndHelpers.PARAM_KEY_END_TIME, pathElement.getEndTime());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_BEGIN_STATUS, pathElement.getBeginStatus());
-                    paramsToPass.putString(ConstantsAndHelpers.PARAM_KEY_END_STATUS, pathElement.getEndStatus());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_BEGIN_AR_RATIO, pathElement.getBeginARRatio());
-                    paramsToPass.putDouble(ConstantsAndHelpers.PARAM_KEY_END_AR_RATIO, pathElement.getEndARRatio());
+                    paramsToPass.putString(Constants.PARAM_KEY_TEAM_MEMBER, pathElement.getTeamMember());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_BEGIN_LATITUDE, pathElement.getBeginLatitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_BEGIN_LONGITUDE, pathElement.getBeginLongitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_BEGIN_ALTITUDE, pathElement.getBeginAltitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_END_LATITUDE, pathElement.getEndLatitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_END_LONGITUDE, pathElement.getEndLongitude());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_END_ALTITUDE, pathElement.getEndAltitude());
+                    paramsToPass.putString(Constants.PARAM_KEY_HEMISPHERE, pathElement.getHemisphere());
+                    paramsToPass.putInt(Constants.PARAM_KEY_ZONE, pathElement.getZone());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_BEGIN_EASTING, pathElement.getBeginEasting());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_BEGIN_NORTHING, pathElement.getBeginNorthing());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_END_EASTING, pathElement.getEndEasting());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_END_NORTHING, pathElement.getEndNorthing());
+                    paramsToPass.putLong(Constants.PARAM_KEY_BEGIN_TIME, pathElement.getBeginTime());
+                    paramsToPass.putLong(Constants.PARAM_KEY_END_TIME, pathElement.getEndTime());
+                    paramsToPass.putString(Constants.PARAM_KEY_BEGIN_STATUS, pathElement.getBeginStatus());
+                    paramsToPass.putString(Constants.PARAM_KEY_END_STATUS, pathElement.getEndStatus());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_BEGIN_AR_RATIO, pathElement.getBeginARRatio());
+                    paramsToPass.putDouble(Constants.PARAM_KEY_END_AR_RATIO, pathElement.getEndARRatio());
                     startActivityUsingIntent(PathEntryActivity.class, false, paramsToPass);
                 }
             }
@@ -538,7 +538,7 @@ public class MainActivity extends BaseActivity implements SwipeRefreshLayout.OnR
                     }
                 });
             }
-        }, 0, ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL * 1000);
+        }, 0, Constants.DEFAULT_POSITION_UPDATE_INTERVAL * 1000);
     }
 
     /**

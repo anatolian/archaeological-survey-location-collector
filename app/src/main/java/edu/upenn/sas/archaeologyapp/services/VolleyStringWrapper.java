@@ -8,7 +8,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_VOLLEY_TIMEOUT;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_VOLLEY_TIMEOUT;
 public class VolleyStringWrapper
 {
     /**

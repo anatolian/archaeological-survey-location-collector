@@ -48,12 +48,12 @@ import edu.upenn.sas.archaeologyapp.services.LocationCollector;
 import edu.upenn.sas.archaeologyapp.R;
 import edu.upenn.sas.archaeologyapp.models.DataEntryElement;
 import edu.upenn.sas.archaeologyapp.services.DatabaseHandler;
-import edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers;
+import edu.upenn.sas.archaeologyapp.util.Constants;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.coords.UTMCoord;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_POSITION_UPDATE_INTERVAL;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_REACH_HOST;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.DEFAULT_REACH_PORT;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_POSITION_UPDATE_INTERVAL;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_REACH_HOST;
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_REACH_PORT;
 /**
  * The Activity where the user enters all the data
  * @author eanvith, Colin Roberts, and Christopher Besser
@@ -331,6 +331,7 @@ public class DataEntryActivity extends BaseActivity
         materialsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         materialsDropdown.setAdapter(materialsAdapter);
+        materialsDropdown.setSelection(1);
         prePopulateFields();
     }
 
@@ -339,7 +340,7 @@ public class DataEntryActivity extends BaseActivity
      */
     private void prePopulateFields()
     {
-        String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
+        String id = getIntent().getStringExtra(Constants.PARAM_KEY_ID);
         // If null, it means nothing was passed
         if (id == null)
         {
@@ -347,13 +348,13 @@ public class DataEntryActivity extends BaseActivity
             return;
         }
         // Populate the UTM position details, if present
-        zone = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_ZONE, Integer.MIN_VALUE);
-        hemisphere = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_HEMISPHERE);
-        northing = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_NORTHING, Integer.MIN_VALUE);
-        preciseNorthing = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_PRECISE_NORTHING, Double.NEGATIVE_INFINITY);
-        easting = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_EASTING, Integer.MIN_VALUE);
-        preciseEasting = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_PRECISE_EASTING, Double.NEGATIVE_INFINITY);
-        sample = getIntent().getIntExtra(ConstantsAndHelpers.PARAM_KEY_SAMPLE, Integer.MIN_VALUE);
+        zone = getIntent().getIntExtra(Constants.PARAM_KEY_ZONE, Integer.MIN_VALUE);
+        hemisphere = getIntent().getStringExtra(Constants.PARAM_KEY_HEMISPHERE);
+        northing = getIntent().getIntExtra(Constants.PARAM_KEY_NORTHING, Integer.MIN_VALUE);
+        preciseNorthing = getIntent().getDoubleExtra(Constants.PARAM_KEY_PRECISE_NORTHING, Double.NEGATIVE_INFINITY);
+        easting = getIntent().getIntExtra(Constants.PARAM_KEY_EASTING, Integer.MIN_VALUE);
+        preciseEasting = getIntent().getDoubleExtra(Constants.PARAM_KEY_PRECISE_EASTING, Double.NEGATIVE_INFINITY);
+        sample = getIntent().getIntExtra(Constants.PARAM_KEY_SAMPLE, Integer.MIN_VALUE);
         if (zone != Integer.MIN_VALUE && hemisphere != null && northing != Integer.MIN_VALUE
                 && easting != Integer.MIN_VALUE && sample != Integer.MIN_VALUE)
         {
@@ -367,11 +368,11 @@ public class DataEntryActivity extends BaseActivity
             resetUTMLocation();
         }
         // Populate the latitude, longitude and altitude, if present
-        double _latitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LATITUDE, Double.MIN_VALUE);
-        double _longitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_LONGITUDE, Double.MIN_VALUE);
-        double _altitude = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_ALTITUDE, Double.MIN_VALUE);
-        String _status = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_STATUS);
-        double _ARRatio = getIntent().getDoubleExtra(ConstantsAndHelpers.PARAM_KEY_AR_RATIO, Double.MIN_VALUE);
+        double _latitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_LATITUDE, Double.MIN_VALUE);
+        double _longitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_LONGITUDE, Double.MIN_VALUE);
+        double _altitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_ALTITUDE, Double.MIN_VALUE);
+        String _status = getIntent().getStringExtra(Constants.PARAM_KEY_STATUS);
+        double _ARRatio = getIntent().getDoubleExtra(Constants.PARAM_KEY_AR_RATIO, Double.MIN_VALUE);
         if (!(_latitude == Double.MIN_VALUE || _longitude == Double.MIN_VALUE || _altitude == Double.MIN_VALUE || _status == null))
         {
             setLocationDetails(_latitude, _longitude, _altitude, _status, _ARRatio);
@@ -381,14 +382,14 @@ public class DataEntryActivity extends BaseActivity
         ToggleButton updateGpsButton = findViewById(R.id.data_entry_update_gps);
         updateGpsButton.setChecked(false);
         // Populate the image, if present
-        ArrayList<String> _paths = getIntent().getStringArrayListExtra(ConstantsAndHelpers.PARAM_KEY_IMAGES);
+        ArrayList<String> _paths = getIntent().getStringArrayListExtra(Constants.PARAM_KEY_IMAGES);
         if (!_paths.isEmpty())
         {
             photoPaths = _paths;
             populateImagesWithPhotoPaths();
         }
         // Populate the material, if present
-        String _material = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_MATERIAL);
+        String _material = getIntent().getStringExtra(Constants.PARAM_KEY_MATERIAL);
         if (_material != null)
         {
             // Search the dropdown for a matching material, and set to that if found
@@ -401,7 +402,7 @@ public class DataEntryActivity extends BaseActivity
             }
         }
         // Populate the comments, if present
-        String _comments = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_COMMENTS);
+        String _comments = getIntent().getStringExtra(Constants.PARAM_KEY_COMMENTS);
         if (_comments != null)
         {
             commentsEditText.setText(_comments);
@@ -889,7 +890,7 @@ public class DataEntryActivity extends BaseActivity
     private DataEntryElement getElement()
     {
         // Get uuid from intent extras if this activity was opened for existing bucket entry
-        String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
+        String id = getIntent().getStringExtra(Constants.PARAM_KEY_ID);
         // If this is a new entry, check and generate a new uuid
         if (id == null)
         {

@@ -20,7 +20,7 @@ import edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper;
 import edu.upenn.sas.archaeologyapp.models.DataEntryElement;
 import edu.upenn.sas.archaeologyapp.services.DatabaseHandler;
 import static edu.upenn.sas.archaeologyapp.services.VolleyStringWrapper.makeVolleyStringObjectRequest;
-import static edu.upenn.sas.archaeologyapp.util.ConstantsAndHelpers.globalWebServerURL;
+import static edu.upenn.sas.archaeologyapp.util.Constants.globalWebServerURL;
 /**
  * This activity is responsible for uploading all the records from the local database onto a server.
  * @author eanvith, Colin Roberts, Christopher Besser.
