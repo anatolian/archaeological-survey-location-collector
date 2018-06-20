@@ -368,44 +368,45 @@ public class DataEntryActivity extends BaseActivity
             resetUTMLocation();
         }
         // Populate the latitude, longitude and altitude, if present
-        double _latitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_LATITUDE, Double.MIN_VALUE);
-        double _longitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_LONGITUDE, Double.MIN_VALUE);
-        double _altitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_ALTITUDE, Double.MIN_VALUE);
-        String _status = getIntent().getStringExtra(Constants.PARAM_KEY_STATUS);
-        double _ARRatio = getIntent().getDoubleExtra(Constants.PARAM_KEY_AR_RATIO, Double.MIN_VALUE);
-        if (!(_latitude == Double.MIN_VALUE || _longitude == Double.MIN_VALUE || _altitude == Double.MIN_VALUE || _status == null))
+        double passedLatitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_LATITUDE, Double.MIN_VALUE);
+        double passedLongitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_LONGITUDE, Double.MIN_VALUE);
+        double passedAltitude = getIntent().getDoubleExtra(Constants.PARAM_KEY_ALTITUDE, Double.MIN_VALUE);
+        String passedStatus = getIntent().getStringExtra(Constants.PARAM_KEY_STATUS);
+        double passedARRatio = getIntent().getDoubleExtra(Constants.PARAM_KEY_AR_RATIO, Double.MIN_VALUE);
+        if (!(passedLatitude == Double.MIN_VALUE || passedLongitude == Double.MIN_VALUE
+                || passedAltitude == Double.MIN_VALUE || passedStatus == null))
         {
-            setLocationDetails(_latitude, _longitude, _altitude, _status, _ARRatio);
+            setLocationDetails(passedLatitude, passedLongitude, passedAltitude, passedStatus, passedARRatio);
         }
         // Pause the coordinate fetches
         liveUpdatePosition = false;
-        ToggleButton updateGpsButton = findViewById(R.id.data_entry_update_gps);
-        updateGpsButton.setChecked(false);
+        ToggleButton updateGPSButton = findViewById(R.id.data_entry_update_gps);
+        updateGPSButton.setChecked(false);
         // Populate the image, if present
-        ArrayList<String> _paths = getIntent().getStringArrayListExtra(Constants.PARAM_KEY_IMAGES);
-        if (!_paths.isEmpty())
+        ArrayList<String> passedPaths = getIntent().getStringArrayListExtra(Constants.PARAM_KEY_IMAGES);
+        if (!passedPaths.isEmpty())
         {
-            photoPaths = _paths;
+            photoPaths = passedPaths;
             populateImagesWithPhotoPaths();
         }
         // Populate the material, if present
-        String _material = getIntent().getStringExtra(Constants.PARAM_KEY_MATERIAL);
-        if (_material != null)
+        String passedMaterial = getIntent().getStringExtra(Constants.PARAM_KEY_MATERIAL);
+        if (passedMaterial != null)
         {
             // Search the dropdown for a matching material, and set to that if found
             for (int i = 0; i < materialsDropdown.getCount(); i++)
             {
-                if (materialsDropdown.getItemAtPosition(i).toString().equalsIgnoreCase(_material))
+                if (materialsDropdown.getItemAtPosition(i).toString().equalsIgnoreCase(passedMaterial))
                 {
                     materialsDropdown.setSelection(i);
                 }
             }
         }
         // Populate the comments, if present
-        String _comments = getIntent().getStringExtra(Constants.PARAM_KEY_COMMENTS);
-        if (_comments != null)
+        String passedComments = getIntent().getStringExtra(Constants.PARAM_KEY_COMMENTS);
+        if (passedComments != null)
         {
-            commentsEditText.setText(_comments);
+            commentsEditText.setText(passedComments);
         }
         // Add delete button below submit button, change submit button text
         View deleteButton = findViewById(R.id.data_entry_delete_button);
@@ -487,8 +488,8 @@ public class DataEntryActivity extends BaseActivity
         // Populate the appropriate photos
         for (int i = 0; i < photoPaths.size(); i++)
         {
-            final ImageView image = new ImageView(this);
-            final String img = photoPaths.get(i);
+            ImageView image = new ImageView(this);
+            String img = photoPaths.get(i);
             image.setLayoutParams(new GridView.LayoutParams(185, 185));
             image.setScaleType(ImageView.ScaleType.CENTER_CROP);
             image.setPadding(5, 5, 5, 5);
@@ -506,7 +507,7 @@ public class DataEntryActivity extends BaseActivity
             bmOptions.inSampleSize = scaleFactor;
             bmOptions.inPurgeable = true;
             image.setImageBitmap(BitmapFactory.decodeFile(img, bmOptions));
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Do you want to delete this picture?").setCancelable(true)
                     .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                 /**
@@ -532,7 +533,7 @@ public class DataEntryActivity extends BaseActivity
                     dialog.cancel();
                 }
             });
-            final AlertDialog alert = builder.create();
+            AlertDialog alert = builder.create();
             image.setOnLongClickListener(new View.OnLongClickListener() {
                 /**
                  * User held press on image
@@ -621,20 +622,21 @@ public class DataEntryActivity extends BaseActivity
 
     /**
      * Set the required variables and text views once we get location from previous activity
-     * @param _latitude The latitude to be set
-     * @param _longitude The longitude to be set
-     * @param _altitude The altitude to be set
-     * @param _status - item status
-     * @param _ARRatio - AR ratio
+     * @param passedLatitude - The latitude to be set
+     * @param passedLongitude - The longitude to be set
+     * @param passedAltitude The altitude to be set
+     * @param passedStatus - item status
+     * @param passedARRatio - AR ratio
      */
-    private void setLocationDetails(double _latitude, double _longitude, double _altitude, String _status, Double _ARRatio)
+    private void setLocationDetails(double passedLatitude, double passedLongitude, double passedAltitude,
+                                    String passedStatus, Double passedARRatio)
     {
         // Get the latitude, longitude, altitude, and save it in the respective variables
-        longitude = _longitude;
-        latitude = _latitude;
-        altitude = _altitude;
-        status = _status;
-        ARRatio = _ARRatio;
+        longitude = passedLongitude;
+        latitude = passedLatitude;
+        altitude = passedAltitude;
+        status = passedStatus;
+        ARRatio = passedARRatio;
         // Update the text views
         latitudeTextView.setText(String.format(getResources().getString(R.string.latitude), latitude));
         longitudeTextView.setText(String.format(getResources().getString(R.string.longitude), longitude));
@@ -716,9 +718,9 @@ public class DataEntryActivity extends BaseActivity
                 AlertDialog.Builder dialog = new AlertDialog.Builder(this);
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.connection_settings_dialog, null);
-                final EditText reachHostTextView = layout.findViewById(R.id.reach_host);
-                final EditText reachPortTextView = layout.findViewById(R.id.reach_port);
-                final EditText positionUpdateIntervalTextView = layout.findViewById(R.id.position_update_interval);
+                EditText reachHostTextView = layout.findViewById(R.id.reach_host);
+                EditText reachPortTextView = layout.findViewById(R.id.reach_port);
+                EditText positionUpdateIntervalTextView = layout.findViewById(R.id.position_update_interval);
                 dialog.setTitle(getString(R.string.connection_settings));
                 SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
                 String reachHost = settings.getString("reachHost", DEFAULT_REACH_HOST);
@@ -779,6 +781,22 @@ public class DataEntryActivity extends BaseActivity
      */
     public void submitButtonPressed(View v)
     {
+        // We only save changes if location info and image are present. Check if location info is set
+        if (zone == null || hemisphere == null || northing == null || preciseNorthing == null ||
+                sample == null || easting == null || preciseEasting == null || latitude == null || longitude == null)
+        {
+            Toast.makeText(DataEntryActivity.this, "You did not establish a fixed location. Please try again.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        // Check if at least one image is set
+        else if (photoPaths.isEmpty())
+        {
+
+            Toast.makeText(DataEntryActivity.this, "You need to include pictures to add a new item.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
         saveData();
         deleteImages = false;
         onBackPressed();
@@ -847,7 +865,7 @@ public class DataEntryActivity extends BaseActivity
         SharedPreferences settings = getSharedPreferences(PREFERENCES, 0);
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        final EditText sampleBox = new EditText(this);
+        EditText sampleBox = new EditText(this);
         sampleBox.setHint("Sample");
         sampleBox.setSingleLine();
         layout.addView(sampleBox);
@@ -909,26 +927,6 @@ public class DataEntryActivity extends BaseActivity
      */
     private void saveData()
     {
-        // We only save changes if location info and image are present. Check if location info is set
-        if (zone == null || hemisphere == null || northing == null || preciseNorthing == null ||
-                sample == null || easting == null || preciseEasting == null || latitude == null || longitude == null)
-        {
-            Toast.makeText(DataEntryActivity.this, "You did not establish a fixed location. Please try again.",
-                    Toast.LENGTH_LONG).show();
-            for (String path: photoPaths)
-            {
-                new File(path).delete();
-            }
-            return;
-        }
-        // Check if at least one image is set
-        if (photoPaths.isEmpty())
-        {
-
-            Toast.makeText(DataEntryActivity.this, "You need to include pictures to add a new item.",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
         DataEntryElement list[] = new DataEntryElement[1];
         list[0] = getElement();
         // Save the dataEntryElement to DB
