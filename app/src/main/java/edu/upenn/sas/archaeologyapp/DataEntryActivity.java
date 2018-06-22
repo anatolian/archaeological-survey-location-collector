@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -60,16 +58,6 @@ import static edu.upenn.sas.archaeologyapp.ConstantsAndHelpers.DEFAULT_REACH_POR
 public class DataEntryActivity extends BaseActivity {
 
     /**
-     * Location manager for accessing the users location
-     */
-    private LocationManager locationManager;
-
-    /**
-     * Listener with callbacks to get the users location
-     */
-    private LocationListener locationListener;
-
-    /**
      * A boolean acting as a toggle for whether or not the app should update
      */
     private boolean liveUpdatePosition = true;
@@ -115,11 +103,6 @@ public class DataEntryActivity extends BaseActivity {
     private TextView GPSConnectionTextView, reachConnectionTextView;
 
     /**
-     * The image view for displaying the image captured/selected by the user
-     */
-    private ImageView imageView;
-
-    /**
      * The linear layout for displaying the images captured/selected by the user
      */
     private GridLayout imageContainer;
@@ -151,6 +134,7 @@ public class DataEntryActivity extends BaseActivity {
     private Integer sample;
     private Uri photoURI = null;
     private LocationCollector locationCollector;
+    private long timestamp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,7 +237,6 @@ public class DataEntryActivity extends BaseActivity {
                 } else {
                     // Ensure we only update the sample #, UTM position if the user pressed the button (otherwise this would happen on activity load)
                     if (buttonView.isPressed()) {
-                        Log.v("ERROR", "ERROR");
                         setUTMLocation();
                     }
                 }
@@ -784,6 +767,9 @@ public class DataEntryActivity extends BaseActivity {
 
     private void setUTMLocation() {
         if (latitude != null && longitude != null) {
+
+            timestamp = (new Date()).getTime();
+
             DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
 
             Angle lat = Angle.fromDegrees(latitude);
@@ -1068,7 +1054,6 @@ public class DataEntryActivity extends BaseActivity {
 
         // Get uuid from intent extras if this activity was opened for existing bucket entry
         String id = getIntent().getStringExtra(ConstantsAndHelpers.PARAM_KEY_ID);
-        Long createdTimestamp;
 
         // If this is a new entry, check and generate a new uuid
         if (id == null) {
@@ -1080,7 +1065,7 @@ public class DataEntryActivity extends BaseActivity {
         String material = materialsDropdown.getSelectedItem().toString();
         String comment = commentsEditText.getText().toString();
 
-        return new DataEntryElement(id, latitude, longitude, altitude, status, ARRatio, photoPaths, material, comment, (new Date()).getTime(), (new Date()).getTime(), zone, hemisphere, northing, easting, sample, false);
+        return new DataEntryElement(id, latitude, longitude, altitude, status, ARRatio, photoPaths, material, comment, timestamp, timestamp, zone, hemisphere, northing, easting, sample, false);
 
     }
 
@@ -1115,25 +1100,5 @@ public class DataEntryActivity extends BaseActivity {
         dataBaseHandler.addFindsRows(list);
 
     }
-
-    /**
-     * This method creates a tag with which we will name photos (plus a unique ID appended to the end)
-     * based on the bucket's coordinates
-     * @param latitude the latitude of the entry in this bucket
-     * @param longitude the longitude of the entry in this bucket
-     */
-    /*
-    private String createImageTag(Double latitude, Double longitude) {
-
-        // Create ~meter level precise coordinates (so each entry has format bucket.uniqueID)
-        // Reducing lat and long to 5 decimal places creates ~1.1132 meter blocks for each bucket at the equator, which gets smaller the further from the equator you go
-        Double bucketLat = BigDecimal.valueOf(latitude).setScale(5, RoundingMode.HALF_UP).doubleValue();
-        Double bucketLon = BigDecimal.valueOf(longitude).setScale(5, RoundingMode.HALF_UP).doubleValue();
-
-        DataBaseHandler dataBaseHandler = new DataBaseHandler(this);
-
-        return;
-    }
-    */
 
 }

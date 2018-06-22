@@ -260,6 +260,7 @@ public class SyncActivity extends AppCompatActivity {
         } else {
 
             Toast.makeText(SyncActivity.this, "Done syncing finds", Toast.LENGTH_SHORT).show();
+            
         }
     }
 
