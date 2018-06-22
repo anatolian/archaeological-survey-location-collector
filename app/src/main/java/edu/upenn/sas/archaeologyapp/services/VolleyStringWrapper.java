@@ -1,19 +1,14 @@
 // String response
 // @author: msenol
 package edu.upenn.sas.archaeologyapp.services;
-
 import com.android.volley.RequestQueue;
-
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import edu.upenn.sas.archaeologyapp.models.StringObjectResponseWrapper;
-
-import static edu.upenn.sas.archaeologyapp.util.StateStatic.DEFAULT_VOLLEY_TIMEOUT;
-
+import static edu.upenn.sas.archaeologyapp.util.Constants.DEFAULT_VOLLEY_TIMEOUT;
 public class VolleyStringWrapper
 {
     /**

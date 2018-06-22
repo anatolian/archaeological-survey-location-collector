@@ -5,15 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="edu.upenn.sas.archaeologyapp.PathEntryActivity"
+    tools:context="edu.upenn.sas.archaeologyapp.ui.PathEntryActivity"
     tools:showIn="@layout/activity_path_entry">
-
     <LinearLayout
         android:layout_margin="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,7 +19,6 @@
             android:padding="15dp"
             android:layout_marginTop="15dp"
             android:background="@color/colorTintedBackground">
-
             <TextView
                 android:id="@+id/GPSConnection"
                 android:layout_width="0dp"
@@ -32,7 +29,6 @@
                 android:maxLines="1"
                 android:text="@string/GPSConnection"
                 android:textStyle="bold" />
-
             <TextView
                 android:id="@+id/reachConnection"
                 android:layout_width="0dp"
@@ -43,9 +39,7 @@
                 android:maxLines="1"
                 android:text="@string/reachConnection"
                 android:textStyle="bold" />
-
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,17 +47,15 @@
             android:layout_marginTop="15dp"
             android:orientation="vertical"
             android:background="@color/colorTintedBackground">
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Start Point"
+                    android:text="@string/start_point"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -73,22 +65,18 @@
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="End Point"
+                    android:text="@string/end_point"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
             </LinearLayout>
-
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginGrid"
                     android:layout_width="0dp"
@@ -99,7 +87,6 @@
                     android:maxLines="1"
                     android:text="@string/grid"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endGrid"
                     android:layout_width="0dp"
@@ -110,15 +97,12 @@
                     android:maxLines="1"
                     android:text="@string/grid"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginEasting"
                     android:layout_width="0dp"
@@ -129,7 +113,6 @@
                     android:maxLines="1"
                     android:text="@string/easting"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endEasting"
                     android:layout_width="0dp"
@@ -140,15 +123,12 @@
                     android:maxLines="1"
                     android:text="@string/easting"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginNorthing"
                     android:layout_width="0dp"
@@ -159,7 +139,6 @@
                     android:maxLines="1"
                     android:text="@string/northing"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endNorthing"
                     android:layout_width="0dp"
@@ -170,15 +149,12 @@
                     android:maxLines="1"
                     android:text="@string/northing"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginLatitude"
                     android:layout_width="0dp"
@@ -189,7 +165,6 @@
                     android:maxLines="1"
                     android:text="@string/latitude"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endLatitude"
                     android:layout_width="0dp"
@@ -200,15 +175,12 @@
                     android:maxLines="1"
                     android:text="@string/latitude"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginLongitude"
                     android:layout_width="0dp"
@@ -219,7 +191,6 @@
                     android:maxLines="1"
                     android:text="@string/longitude"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endLongitude"
                     android:layout_width="0dp"
@@ -230,15 +201,12 @@
                     android:maxLines="1"
                     android:text="@string/longitude"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginAltitude"
                     android:layout_width="0dp"
@@ -249,7 +217,6 @@
                     android:maxLines="1"
                     android:text="@string/altitude"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endAltitude"
                     android:layout_width="0dp"
@@ -260,15 +227,12 @@
                     android:maxLines="1"
                     android:text="@string/altitude"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginStatus"
                     android:layout_width="0dp"
@@ -279,7 +243,6 @@
                     android:maxLines="1"
                     android:text="@string/status"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endStatus"
                     android:layout_width="0dp"
@@ -290,15 +253,12 @@
                     android:maxLines="1"
                     android:text="@string/status"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:padding="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <TextView
                     android:id="@+id/beginTime"
                     android:layout_width="0dp"
@@ -309,7 +269,6 @@
                     android:maxLines="1"
                     android:text="@string/timestamp"
                     android:textStyle="bold" />
-
                 <TextView
                     android:id="@+id/endTime"
                     android:layout_width="0dp"
@@ -320,36 +279,28 @@
                     android:maxLines="1"
                     android:text="@string/timestamp"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
         </LinearLayout>
-
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="15dp"
             android:layout_marginTop="15dp"
             android:background="@color/colorTintedBackground">
-
             <TextView
                 android:ellipsize="end"
                 android:textStyle="bold"
-                android:text="Whose path is this?"
-                android:layout_weight="1"
+                android:text="@string/whose_path"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:maxLines="1" />
-
             <Spinner
                 android:id="@+id/path_entry_team_members_drop_down"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"/>
-
         </RelativeLayout>
-
         <Button
             android:id="@+id/path_entry_submit_button"
             android:layout_width="match_parent"
@@ -360,7 +311,6 @@
             android:onClick="submitButtonPressed"
             android:text="@string/start_path_button"
             android:textColor="@color/dataEntryButtonTextColor" />
-
         <Button
             android:id="@+id/path_entry_delete_button"
             android:layout_width="match_parent"
@@ -372,11 +322,8 @@
             android:visibility="gone"
             android:text="@string/delete_path_button"
             android:textColor="@color/dataEntryButtonTextColor" />
-
         <Space
             android:layout_width="match_parent"
             android:layout_height="50dp" />
-
     </LinearLayout>
-
 </android.support.v4.widget.NestedScrollView>

@@ -5,16 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="edu.upenn.sas.archaeologyapp.DataEntryActivity"
+    tools:context="edu.upenn.sas.archaeologyapp.ui.DataEntryActivity"
     tools:showIn="@layout/activity_data_entry">
-
     <LinearLayout
         android:layout_margin="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
-
+        android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,63 +19,55 @@
             android:padding="15dp"
             android:layout_marginTop="0dp"
             android:background="@color/colorTintedBackground">
-
             <LinearLayout
                 android:padding="0dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center">
-
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Grid"
+                    android:text="@string/grid_2"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Easting"
+                    android:text="@string/easting_2"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Northing"
+                    android:text="@string/northing_2"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
                 <TextView
                     android:ellipsize="end"
                     android:textStyle="bold"
-                    android:text="Sample"
+                    android:text="@string/sample"
                     android:layout_weight="1"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:paddingBottom="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_weight="0.97">
-
                 <TextView
                     android:ellipsize="end"
                     android:layout_weight="1"
@@ -88,7 +77,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
                 <TextView
                     android:ellipsize="end"
                     android:layout_weight="1"
@@ -98,7 +86,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
                 <TextView
                     android:ellipsize="end"
                     android:layout_weight="1"
@@ -108,7 +95,6 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
                 <TextView
                     android:ellipsize="end"
                     android:layout_weight="1"
@@ -118,11 +104,8 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:maxLines="1" />
-
             </LinearLayout>
-
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -130,13 +113,11 @@
             android:background="@color/colorTintedBackground"
             android:orientation="vertical"
             android:padding="15dp">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="5dp">
-
                 <TextView
                     android:id="@+id/data_entry_lat_text"
                     android:layout_width="0dp"
@@ -145,7 +126,6 @@
                     android:ellipsize="end"
                     android:gravity="center_vertical"
                     android:maxLines="1" />
-
                 <ToggleButton
                     android:id="@+id/data_entry_update_gps"
                     android:layout_width="0dp"
@@ -155,17 +135,14 @@
                     android:contentDescription="@string/get_the_gps_location"
                     android:showText="true"
                     android:textColor="#ffffff"
-                    android:textOff="Fixed"
-                    android:textOn="Updating" />
-
+                    android:textOff="@string/fixed"
+                    android:textOn="@string/updating" />
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="5dp">
-
                 <TextView
                     android:id="@+id/data_entry_lng_text"
                     android:layout_width="0dp"
@@ -174,7 +151,6 @@
                     android:ellipsize="end"
                     android:gravity="center_vertical"
                     android:maxLines="1" />
-
                 <ImageButton
                     android:id="@+id/data_entry_show_map"
                     android:layout_width="0dp"
@@ -183,15 +159,12 @@
                     android:background="@color/dataEntryButtonBackgroundColor"
                     android:contentDescription="@string/data_entry_show_map_button_description"
                     android:src="@android:drawable/ic_dialog_map" />
-
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="5dp">
-
                 <TextView
                     android:id="@+id/data_entry_alt_text"
                     android:layout_width="0dp"
@@ -199,8 +172,7 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:gravity="center_vertical"
-                    android:maxLines="1" />
-
+                    android:maxLines="1"/>
                 <TextView
                     android:id="@+id/GPSConnection"
                     android:layout_width="0dp"
@@ -210,16 +182,13 @@
                     android:gravity="center_vertical"
                     android:maxLines="1"
                     android:text="@string/GPSConnection"
-                    android:textStyle="bold" />
-
+                    android:textStyle="bold"/>
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="5dp">
-
                 <TextView
                     android:id="@+id/data_entry_status_text"
                     android:layout_width="0dp"
@@ -228,7 +197,6 @@
                     android:ellipsize="end"
                     android:gravity="center_vertical"
                     android:maxLines="1" />
-
                 <TextView
                     android:id="@+id/reachConnection"
                     android:layout_width="0dp"
@@ -239,11 +207,8 @@
                     android:maxLines="1"
                     android:text="@string/reachConnection"
                     android:textStyle="bold" />
-
             </LinearLayout>
-
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -251,13 +216,11 @@
             android:padding="15dp"
             android:layout_marginTop="15dp"
             android:background="@color/colorTintedBackground">
-
             <LinearLayout
                 android:layout_margin="0dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
                 <Button
                     android:id="@+id/data_entry_open_camera"
                     android:background="@color/dataEntryButtonBackgroundColor"
@@ -267,7 +230,6 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/camera_button" />
-
                 <Button
                     android:id="@+id/data_entry_open_gallery"
                     android:background="@color/dataEntryButtonBackgroundColor"
@@ -277,9 +239,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/gallery_button" />
-
             </LinearLayout>
-
             <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/data_entry_image_container"
                 android:layout_width="match_parent"
@@ -291,12 +251,8 @@
                 android:horizontalSpacing="10dp"
                 android:stretchMode="columnWidth"
                 android:gravity="center">
-
-                </GridLayout>
-
-
+            </GridLayout>
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -304,37 +260,32 @@
             android:padding="15dp"
             android:layout_marginTop="15dp"
             android:background="@color/colorTintedBackground">
-
             <TextView
                 android:ellipsize="end"
                 android:textStyle="bold"
-                android:text="Please select a material"
+                android:text="@string/select_material"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:maxLines="1" />
-
             <Spinner
                 android:id="@+id/data_entry_materials_drop_down"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"/>
-
             <EditText
                 android:id="@+id/data_entry_comment_text_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/comments_text_input_hint"
-                android:layout_margin="16dp"/>
-
+                android:layout_margin="16dp"
+                android:inputType="text"/>
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
             <Button
                 android:id="@+id/data_entry_submit_button"
                 android:background="@color/dataEntryButtonBackgroundColor"
@@ -345,7 +296,6 @@
                 android:layout_height="wrap_content"
                 android:onClick="submitButtonPressed"
                 android:text="@string/submit_button" />
-
             <Button
                 android:id="@+id/data_entry_delete_button"
                 android:layout_width="match_parent"
@@ -357,13 +307,9 @@
                 android:visibility="gone"
                 android:text="@string/delete_button"
                 android:textColor="@color/dataEntryButtonTextColor" />
-
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="50dp" />
-
         </LinearLayout>
-
     </LinearLayout>
-
 </android.support.v4.widget.NestedScrollView>
