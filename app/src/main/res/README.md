@@ -3,7 +3,7 @@
 This document provides a brief overview of the resources folder. This folder contains:
 
 - Images
-- Stlyes
+- Styles
 - Colors
 - Strings
 - Layouts
@@ -37,12 +37,24 @@ The XML layouts for all the screens are contained here.
 - Splash screen
   - activity_splash.xml
   
-- Records list screen
+- Finds and Paths list screen
   - activity_main.xml - The template for the screen. Defines the toolbar and the two floating action buttons for settings and new.
   - content_main.xml - The content that appears in the screen, which in this case is a list
-    - bucket_list_entry.xml - The layout of each element that appears in the list
-    
-- Data entry screen
-  - activity_data_entry.xml - The template for the screen containing the toolbar, and placeholder for content
-  - content_data_entry.xml - A scrollable layout with fields to take input from the user
+  - bucket_list_entry.xml - The layout of each find that appears in the list
+  - paths_list_entry.xml - The layout of each path that appears in the list
+
+- Paths list screen
+  - activity_
+
+- Find entry screen
+  - activity_data_entry.xml - The template for the screen containing the toolbar and placeholder for content
+  - content_data_entry.xml - A scrollable layout with fields to take find input from the user
+  - connection_settings_dialog.xml - Window containing field for configuring the Reach connection settings
   
+- Path entry screen
+  - activity_path_entry.xml - The template for the screen containing the toolbar and placeholder for content
+  - content_data_entry.xml - A layout with fields to take path input from the user
+  - connection_settings_dialog.xml
+  
+- Sync screen
+  - activity_sync.xml - The template for the sync screen
