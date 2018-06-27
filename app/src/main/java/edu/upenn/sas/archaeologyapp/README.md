@@ -1,19 +1,11 @@
 # Code Overview
 
-This folder contains all the Java code for the application. Below is a brief overview of what each class does:
+This folder contains all the Java code for the application. Java source files are divided into four packages according to their functions in the app. Below are links to their respective directories (with readmes) as well as descriptions of each package:
 
-- BaseActivity.java: This is a base class for all activities, and consists of functionality commonly used within other activity classes.
+models - This package contains files pertaining to how data is represented [/models](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/java/edu/upenn/sas/archaeologyapp/models/)
 
-- ConstantsAndHelpers.java: Any constants and helpful functions that are required within other classes are defined here.
+services - This package contains files pertaining to communications to remote sources [/sources](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/java/edu/upenn/sas/archaeologyapp/sources/)
 
-- SplashActivity.java: This is the starting point of the application. It waits for a delay (specified in ConstantsAndHelpers.java) and starts the records list activity.
+ui - This package contains files pertaining to the user interface, namely activities and dialog screens [/ui](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/java/edu/upenn/sas/archaeologyapp/ui/)
 
-- MainActivity.java: Populates a list of current records from the DB. Also has a 'new' and 'settings' button.  This is the existing records list screen.
-
-- BucketListEntryAdapter.java: Defines how each element in the records list needs to be shown.
-
-- DataBaseHandler.java: Contains helper functions for adding, editing and deleting elements from the table of record elements.
-
-- DataEntryElement.java: The model class for a record entry.
-
-- DataEntryActivity.java: All user input for creating/updating a record is handled here, including using the GNSS and Camera.  This is the class that contains most of the logic about what this app does.
+util - This package contains miscellaneous helper files [/util](https://github.com/anatolian/archaeological-survey-location-collector/blob/master/app/src/main/java/edu/upenn/sas/archaeologyapp/util/)
